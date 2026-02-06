@@ -1,0 +1,535 @@
+/*
+ * AI Use Case & Prompt Library - Design System
+ *
+ * A dark, techy, sci-fi inspired design system built around
+ * void backgrounds, cyan accents, and glass surfaces.
+ * Inspired by nexus-ui component aesthetics.
+ */
+
+/* Google Fonts: Orbitron (display), JetBrains Mono (code), Exo 2 (body) */
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&family=Orbitron:wght@400;500;600;700;800;900&display=swap');
+
+
+/* ============================================
+   COLOR TOKENS
+   ============================================ */
+
+:root {
+  /* --- Void / Dark Backgrounds --- */
+  --nx-void-pure:     #000000;
+  --nx-void-deep:     #030508;
+  --nx-void-base:     #0a0e14;
+  --nx-void-panel:    #0d1117;
+  --nx-void-elevated: #161b22;
+  --nx-void-surface:  #1c2128;
+
+  /* --- Glass / Translucent Surfaces --- */
+  --nx-glass-heavy:   rgba(13, 17, 23, 0.85);
+  --nx-glass-medium:  rgba(22, 27, 34, 0.75);
+  --nx-glass-light:   rgba(28, 33, 40, 0.65);
+  --nx-glass-subtle:  rgba(48, 54, 61, 0.45);
+
+  /* --- Primary Accent: Cyan --- */
+  --nx-cyan-dim:    #0d4f5c;
+  --nx-cyan-base:   #00d4ff;
+  --nx-cyan-bright: #4df0ff;
+  --nx-cyan-glow:   rgba(0, 212, 255, 0.6);
+  --nx-cyan-aura:   rgba(0, 212, 255, 0.15);
+
+  /* --- Secondary: Blue --- */
+  --nx-blue-dim:    #1a3a5c;
+  --nx-blue-base:   #3b82f6;
+  --nx-blue-bright: #60a5fa;
+  --nx-blue-glow:   rgba(59, 130, 246, 0.6);
+  --nx-blue-aura:   rgba(59, 130, 246, 0.15);
+
+  /* --- Violet --- */
+  --nx-violet-dim:    #3b1a5c;
+  --nx-violet-base:   #a855f7;
+  --nx-violet-bright: #c084fc;
+  --nx-violet-glow:   rgba(168, 85, 247, 0.6);
+  --nx-violet-aura:   rgba(168, 85, 247, 0.15);
+
+  /* --- Success: Green --- */
+  --nx-green-dim:    #0d4a2a;
+  --nx-green-base:   #00ff88;
+  --nx-green-bright: #4dffaa;
+  --nx-green-glow:   rgba(0, 255, 136, 0.6);
+  --nx-green-aura:   rgba(0, 255, 136, 0.15);
+
+  /* --- Warning: Amber --- */
+  --nx-amber-dim:    #5c3d0d;
+  --nx-amber-base:   #ffaa00;
+  --nx-amber-bright: #ffcc4d;
+  --nx-amber-glow:   rgba(255, 170, 0, 0.6);
+  --nx-amber-aura:   rgba(255, 170, 0, 0.15);
+
+  /* --- Error: Red --- */
+  --nx-red-dim:    #5c1a1a;
+  --nx-red-base:   #ff3366;
+  --nx-red-bright: #ff6b8a;
+  --nx-red-glow:   rgba(255, 51, 102, 0.6);
+  --nx-red-aura:   rgba(255, 51, 102, 0.15);
+
+  /* --- Text --- */
+  --nx-text-primary:    #e6edf3;
+  --nx-text-secondary:  #8b949e;
+  --nx-text-tertiary:   #6e7681;
+  --nx-text-ghost:      #484f58;
+  --nx-text-on-primary: #ffffff;
+
+
+  /* ============================================
+     LEGACY COMPATIBILITY LAYER
+     Maps old warm-theme tokens to new dark values
+     so existing Tailwind classes keep working.
+     ============================================ */
+
+  /* --- Brand Colors (Primary: Cyan) --- */
+  --color-primary-50:  #0a2a33;
+  --color-primary-100: #0d3d4a;
+  --color-primary-200: #0d4f5c;
+  --color-primary-300: #10748a;
+  --color-primary-400: #4df0ff;
+  --color-primary-500: #00d4ff;
+  --color-primary-600: #0d4f5c;
+  --color-primary-700: #0a3d4a;
+  --color-primary-800: #082d38;
+  --color-primary-900: #061e26;
+
+  /* --- Secondary: Blue --- */
+  --color-secondary-50:  #0d1a33;
+  --color-secondary-100: #132952;
+  --color-secondary-200: #1a3a5c;
+  --color-secondary-300: #2563eb;
+  --color-secondary-400: #60a5fa;
+  --color-secondary-500: #3b82f6;
+  --color-secondary-600: #1a3a5c;
+  --color-secondary-700: #132952;
+  --color-secondary-800: #0d1a33;
+  --color-secondary-900: #091224;
+
+  /* --- Neutral: Cool dark grays --- */
+  --color-neutral-50:  #e6edf3;
+  --color-neutral-100: #c9d1d9;
+  --color-neutral-200: #8b949e;
+  --color-neutral-300: #6e7681;
+  --color-neutral-400: #484f58;
+  --color-neutral-500: #30363d;
+  --color-neutral-600: #21262d;
+  --color-neutral-700: #161b22;
+  --color-neutral-800: #0d1117;
+  --color-neutral-900: #0a0e14;
+  --color-neutral-950: #030508;
+
+  /* --- Success: Neon green --- */
+  --color-success-50:  #0a331f;
+  --color-success-100: #0d4a2a;
+  --color-success-200: #106638;
+  --color-success-300: #15994f;
+  --color-success-400: #4dffaa;
+  --color-success-500: #00ff88;
+  --color-success-600: #0d4a2a;
+  --color-success-700: #0a3320;
+  --color-success-800: #072616;
+  --color-success-900: #041a0f;
+
+  /* --- Warning: Amber --- */
+  --color-warning-50:  #332a0a;
+  --color-warning-100: #5c3d0d;
+  --color-warning-200: #8a5c10;
+  --color-warning-300: #cc8800;
+  --color-warning-400: #ffcc4d;
+  --color-warning-500: #ffaa00;
+  --color-warning-600: #5c3d0d;
+  --color-warning-700: #4a310a;
+  --color-warning-800: #332208;
+  --color-warning-900: #261a06;
+
+  /* --- Error: Neon red --- */
+  --color-error-50:  #330d15;
+  --color-error-100: #5c1a1a;
+  --color-error-200: #8a1a2d;
+  --color-error-300: #cc2952;
+  --color-error-400: #ff6b8a;
+  --color-error-500: #ff3366;
+  --color-error-600: #5c1a1a;
+  --color-error-700: #4a1515;
+  --color-error-800: #330d0d;
+  --color-error-900: #260a0a;
+
+  /* --- Info: Cyan (same as primary in dark theme) --- */
+  --color-info-50:  #0a2a33;
+  --color-info-100: #0d3d4a;
+  --color-info-200: #0d4f5c;
+  --color-info-300: #10748a;
+  --color-info-400: #4df0ff;
+  --color-info-500: #00d4ff;
+  --color-info-600: #0d4f5c;
+  --color-info-700: #0a3d4a;
+  --color-info-800: #082d38;
+  --color-info-900: #061e26;
+
+  /* --- Semantic Surface Colors --- */
+  --color-bg-primary:   #0a0e14;
+  --color-bg-secondary: #0d1117;
+  --color-bg-tertiary:  #161b22;
+  --color-bg-elevated:  #1c2128;
+  --color-bg-inverse:   #e6edf3;
+
+  --color-text-primary:    #e6edf3;
+  --color-text-secondary:  #8b949e;
+  --color-text-tertiary:   #6e7681;
+  --color-text-disabled:   #484f58;
+  --color-text-inverse:    #0a0e14;
+  --color-text-on-primary: #ffffff;
+
+  --color-border-default: rgba(0, 212, 255, 0.15);
+  --color-border-subtle:  rgba(255, 255, 255, 0.05);
+  --color-border-strong:  rgba(0, 212, 255, 0.3);
+  --color-border-focus:   #00d4ff;
+
+
+  /* ============================================
+     TYPOGRAPHY
+     ============================================ */
+
+  /* Font families */
+  --font-sans:    'Exo 2', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-display: 'Orbitron', 'Audiowide', ui-sans-serif, system-ui, sans-serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+
+  /* Font sizes - modular scale (1.25 ratio) */
+  --text-xs:   0.75rem;    /* 12px */
+  --text-sm:   0.875rem;   /* 14px */
+  --text-base: 1rem;       /* 16px */
+  --text-lg:   1.125rem;   /* 18px */
+  --text-xl:   1.25rem;    /* 20px */
+  --text-2xl:  1.5rem;     /* 24px */
+  --text-3xl:  1.875rem;   /* 30px */
+  --text-4xl:  2.25rem;    /* 36px */
+
+  /* Line heights */
+  --leading-none:    1;
+  --leading-tight:   1.25;
+  --leading-snug:    1.375;
+  --leading-normal:  1.5;
+  --leading-relaxed: 1.625;
+
+  /* Font weights */
+  --font-light:    300;
+  --font-normal:   400;
+  --font-medium:   500;
+  --font-semibold: 600;
+  --font-bold:     700;
+
+  /* Letter spacing */
+  --tracking-tight:    -0.025em;
+  --tracking-normal:   0;
+  --tracking-wide:     0.025em;
+  --tracking-wider:    0.05em;
+  --tracking-widest:   0.1em;
+
+
+  /* ============================================
+     SPACING
+     ============================================ */
+
+  /* 4px base unit */
+  --space-0:    0;
+  --space-0-5:  0.125rem;   /* 2px */
+  --space-1:    0.25rem;    /* 4px */
+  --space-1-5:  0.375rem;   /* 6px */
+  --space-2:    0.5rem;     /* 8px */
+  --space-3:    0.75rem;    /* 12px */
+  --space-4:    1rem;       /* 16px */
+  --space-5:    1.25rem;    /* 20px */
+  --space-6:    1.5rem;     /* 24px */
+  --space-8:    2rem;       /* 32px */
+  --space-10:   2.5rem;     /* 40px */
+  --space-12:   3rem;       /* 48px */
+  --space-16:   4rem;       /* 64px */
+  --space-20:   5rem;       /* 80px */
+  --space-24:   6rem;       /* 96px */
+
+
+  /* ============================================
+     LAYOUT
+     ============================================ */
+
+  --sidebar-width:     16rem;     /* 256px */
+  --sidebar-collapsed: 4rem;     /* 64px */
+  --navbar-height:     4rem;     /* 64px */
+  --content-max-width: 72rem;    /* 1152px */
+  --card-max-width:    24rem;    /* 384px */
+
+
+  /* ============================================
+     BORDER RADIUS
+     ============================================ */
+
+  --radius-none: 0;
+  --radius-sm:   0.25rem;   /* 4px */
+  --radius-md:   0.5rem;    /* 8px */
+  --radius-lg:   0.75rem;   /* 12px */
+  --radius-xl:   1rem;      /* 16px */
+  --radius-2xl:  1.5rem;    /* 24px */
+  --radius-full: 9999px;
+
+
+  /* ============================================
+     SHADOWS & GLOWS
+     ============================================ */
+
+  /* Standard depth shadows (dark environment) */
+  --shadow-xs:    0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-sm:    0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px -1px rgba(0, 0, 0, 0.3);
+  --shadow-md:    0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+  --shadow-lg:    0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+  --shadow-xl:    0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.4);
+
+  /* Colored glow shadows */
+  --shadow-primary:    0 0 12px rgba(0, 212, 255, 0.4), 0 0 24px rgba(0, 212, 255, 0.15);
+  --shadow-card-hover: 0 0 20px rgba(0, 212, 255, 0.15), 0 4px 16px rgba(0, 0, 0, 0.5);
+
+  /* Per-color glow variants */
+  --nx-glow-cyan:   0 0 12px rgba(0, 212, 255, 0.4), 0 0 24px rgba(0, 212, 255, 0.15);
+  --nx-glow-blue:   0 0 12px rgba(59, 130, 246, 0.4), 0 0 24px rgba(59, 130, 246, 0.15);
+  --nx-glow-violet: 0 0 12px rgba(168, 85, 247, 0.4), 0 0 24px rgba(168, 85, 247, 0.15);
+  --nx-glow-green:  0 0 12px rgba(0, 255, 136, 0.4), 0 0 24px rgba(0, 255, 136, 0.15);
+  --nx-glow-amber:  0 0 12px rgba(255, 170, 0, 0.4), 0 0 24px rgba(255, 170, 0, 0.15);
+  --nx-glow-red:    0 0 12px rgba(255, 51, 102, 0.4), 0 0 24px rgba(255, 51, 102, 0.15);
+
+
+  /* ============================================
+     TRANSITIONS
+     ============================================ */
+
+  --duration-fast:   100ms;
+  --duration-base:   200ms;
+  --duration-slow:   300ms;
+  --duration-slower: 500ms;
+
+  --ease-in:     cubic-bezier(0.4, 0, 1, 1);
+  --ease-out:    cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  --transition-colors:    color var(--duration-base) var(--ease-in-out),
+                          background-color var(--duration-base) var(--ease-in-out),
+                          border-color var(--duration-base) var(--ease-in-out);
+  --transition-shadow:    box-shadow var(--duration-base) var(--ease-in-out);
+  --transition-transform: transform var(--duration-base) var(--ease-in-out);
+  --transition-all:       all var(--duration-base) var(--ease-in-out);
+  --transition-glow:      box-shadow var(--duration-slow) var(--ease-in-out),
+                          text-shadow var(--duration-slow) var(--ease-in-out);
+
+
+  /* ============================================
+     Z-INDEX SCALE
+     ============================================ */
+
+  --z-dropdown: 10;
+  --z-sticky:   20;
+  --z-overlay:  30;
+  --z-modal:    40;
+  --z-toast:    50;
+}
+
+
+/* ============================================
+   KEYFRAME ANIMATIONS
+   ============================================ */
+
+/* Soft pulsing glow */
+@keyframes nx-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.6; }
+}
+
+/* Glow intensity breathing */
+@keyframes nx-glow-pulse {
+  0%, 100% { box-shadow: 0 0 8px var(--nx-cyan-glow), 0 0 16px var(--nx-cyan-aura); }
+  50%      { box-shadow: 0 0 16px var(--nx-cyan-glow), 0 0 32px var(--nx-cyan-aura); }
+}
+
+/* Horizontal scan line */
+@keyframes nx-scan {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+/* Shimmer / loading highlight */
+@keyframes nx-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Gentle scale breathing */
+@keyframes nx-breathing {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.02); }
+}
+
+/* Subtle flicker */
+@keyframes nx-flicker {
+  0%, 100%          { opacity: 1; }
+  3%, 8%            { opacity: 0.85; }
+  6%                { opacity: 0.95; }
+  42%               { opacity: 0.9; }
+  44%               { opacity: 1; }
+  77%, 79%          { opacity: 0.92; }
+}
+
+/* Floating hover effect */
+@keyframes nx-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-4px); }
+}
+
+
+/* ============================================
+   TAILWIND INTEGRATION LAYER
+   These classes complement Tailwind.
+   Tailwind config extends with the custom properties above.
+   ============================================ */
+
+/* Base resets compatible with Tailwind */
+*,
+*::before,
+*::after {
+  border-color: var(--color-border-default);
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--color-text-primary);
+  background-color: var(--nx-void-base);
+  line-height: var(--leading-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Focus ring utility */
+.focus-ring {
+  outline: none;
+}
+.focus-ring:focus-visible {
+  outline: 2px solid var(--nx-cyan-base);
+  outline-offset: 2px;
+  box-shadow: 0 0 8px var(--nx-cyan-aura);
+}
+
+/* Typography presets */
+.heading-1 {
+  font-family: var(--font-display);
+  font-size: var(--text-4xl);
+  font-weight: var(--font-bold);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-wider);
+  color: var(--nx-text-primary);
+  text-transform: uppercase;
+}
+
+.heading-2 {
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  font-weight: var(--font-semibold);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-wide);
+  color: var(--nx-text-primary);
+  text-transform: uppercase;
+}
+
+.heading-3 {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: var(--font-semibold);
+  line-height: var(--leading-snug);
+  letter-spacing: var(--tracking-wide);
+  color: var(--nx-text-primary);
+}
+
+.heading-4 {
+  font-size: var(--text-xl);
+  font-weight: var(--font-semibold);
+  line-height: var(--leading-snug);
+  color: var(--nx-text-primary);
+}
+
+.body-large {
+  font-size: var(--text-lg);
+  line-height: var(--leading-relaxed);
+  color: var(--nx-text-secondary);
+}
+
+.body-base {
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  color: var(--nx-text-secondary);
+}
+
+.body-small {
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  color: var(--nx-text-tertiary);
+}
+
+.caption {
+  font-size: var(--text-xs);
+  line-height: var(--leading-normal);
+  color: var(--nx-text-tertiary);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+}
+
+/* Code blocks */
+code, pre {
+  font-family: var(--font-mono);
+}
+
+pre {
+  background-color: var(--nx-void-deep);
+  color: var(--nx-cyan-bright);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border-default);
+  overflow-x: auto;
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+}
+
+code:not(pre code) {
+  background-color: var(--nx-void-elevated);
+  color: var(--nx-cyan-base);
+  padding: var(--space-0-5) var(--space-1-5);
+  border-radius: var(--radius-sm);
+  font-size: 0.875em;
+  border: 1px solid var(--color-border-subtle);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--nx-void-panel);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--nx-text-ghost);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--nx-text-tertiary);
+}
+
+/* Selection color */
+::selection {
+  background-color: var(--nx-cyan-base);
+  color: var(--nx-void-base);
+}

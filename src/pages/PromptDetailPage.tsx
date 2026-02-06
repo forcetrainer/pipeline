@@ -1,0 +1,172 @@
+import { useState } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { ArrowLeft, Copy, Check, User, Calendar } from 'lucide-react';
+import { Badge, Button, Card, StarRating } from '../components/ui';
+import * as promptService from '../services/promptService';
+import { format } from 'date-fns';
+
+function PromptDetailPage() {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const prompt = id ? promptService.getPromptById(id) : undefined;
+  const [copied, setCopied] = useState(false);
+
+  function handleCopy() {
+    if (!prompt) return;
+    navigator.clipboard.writeText(prompt.content);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  if (!prompt) {
+    return (
+      <div className="text-center py-20">
+        <h2 style={{ color: 'var(--nx-text-secondary)' }} className="text-xl font-semibold mb-2">Prompt not found</h2>
+        <p style={{ color: 'var(--nx-text-tertiary)' }} className="mb-4">The prompt you're looking for doesn't exist.</p>
+        <Link to="/prompts">
+          <Button variant="secondary">Back to Prompts</Button>
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <button
+        onClick={() => navigate(-1)}
+        className="flex items-center gap-2 text-sm mb-6 transition-colors"
+        style={{ color: 'var(--nx-text-tertiary)' }}
+        onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--nx-text-primary)')}
+        onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--nx-text-tertiary)')}
+      >
+        <ArrowLeft size={16} />
+        Back
+      </button>
+
+      <div className="max-w-3xl">
+        <div className="flex items-start justify-between mb-4">
+          <h1
+            className="text-3xl font-bold tracking-tight"
+            style={{
+              fontFamily: "'Orbitron', sans-serif",
+              color: 'var(--nx-text-primary)',
+              letterSpacing: '0.05em',
+            }}
+          >
+            {prompt.title}
+          </h1>
+          <StarRating value={Math.round(prompt.rating)} readonly size={20} />
+        </div>
+
+        <div className="flex items-center gap-4 mb-6 text-sm" style={{ color: 'var(--nx-text-tertiary)' }}>
+          <span className="flex items-center gap-1.5">
+            <User size={14} />
+            {prompt.submittedBy}
+          </span>
+          <span className="flex items-center gap-1.5">
+            <Calendar size={14} />
+            {format(new Date(prompt.createdAt), 'MMM d, yyyy')}
+          </span>
+          <Badge variant="neutral" size="sm">{prompt.category}</Badge>
+          <span style={{ color: 'var(--nx-text-tertiary)' }} className="text-xs">{prompt.aiTool}</span>
+          {prompt.ratingCount > 0 && (
+            <span style={{ color: 'var(--nx-text-tertiary)' }} className="text-xs">({prompt.ratingCount} ratings)</span>
+          )}
+        </div>
+
+        <p style={{ color: 'var(--nx-text-secondary)' }} className="leading-relaxed mb-6">{prompt.description}</p>
+
+        {/* Prompt content */}
+        <Card padding="none" className="mb-6 overflow-hidden">
+          <div
+            className="flex items-center justify-between px-4 py-3"
+            style={{
+              backgroundColor: 'var(--nx-void-surface)',
+              borderBottom: '1px solid rgba(0, 212, 255, 0.1)',
+            }}
+          >
+            <span
+              style={{
+                color: 'var(--nx-text-secondary)',
+                fontSize: '14px',
+                fontWeight: 500,
+                fontFamily: "'Exo 2', sans-serif",
+              }}
+            >
+              Prompt
+            </span>
+            <Button variant="ghost" size="sm" onClick={handleCopy}>
+              {copied ? (
+                <>
+                  <Check size={14} style={{ color: 'var(--nx-green-base)' }} />
+                  Copied
+                </>
+              ) : (
+                <>
+                  <Copy size={14} />
+                  Copy
+                </>
+              )}
+            </Button>
+          </div>
+          <pre
+            className="p-4 text-sm leading-relaxed whitespace-pre-wrap overflow-x-auto"
+            style={{
+              fontFamily: "'JetBrains Mono', monospace",
+              backgroundColor: 'var(--nx-void-deep)',
+              color: 'var(--nx-cyan-bright)',
+            }}
+          >
+            {prompt.content}
+          </pre>
+        </Card>
+
+        {/* Problem being solved */}
+        {prompt.problemBeingSolved && (
+          <section className="mb-6">
+            <h2
+              className="text-lg font-semibold mb-2"
+              style={{ color: 'var(--nx-text-primary)', fontFamily: "'Orbitron', sans-serif", fontSize: '16px', letterSpacing: '0.03em' }}
+            >
+              Problem Being Solved
+            </h2>
+            <p style={{ color: 'var(--nx-text-secondary)' }} className="leading-relaxed whitespace-pre-wrap">{prompt.problemBeingSolved}</p>
+          </section>
+        )}
+
+        {/* Tips */}
+        {prompt.tips && (
+          <section className="mb-6">
+            <h2
+              className="text-lg font-semibold mb-2"
+              style={{ color: 'var(--nx-text-primary)', fontFamily: "'Orbitron', sans-serif", fontSize: '16px', letterSpacing: '0.03em' }}
+            >
+              Tips for Usage
+            </h2>
+            <p style={{ color: 'var(--nx-text-secondary)' }} className="leading-relaxed whitespace-pre-wrap">{prompt.tips}</p>
+          </section>
+        )}
+
+        {/* Tags */}
+        {prompt.tags.length > 0 && (
+          <div
+            className="flex gap-2 flex-wrap pt-4"
+            style={{ borderTop: '1px solid rgba(0, 212, 255, 0.1)' }}
+          >
+            {prompt.tags.map((tag) => (
+              <span
+                key={tag}
+                className="text-xs px-2 py-1 rounded-sm"
+                style={{ backgroundColor: 'var(--nx-void-elevated)', color: 'var(--nx-text-tertiary)' }}
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default PromptDetailPage;

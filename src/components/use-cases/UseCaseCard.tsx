@@ -1,0 +1,125 @@
+import { Link } from 'react-router-dom';
+import { Card } from '../ui/Card';
+import { Badge, type BadgeVariant } from '../ui/Badge';
+import { Tag } from '../ui/Tag';
+import type { UseCase } from '../../types';
+
+interface UseCaseCardProps {
+  useCase: UseCase;
+}
+
+const impactVariant: Record<string, BadgeVariant> = {
+  high: 'error',
+  medium: 'warning',
+  low: 'success',
+};
+
+const statusVariant: Record<string, BadgeVariant> = {
+  idea: 'info',
+  pilot: 'primary',
+  active: 'success',
+  archived: 'neutral',
+};
+
+/* Map status to a CSS accent color for the left-edge gradient */
+const statusAccentColor: Record<string, string> = {
+  idea: 'var(--nx-violet-base)',
+  pilot: 'var(--nx-cyan-base)',
+  active: 'var(--nx-green-base)',
+  archived: 'var(--nx-text-ghost)',
+};
+
+function UseCaseCard({ useCase }: UseCaseCardProps) {
+  const accent = statusAccentColor[useCase.status] || 'var(--nx-cyan-base)';
+
+  return (
+    <Link to={`/use-cases/${useCase.id}`} className="block group">
+      <Card hoverable padding="md">
+        {/* Left-edge vertical accent gradient */}
+        <div
+          className="absolute top-0 left-0 w-[2px] h-full"
+          style={{
+            background: `linear-gradient(180deg, ${accent} 0%, transparent 80%)`,
+          }}
+        />
+
+        {/* Header: status + department */}
+        <div className="flex items-center justify-between mb-3">
+          <Badge variant={statusVariant[useCase.status] || 'neutral'} size="sm">
+            {useCase.status}
+          </Badge>
+          <span
+            className="text-xs"
+            style={{
+              color: 'var(--nx-text-tertiary)',
+              fontFamily: 'var(--font-mono)',
+              letterSpacing: '0.05em',
+            }}
+          >
+            {useCase.department}
+          </span>
+        </div>
+
+        {/* Title */}
+        <h3
+          className="text-base font-semibold mb-1 line-clamp-1"
+          style={{
+            color: 'var(--nx-text-primary)',
+            fontFamily: 'var(--font-sans)',
+          }}
+        >
+          {useCase.title}
+        </h3>
+
+        {/* Description */}
+        <p
+          className="text-sm mb-3 line-clamp-2"
+          style={{ color: 'var(--nx-text-secondary)' }}
+        >
+          {useCase.description}
+        </p>
+
+        {/* Impact / Effort badges */}
+        <div className="flex items-center gap-2 mb-3">
+          <Badge variant={impactVariant[useCase.impact] || 'neutral'} size="sm">
+            {useCase.impact} impact
+          </Badge>
+          <Badge variant="neutral" size="sm">
+            {useCase.effort} effort
+          </Badge>
+        </div>
+
+        {/* Tags */}
+        {useCase.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1">
+            {useCase.tags.slice(0, 3).map((tag) => (
+              <Tag key={tag}>{tag}</Tag>
+            ))}
+            {useCase.tags.length > 3 && (
+              <span
+                className="text-xs flex items-center"
+                style={{ color: 'var(--nx-text-ghost)' }}
+              >
+                +{useCase.tags.length - 3}
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Footer meta */}
+        <div
+          className="mt-3 pt-3 flex items-center justify-between text-xs"
+          style={{
+            borderTop: '1px solid rgba(0, 212, 255, 0.1)',
+            color: 'var(--nx-text-tertiary)',
+          }}
+        >
+          <span style={{ fontFamily: 'var(--font-mono)' }}>{useCase.aiTool}</span>
+          <span>{useCase.submittedBy}</span>
+        </div>
+      </Card>
+    </Link>
+  );
+}
+
+export { UseCaseCard };
