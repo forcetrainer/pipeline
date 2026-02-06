@@ -1,6 +1,38 @@
+export type FrequencyPeriod = 'daily' | 'weekly' | 'monthly';
+
 export interface UseCaseMetrics {
+  // Per-use savings (what the user enters)
+  timeSavedPerUseMinutes: number;
+  moneySavedPerUse: number;
+
+  // Scale factors (what the user enters)
+  numberOfUsers: number;
+  usesPerUserPerPeriod: number;
+  frequencyPeriod: FrequencyPeriod;
+
+  // Calculated totals (backward compat - annual totals)
   timeSavedHours: number;
   moneySavedDollars: number;
+
+  // Projected savings at different horizons
+  dailyTimeSavedMinutes: number;
+  dailyMoneySaved: number;
+  weeklyTimeSavedMinutes: number;
+  weeklyMoneySaved: number;
+  monthlyTimeSavedHours: number;
+  monthlyMoneySaved: number;
+  annualTimeSavedHours: number;
+  annualMoneySaved: number;
+}
+
+export type ScoreGrade = 'S' | 'A' | 'B' | 'C' | 'D';
+
+export interface UseCaseScore {
+  valuePerUse: number;
+  scaleFactor: number;
+  overallScore: number;
+  grade: ScoreGrade;
+  quadrant: 'high-value-high-scale' | 'high-value-low-scale' | 'low-value-high-scale' | 'low-value-low-scale';
 }
 
 export interface UseCase {
@@ -122,7 +154,7 @@ export const DEPARTMENTS: Department[] = [
   'Other',
 ];
 
-export type UseCaseSortField = 'date' | 'timeSaved' | 'moneySaved' | 'title';
+export type UseCaseSortField = 'date' | 'timeSaved' | 'moneySaved' | 'title' | 'score' | 'annualSavings';
 export type PromptSortField = 'date' | 'rating' | 'effectiveness' | 'title';
 export type SortDirection = 'asc' | 'desc';
 
@@ -132,6 +164,7 @@ export interface UseCaseFilters {
   impact?: 'low' | 'medium' | 'high';
   status?: string;
   aiTool?: string;
+  score?: ScoreGrade;
 }
 
 export interface PromptFilters {

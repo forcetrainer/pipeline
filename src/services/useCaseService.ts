@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import type { UseCase, UseCaseFilters, UseCaseSortField, SortDirection } from '../types';
+import { calculateScore } from '../utils/metricsCalculator';
 import * as storage from './storage';
 
 const COLLECTION = 'usecases';
@@ -49,6 +50,7 @@ export function filterUseCases(
     if (filters.impact && uc.impact !== filters.impact) return false;
     if (filters.status && uc.status !== filters.status) return false;
     if (filters.aiTool && uc.aiTool !== filters.aiTool) return false;
+    if (filters.score && calculateScore(uc.metrics).grade !== filters.score) return false;
     return true;
   });
 }
@@ -71,6 +73,11 @@ export function sortUseCases(
         return dir * (a.metrics.moneySavedDollars - b.metrics.moneySavedDollars);
       case 'title':
         return dir * a.title.localeCompare(b.title);
+      case 'score':
+        return dir * (calculateScore(a.metrics).overallScore - calculateScore(b.metrics).overallScore);
+      case 'annualSavings':
+        return dir * ((a.metrics.annualMoneySaved + a.metrics.annualTimeSavedHours * 50) -
+          (b.metrics.annualMoneySaved + b.metrics.annualTimeSavedHours * 50));
       default:
         return 0;
     }

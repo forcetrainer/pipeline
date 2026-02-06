@@ -1,4 +1,5 @@
 import type { UseCase, Prompt } from '../types';
+import { calculateMetrics } from '../utils/metricsCalculator';
 
 export const seedUseCases: UseCase[] = [
   {
@@ -10,7 +11,13 @@ export const seedUseCases: UseCase[] = [
       'A GitHub Action integration that automatically runs Claude on every PR, generating structured review comments with severity levels. The bot posts inline comments directly on the diff.',
     keyLearnings:
       'AI catches about 40% of the issues human reviewers find, but excels at style consistency and common bug patterns. Best used as a first pass before human review, not a replacement.',
-    metrics: { timeSavedHours: 15, moneySavedDollars: 4500 },
+    metrics: calculateMetrics({
+      timeSavedPerUseMinutes: 15,
+      moneySavedPerUse: 10,
+      numberOfUsers: 10,
+      usesPerUserPerPeriod: 5,
+      frequencyPeriod: 'daily',
+    }),
     category: 'Code Review',
     aiTool: 'Copilot',
     department: 'Engineering',
@@ -32,7 +39,13 @@ export const seedUseCases: UseCase[] = [
       'A prompt template library in Notion integrated with ChatGPT. Marketers fill in product details, target audience, and tone, then get draft copy for multiple channels simultaneously.',
     keyLearnings:
       'The initial output needs about 30% editing for brand voice. Providing 3-4 examples of approved copy in the prompt dramatically improves quality. Social media posts need less editing than long-form content.',
-    metrics: { timeSavedHours: 20, moneySavedDollars: 6000 },
+    metrics: calculateMetrics({
+      timeSavedPerUseMinutes: 30,
+      moneySavedPerUse: 15,
+      numberOfUsers: 4,
+      usesPerUserPerPeriod: 3,
+      frequencyPeriod: 'weekly',
+    }),
     category: 'Content Creation',
     aiTool: 'ChatGPT',
     department: 'Marketing',
@@ -54,7 +67,13 @@ export const seedUseCases: UseCase[] = [
       'A classification pipeline using Claude API that processes new Zendesk tickets. It tags tickets with category, priority, sentiment, and routes them to the right team queue automatically.',
     keyLearnings:
       'Classification accuracy is 92% for category and 87% for priority. Edge cases around billing disputes needed additional prompt engineering. Adding customer history context improved routing accuracy by 15%.',
-    metrics: { timeSavedHours: 30, moneySavedDollars: 9000 },
+    metrics: calculateMetrics({
+      timeSavedPerUseMinutes: 3,
+      moneySavedPerUse: 1.5,
+      numberOfUsers: 5,
+      usesPerUserPerPeriod: 40,
+      frequencyPeriod: 'daily',
+    }),
     category: 'Customer Support',
     aiTool: 'Claude',
     department: 'Operations',
@@ -76,7 +95,13 @@ export const seedUseCases: UseCase[] = [
       'A Slack bot that takes pasted meeting transcripts (from Otter.ai) and produces structured summaries with action items, owners, and deadlines. Posts directly to the relevant Slack channel.',
     keyLearnings:
       'Structured output format (decisions, actions, questions) gets much better adoption than free-form summaries. Teams started writing better meeting notes because they knew AI would summarize them.',
-    metrics: { timeSavedHours: 10, moneySavedDollars: 3000 },
+    metrics: calculateMetrics({
+      timeSavedPerUseMinutes: 20,
+      moneySavedPerUse: 8,
+      numberOfUsers: 15,
+      usesPerUserPerPeriod: 3,
+      frequencyPeriod: 'weekly',
+    }),
     category: 'Documentation',
     aiTool: 'Claude',
     department: 'Operations',
@@ -98,7 +123,13 @@ export const seedUseCases: UseCase[] = [
       'A Chrome extension that pulls prospect info from LinkedIn and CRM, then generates personalized outreach emails. Integrates with Gmail for one-click drafting.',
     keyLearnings:
       'Response rates increased 35% compared to generic templates. The key is feeding in specific company news and pain points. Emails over 150 words see diminishing returns on engagement.',
-    metrics: { timeSavedHours: 25, moneySavedDollars: 12000 },
+    metrics: calculateMetrics({
+      timeSavedPerUseMinutes: 20,
+      moneySavedPerUse: 25,
+      numberOfUsers: 8,
+      usesPerUserPerPeriod: 10,
+      frequencyPeriod: 'daily',
+    }),
     category: 'Content Creation',
     aiTool: 'ChatGPT',
     department: 'Sales',
@@ -120,7 +151,13 @@ export const seedUseCases: UseCase[] = [
       'A Python notebook workflow where analysts upload CSV data, and Claude generates executive summary reports with visualizations suggestions, key findings, and actionable recommendations.',
     keyLearnings:
       'AI-generated insights are most valuable for spotting anomalies humans might miss. Analysts still need to validate statistical significance. Providing context about what business questions matter improves report quality significantly.',
-    metrics: { timeSavedHours: 12, moneySavedDollars: 5000 },
+    metrics: calculateMetrics({
+      timeSavedPerUseMinutes: 45,
+      moneySavedPerUse: 30,
+      numberOfUsers: 3,
+      usesPerUserPerPeriod: 4,
+      frequencyPeriod: 'weekly',
+    }),
     category: 'Data Analysis',
     aiTool: 'Claude',
     department: 'Product',
@@ -142,7 +179,13 @@ export const seedUseCases: UseCase[] = [
       'A CI/CD step that runs on every merge to main, extracting function signatures and JSDoc comments to generate OpenAPI specs and human-readable docs via Copilot.',
     keyLearnings:
       'Works best for RESTful APIs with consistent patterns. Complex business logic still needs hand-written explanations. Auto-generated examples save the most time for developers consuming the API.',
-    metrics: { timeSavedHours: 8, moneySavedDollars: 2400 },
+    metrics: calculateMetrics({
+      timeSavedPerUseMinutes: 25,
+      moneySavedPerUse: 5,
+      numberOfUsers: 6,
+      usesPerUserPerPeriod: 8,
+      frequencyPeriod: 'monthly',
+    }),
     category: 'Documentation',
     aiTool: 'Copilot',
     department: 'Engineering',
@@ -164,7 +207,13 @@ export const seedUseCases: UseCase[] = [
       'A weekly automated workflow that scrapes competitor blogs, press releases, and social media, then uses ChatGPT to synthesize a competitive intelligence brief with key takeaways.',
     keyLearnings:
       'The AI is great at synthesizing large volumes of text into digestible summaries. However, it sometimes misinterprets competitive positioning. Having an analyst review the brief before distribution is essential.',
-    metrics: { timeSavedHours: 6, moneySavedDollars: 2000 },
+    metrics: calculateMetrics({
+      timeSavedPerUseMinutes: 60,
+      moneySavedPerUse: 20,
+      numberOfUsers: 2,
+      usesPerUserPerPeriod: 1,
+      frequencyPeriod: 'weekly',
+    }),
     category: 'Research',
     aiTool: 'ChatGPT',
     department: 'Product',

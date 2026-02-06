@@ -3,7 +3,8 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Textarea } from '../ui/Textarea';
 import { Select } from '../ui/Select';
-import type { UseCase } from '../../types';
+import type { UseCase, UseCaseMetrics } from '../../types';
+import { MetricsCalculator } from './MetricsCalculator';
 
 interface UseCaseFormProps {
   initialData?: Partial<UseCase>;
@@ -71,9 +72,30 @@ const sectionHeaderStyle: React.CSSProperties = {
   marginBottom: '1rem',
 };
 
+const defaultMetrics: UseCaseMetrics = {
+  timeSavedPerUseMinutes: 0,
+  moneySavedPerUse: 0,
+  numberOfUsers: 0,
+  usesPerUserPerPeriod: 0,
+  frequencyPeriod: 'weekly',
+  timeSavedHours: 0,
+  moneySavedDollars: 0,
+  dailyTimeSavedMinutes: 0,
+  dailyMoneySaved: 0,
+  weeklyTimeSavedMinutes: 0,
+  weeklyMoneySaved: 0,
+  monthlyTimeSavedHours: 0,
+  monthlyMoneySaved: 0,
+  annualTimeSavedHours: 0,
+  annualMoneySaved: 0,
+};
+
 function UseCaseForm({ initialData, onSubmit, isSubmitting }: UseCaseFormProps) {
   const [title, setTitle] = useState(initialData?.title || '');
   const [description, setDescription] = useState(initialData?.description || '');
+  const [whatWasBuilt, setWhatWasBuilt] = useState(initialData?.whatWasBuilt || '');
+  const [keyLearnings, setKeyLearnings] = useState(initialData?.keyLearnings || '');
+  const [metrics, setMetrics] = useState<UseCaseMetrics>(initialData?.metrics || defaultMetrics);
   const [category, setCategory] = useState(initialData?.category || '');
   const [aiTool, setAiTool] = useState(initialData?.aiTool || '');
   const [department, setDepartment] = useState(initialData?.department || '');
@@ -88,9 +110,9 @@ function UseCaseForm({ initialData, onSubmit, isSubmitting }: UseCaseFormProps) 
     onSubmit({
       title,
       description,
-      whatWasBuilt: '',
-      keyLearnings: '',
-      metrics: { timeSavedHours: 0, moneySavedDollars: 0 },
+      whatWasBuilt,
+      keyLearnings,
+      metrics,
       category,
       aiTool,
       department,
@@ -132,6 +154,33 @@ function UseCaseForm({ initialData, onSubmit, isSubmitting }: UseCaseFormProps) 
             onChange={(e) => setDescription(e.target.value)}
             rows={4}
             required
+          />
+        </div>
+      </section>
+
+      {/* Metrics & Impact */}
+      <section>
+        <h3 style={sectionHeaderStyle}>Metrics & Impact</h3>
+        <MetricsCalculator value={metrics} onChange={setMetrics} />
+      </section>
+
+      {/* Implementation Details */}
+      <section>
+        <h3 style={sectionHeaderStyle}>Implementation Details</h3>
+        <div className="space-y-5">
+          <Textarea
+            label="What Was Built"
+            placeholder="Describe what was built, the tools and integrations used..."
+            value={whatWasBuilt}
+            onChange={(e) => setWhatWasBuilt(e.target.value)}
+            rows={3}
+          />
+          <Textarea
+            label="Key Learnings"
+            placeholder="What did you learn? Any tips for others attempting something similar?"
+            value={keyLearnings}
+            onChange={(e) => setKeyLearnings(e.target.value)}
+            rows={3}
           />
         </div>
       </section>

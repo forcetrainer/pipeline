@@ -1,8 +1,10 @@
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Clock, DollarSign, Calendar, User, Building2 } from 'lucide-react';
+import { ArrowLeft, Calendar, User, Building2 } from 'lucide-react';
 import { Badge, Button, Card } from '../components/ui';
 import * as useCaseService from '../services/useCaseService';
 import { format } from 'date-fns';
+import type { ScoreGrade } from '../types';
+import { calculateScore, formatTime, formatMoney } from '../utils/metricsCalculator';
 
 const impactVariant = {
   high: 'success' as const,
@@ -94,46 +96,9 @@ function UseCaseDetailPage() {
           </span>
         </div>
 
-        {/* Metrics */}
+        {/* Metrics Breakdown Panel */}
         {useCase.metrics && (useCase.metrics.timeSavedHours > 0 || useCase.metrics.moneySavedDollars > 0) && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-            {useCase.metrics.timeSavedHours > 0 && (
-              <Card padding="md">
-                <div className="flex items-center gap-3">
-                  <div
-                    className="w-8 h-8 rounded-md flex items-center justify-center"
-                    style={{ backgroundColor: 'var(--nx-green-aura)', border: '1px solid rgba(0, 255, 136, 0.2)' }}
-                  >
-                    <Clock size={16} style={{ color: 'var(--nx-green-base)' }} />
-                  </div>
-                  <div>
-                    <p style={{ fontSize: '12px', color: 'var(--nx-text-tertiary)' }}>Time Saved</p>
-                    <p style={{ fontSize: '18px', fontWeight: 700, color: 'var(--nx-text-primary)', fontFamily: "'JetBrains Mono', monospace" }}>
-                      {useCase.metrics.timeSavedHours}h
-                    </p>
-                  </div>
-                </div>
-              </Card>
-            )}
-            {useCase.metrics.moneySavedDollars > 0 && (
-              <Card padding="md">
-                <div className="flex items-center gap-3">
-                  <div
-                    className="w-8 h-8 rounded-md flex items-center justify-center"
-                    style={{ backgroundColor: 'var(--nx-amber-aura)', border: '1px solid rgba(255, 170, 0, 0.2)' }}
-                  >
-                    <DollarSign size={16} style={{ color: 'var(--nx-amber-base)' }} />
-                  </div>
-                  <div>
-                    <p style={{ fontSize: '12px', color: 'var(--nx-text-tertiary)' }}>Money Saved</p>
-                    <p style={{ fontSize: '18px', fontWeight: 700, color: 'var(--nx-text-primary)', fontFamily: "'JetBrains Mono', monospace" }}>
-                      ${useCase.metrics.moneySavedDollars.toLocaleString()}
-                    </p>
-                  </div>
-                </div>
-              </Card>
-            )}
-          </div>
+          <MetricsBreakdown metrics={useCase.metrics} />
         )}
 
         {/* Description */}
@@ -191,6 +156,302 @@ function UseCaseDetailPage() {
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+const gradeColors: Record<ScoreGrade, string> = {
+  S: '#00d4ff',
+  A: '#00ff88',
+  B: '#3b82f6',
+  C: '#ffaa00',
+  D: '#ff3366',
+};
+
+const quadrantLabels: Record<string, string> = {
+  'high-value-high-scale': 'Force Multiplier',
+  'high-value-low-scale': 'Hidden Gem',
+  'low-value-high-scale': 'Power Tool',
+  'low-value-low-scale': 'Emerging',
+};
+
+function MetricsBreakdown({ metrics }: { metrics: import('../types').UseCaseMetrics }) {
+  const score = calculateScore(metrics);
+  const hasPerUse = metrics.timeSavedPerUseMinutes > 0 || metrics.moneySavedPerUse > 0;
+  const hasScale = metrics.numberOfUsers > 0 && metrics.usesPerUserPerPeriod > 0;
+
+  const projections = [
+    {
+      label: 'Daily',
+      time: formatTime(metrics.dailyTimeSavedMinutes),
+      money: formatMoney(metrics.dailyMoneySaved),
+      isAnnual: false,
+    },
+    {
+      label: 'Weekly',
+      time: formatTime(metrics.weeklyTimeSavedMinutes),
+      money: formatMoney(metrics.weeklyMoneySaved),
+      isAnnual: false,
+    },
+    {
+      label: 'Monthly',
+      time: formatTime(metrics.monthlyTimeSavedHours * 60),
+      money: formatMoney(metrics.monthlyMoneySaved),
+      isAnnual: false,
+    },
+    {
+      label: 'Annual',
+      time: formatTime(metrics.annualTimeSavedHours * 60),
+      money: formatMoney(metrics.annualMoneySaved),
+      isAnnual: true,
+    },
+  ];
+
+  return (
+    <div
+      className="mb-8"
+      style={{
+        background: 'var(--nx-glass-medium)',
+        border: '1px solid rgba(0, 212, 255, 0.2)',
+        borderRadius: 'var(--radius-lg, 12px)',
+        padding: '1.5rem',
+        backdropFilter: 'blur(8px)',
+      }}
+    >
+      <h2
+        className="text-lg font-semibold mb-4"
+        style={{
+          color: 'var(--nx-text-primary)',
+          fontFamily: "'Orbitron', sans-serif",
+          fontSize: '16px',
+          letterSpacing: '0.03em',
+        }}
+      >
+        Metrics & Impact
+      </h2>
+
+      {/* Per-use savings */}
+      {hasPerUse && (
+        <div className="mb-4">
+          <p style={{ fontSize: '13px', color: 'var(--nx-text-tertiary)', marginBottom: '0.25rem' }}>
+            Per-use savings
+          </p>
+          <p style={{ fontSize: '16px', fontFamily: "'JetBrains Mono', monospace", color: 'var(--nx-text-primary)' }}>
+            Saves{' '}
+            {metrics.timeSavedPerUseMinutes > 0 && (
+              <span style={{ color: 'var(--nx-green-base)' }}>
+                {formatTime(metrics.timeSavedPerUseMinutes)}
+              </span>
+            )}
+            {metrics.timeSavedPerUseMinutes > 0 && metrics.moneySavedPerUse > 0 && ' and '}
+            {metrics.moneySavedPerUse > 0 && (
+              <span style={{ color: 'var(--nx-amber-base)' }}>
+                {formatMoney(metrics.moneySavedPerUse)}
+              </span>
+            )}
+            {' '}per use
+          </p>
+        </div>
+      )}
+
+      {/* Scale */}
+      {hasScale && (
+        <div className="mb-5">
+          <p style={{ fontSize: '13px', color: 'var(--nx-text-tertiary)', marginBottom: '0.25rem' }}>
+            Scale
+          </p>
+          <p style={{ fontSize: '14px', color: 'var(--nx-text-secondary)' }}>
+            Used by <strong style={{ color: 'var(--nx-text-primary)' }}>{metrics.numberOfUsers}</strong> people,{' '}
+            <strong style={{ color: 'var(--nx-text-primary)' }}>{metrics.usesPerUserPerPeriod}</strong> times per{' '}
+            {metrics.frequencyPeriod === 'daily' ? 'day' : metrics.frequencyPeriod === 'weekly' ? 'week' : 'month'}
+          </p>
+        </div>
+      )}
+
+      {/* Projected savings grid */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '80px 1fr 1fr 1fr 1.3fr',
+          gap: '0.5rem 0.75rem',
+          textAlign: 'center',
+          marginBottom: '1.5rem',
+        }}
+      >
+        {/* Header row */}
+        <div />
+        {projections.map((p) => (
+          <div
+            key={p.label}
+            style={{
+              fontSize: '11px',
+              fontFamily: 'var(--font-sans)',
+              color: p.isAnnual ? 'var(--nx-cyan-base)' : 'var(--nx-text-tertiary)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.1em',
+              fontWeight: p.isAnnual ? 600 : 500,
+              paddingBottom: '0.5rem',
+              borderBottom: p.isAnnual
+                ? '1px solid rgba(0, 212, 255, 0.3)'
+                : '1px solid rgba(255, 255, 255, 0.05)',
+            }}
+          >
+            {p.label}
+          </div>
+        ))}
+
+        {/* Time row */}
+        <div
+          style={{
+            fontSize: '11px',
+            color: 'var(--nx-green-base)',
+            fontFamily: 'var(--font-sans)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.08em',
+            textAlign: 'left',
+            alignSelf: 'center',
+          }}
+        >
+          Time
+        </div>
+        {projections.map((p) => (
+          <div
+            key={`time-${p.label}`}
+            style={{
+              fontFamily: p.isAnnual ? "'Orbitron', sans-serif" : "'JetBrains Mono', monospace",
+              fontSize: p.isAnnual ? '18px' : '14px',
+              fontWeight: p.isAnnual ? 600 : 500,
+              color: 'var(--nx-green-base)',
+              padding: '0.375rem 0',
+              textShadow: p.isAnnual ? '0 0 12px rgba(0, 255, 136, 0.5)' : undefined,
+            }}
+          >
+            {p.time}
+          </div>
+        ))}
+
+        {/* Money row */}
+        <div
+          style={{
+            fontSize: '11px',
+            color: 'var(--nx-amber-base)',
+            fontFamily: 'var(--font-sans)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.08em',
+            textAlign: 'left',
+            alignSelf: 'center',
+          }}
+        >
+          Money
+        </div>
+        {projections.map((p) => (
+          <div
+            key={`money-${p.label}`}
+            style={{
+              fontFamily: p.isAnnual ? "'Orbitron', sans-serif" : "'JetBrains Mono', monospace",
+              fontSize: p.isAnnual ? '18px' : '14px',
+              fontWeight: p.isAnnual ? 600 : 500,
+              color: 'var(--nx-amber-base)',
+              padding: '0.375rem 0',
+              textShadow: p.isAnnual ? '0 0 12px rgba(255, 170, 0, 0.5)' : undefined,
+            }}
+          >
+            {p.money}
+          </div>
+        ))}
+      </div>
+
+      {/* Impact Score */}
+      {score.overallScore > 0 && (
+        <div
+          style={{
+            borderTop: '1px solid rgba(0, 212, 255, 0.15)',
+            paddingTop: '1.25rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '1.5rem',
+          }}
+        >
+          {/* Grade badge */}
+          <div style={{ textAlign: 'center', flexShrink: 0 }}>
+            <div
+              style={{
+                fontFamily: "'Orbitron', sans-serif",
+                fontSize: '2.5rem',
+                fontWeight: 700,
+                lineHeight: 1,
+                color: gradeColors[score.grade],
+                textShadow: `0 0 20px ${gradeColors[score.grade]}88, 0 0 40px ${gradeColors[score.grade]}44`,
+              }}
+            >
+              {score.grade}
+            </div>
+            <div
+              style={{
+                fontSize: '11px',
+                color: gradeColors[score.grade],
+                fontFamily: 'var(--font-sans)',
+                fontWeight: 500,
+                marginTop: '0.25rem',
+                whiteSpace: 'nowrap',
+                opacity: 0.85,
+              }}
+            >
+              {quadrantLabels[score.quadrant] || score.quadrant}
+            </div>
+          </div>
+
+          {/* Score bars */}
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            {/* Value bar */}
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
+                <span style={{ fontSize: '11px', color: 'var(--nx-text-tertiary)', fontFamily: 'var(--font-sans)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  Value
+                </span>
+                <span style={{ fontSize: '11px', color: 'var(--nx-green-base)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 500 }}>
+                  {Math.round(score.valuePerUse)}
+                </span>
+              </div>
+              <div style={{ height: '6px', backgroundColor: 'var(--nx-void-deep)', borderRadius: '9999px', overflow: 'hidden' }}>
+                <div
+                  style={{
+                    height: '100%',
+                    width: `${Math.min(100, Math.max(0, Math.round(score.valuePerUse)))}%`,
+                    backgroundColor: 'var(--nx-green-base)',
+                    borderRadius: '9999px',
+                    boxShadow: '0 0 8px rgba(0, 255, 136, 0.3)',
+                    transition: 'width 300ms ease',
+                  }}
+                />
+              </div>
+            </div>
+            {/* Scale bar */}
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
+                <span style={{ fontSize: '11px', color: 'var(--nx-text-tertiary)', fontFamily: 'var(--font-sans)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  Scale
+                </span>
+                <span style={{ fontSize: '11px', color: 'var(--nx-cyan-base)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 500 }}>
+                  {Math.round(score.scaleFactor)}
+                </span>
+              </div>
+              <div style={{ height: '6px', backgroundColor: 'var(--nx-void-deep)', borderRadius: '9999px', overflow: 'hidden' }}>
+                <div
+                  style={{
+                    height: '100%',
+                    width: `${Math.min(100, Math.max(0, Math.round(score.scaleFactor)))}%`,
+                    backgroundColor: 'var(--nx-cyan-base)',
+                    borderRadius: '9999px',
+                    boxShadow: '0 0 8px rgba(0, 212, 255, 0.3)',
+                    transition: 'width 300ms ease',
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

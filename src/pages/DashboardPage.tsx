@@ -1,30 +1,63 @@
 import { useMemo } from 'react';
-import { Lightbulb, BookOpen, Clock, DollarSign, Users } from 'lucide-react';
+import { Users } from 'lucide-react';
 import { Card } from '../components/ui';
 import { Link } from 'react-router-dom';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, LineChart, Line,
 } from 'recharts';
+import { StatsOverview } from '../components/dashboard/StatsOverview';
+import {
+  ValueScaleScatterChart,
+  ScoreDistributionChart,
+  SavingsHorizonChart,
+} from '../components/dashboard/Charts';
+import type { ScatterDataPoint, ScoreDistributionData, SavingsHorizonData } from '../components/dashboard/Charts';
+import type { ScoreGrade } from '../types';
+import { calculateScore } from '../utils/metricsCalculator';
 import * as useCaseService from '../services/useCaseService';
 import * as promptService from '../services/promptService';
 import { format, parseISO } from 'date-fns';
 
 const CHART_COLORS = ['#00d4ff', '#a855f7', '#00ff88', '#3b82f6', '#ffaa00', '#ff3366'];
 
+const GRADE_COLORS: Record<ScoreGrade, string> = {
+  S: '#00d4ff',
+  A: '#00ff88',
+  B: '#3b82f6',
+  C: '#ffaa00',
+  D: '#ff3366',
+};
+
 function DashboardPage() {
   const useCases = useCaseService.getAllUseCases();
   const prompts = promptService.getAllPrompts();
 
+  // Compute scores for all use cases
+  const useCaseScores = useMemo(() => {
+    return useCases.map((uc) => ({
+      useCase: uc,
+      score: calculateScore(uc.metrics),
+    }));
+  }, [useCases]);
+
+  // Stats for overview cards
   const stats = useMemo(() => {
-    const activeUseCases = useCases.filter((uc) => uc.status === 'active').length;
-    const totalTimeSaved = useCases.reduce((sum, uc) => sum + (uc.metrics?.timeSavedHours ?? 0), 0);
-    const totalMoneySaved = useCases.reduce((sum, uc) => sum + (uc.metrics?.moneySavedDollars ?? 0), 0);
-    const avgRating = prompts.length > 0
-      ? prompts.reduce((sum, p) => sum + p.rating, 0) / prompts.length
-      : 0;
-    return { activeUseCases, totalTimeSaved, totalMoneySaved, avgRating };
-  }, [useCases, prompts]);
+    const annualTimeSavedHours = useCases.reduce(
+      (sum, uc) => sum + (uc.metrics?.annualTimeSavedHours ?? 0),
+      0
+    );
+    const annualMoneySaved = useCases.reduce(
+      (sum, uc) => sum + (uc.metrics?.annualMoneySaved ?? 0),
+      0
+    );
+    const averageScore =
+      useCaseScores.length > 0
+        ? useCaseScores.reduce((sum, s) => sum + s.score.overallScore, 0) / useCaseScores.length
+        : 0;
+
+    return { annualTimeSavedHours, annualMoneySaved, averageScore };
+  }, [useCases, useCaseScores]);
 
   // Category distribution for use cases
   const categoryData = useMemo(() => {
@@ -46,6 +79,67 @@ function DashboardPage() {
     return Object.entries(counts)
       .map(([name, value]) => ({ name, value }))
       .sort((a, b) => b.value - a.value);
+  }, [useCases]);
+
+  // Value vs Scale scatter data
+  const scatterData = useMemo<ScatterDataPoint[]>(() => {
+    return useCaseScores.map(({ useCase, score }) => ({
+      name: useCase.title,
+      valueScore: score.valuePerUse,
+      scaleScore: score.scaleFactor,
+      annualSavings: useCase.metrics?.annualMoneySaved ?? 0,
+      grade: score.grade,
+    }));
+  }, [useCaseScores]);
+
+  // Score distribution data
+  const scoreDistData = useMemo<ScoreDistributionData[]>(() => {
+    const counts: Record<ScoreGrade, number> = { S: 0, A: 0, B: 0, C: 0, D: 0 };
+    useCaseScores.forEach(({ score }) => {
+      counts[score.grade]++;
+    });
+    return (['S', 'A', 'B', 'C', 'D'] as ScoreGrade[]).map((grade) => ({
+      grade,
+      count: counts[grade],
+      color: GRADE_COLORS[grade],
+    }));
+  }, [useCaseScores]);
+
+  // Savings by time horizon data
+  const savingsHorizonData = useMemo<SavingsHorizonData[]>(() => {
+    const totals = useCases.reduce(
+      (acc, uc) => {
+        const m = uc.metrics;
+        if (!m) return acc;
+        return {
+          dailyHours: acc.dailyHours + (m.dailyTimeSavedMinutes ?? 0) / 60,
+          dailyMoney: acc.dailyMoney + (m.dailyMoneySaved ?? 0),
+          weeklyHours: acc.weeklyHours + (m.weeklyTimeSavedMinutes ?? 0) / 60,
+          weeklyMoney: acc.weeklyMoney + (m.weeklyMoneySaved ?? 0),
+          monthlyHours: acc.monthlyHours + (m.monthlyTimeSavedHours ?? 0),
+          monthlyMoney: acc.monthlyMoney + (m.monthlyMoneySaved ?? 0),
+          annualHours: acc.annualHours + (m.annualTimeSavedHours ?? 0),
+          annualMoney: acc.annualMoney + (m.annualMoneySaved ?? 0),
+        };
+      },
+      {
+        dailyHours: 0,
+        dailyMoney: 0,
+        weeklyHours: 0,
+        weeklyMoney: 0,
+        monthlyHours: 0,
+        monthlyMoney: 0,
+        annualHours: 0,
+        annualMoney: 0,
+      }
+    );
+
+    return [
+      { period: 'Daily', hours: Math.round(totals.dailyHours * 10) / 10, money: Math.round(totals.dailyMoney) },
+      { period: 'Weekly', hours: Math.round(totals.weeklyHours * 10) / 10, money: Math.round(totals.weeklyMoney) },
+      { period: 'Monthly', hours: Math.round(totals.monthlyHours * 10) / 10, money: Math.round(totals.monthlyMoney) },
+      { period: 'Annual', hours: Math.round(totals.annualHours * 10) / 10, money: Math.round(totals.annualMoney) },
+    ];
   }, [useCases]);
 
   // Submissions over time (monthly)
@@ -116,68 +210,17 @@ function DashboardPage() {
       </div>
 
       {/* Stats cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <Card padding="lg">
-          <div className="flex items-center gap-3">
-            <div
-              className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
-              style={{ backgroundColor: 'var(--nx-cyan-aura)', border: '1px solid rgba(0, 212, 255, 0.2)' }}
-            >
-              <Lightbulb size={20} style={{ color: 'var(--nx-cyan-base)' }} />
-            </div>
-            <div>
-              <p style={{ fontSize: '12px', color: 'var(--nx-text-tertiary)', fontFamily: "'Exo 2', sans-serif" }}>Use Cases</p>
-              <p style={{ fontSize: '24px', fontWeight: 700, color: 'var(--nx-text-primary)', fontFamily: "'JetBrains Mono', monospace" }}>{useCases.length}</p>
-            </div>
-          </div>
-        </Card>
-        <Card padding="lg">
-          <div className="flex items-center gap-3">
-            <div
-              className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
-              style={{ backgroundColor: 'var(--nx-blue-aura)', border: '1px solid rgba(59, 130, 246, 0.2)' }}
-            >
-              <BookOpen size={20} style={{ color: 'var(--nx-blue-base)' }} />
-            </div>
-            <div>
-              <p style={{ fontSize: '12px', color: 'var(--nx-text-tertiary)', fontFamily: "'Exo 2', sans-serif" }}>Prompts</p>
-              <p style={{ fontSize: '24px', fontWeight: 700, color: 'var(--nx-text-primary)', fontFamily: "'JetBrains Mono', monospace" }}>{prompts.length}</p>
-            </div>
-          </div>
-        </Card>
-        <Card padding="lg">
-          <div className="flex items-center gap-3">
-            <div
-              className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
-              style={{ backgroundColor: 'var(--nx-green-aura)', border: '1px solid rgba(0, 255, 136, 0.2)' }}
-            >
-              <Clock size={20} style={{ color: 'var(--nx-green-base)' }} />
-            </div>
-            <div>
-              <p style={{ fontSize: '12px', color: 'var(--nx-text-tertiary)', fontFamily: "'Exo 2', sans-serif" }}>Hours Saved</p>
-              <p style={{ fontSize: '24px', fontWeight: 700, color: 'var(--nx-text-primary)', fontFamily: "'JetBrains Mono', monospace" }}>{stats.totalTimeSaved}</p>
-            </div>
-          </div>
-        </Card>
-        <Card padding="lg">
-          <div className="flex items-center gap-3">
-            <div
-              className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
-              style={{ backgroundColor: 'var(--nx-amber-aura)', border: '1px solid rgba(255, 170, 0, 0.2)' }}
-            >
-              <DollarSign size={20} style={{ color: 'var(--nx-amber-base)' }} />
-            </div>
-            <div>
-              <p style={{ fontSize: '12px', color: 'var(--nx-text-tertiary)', fontFamily: "'Exo 2', sans-serif" }}>Money Saved</p>
-              <p style={{ fontSize: '24px', fontWeight: 700, color: 'var(--nx-text-primary)', fontFamily: "'JetBrains Mono', monospace" }}>
-                ${stats.totalMoneySaved.toLocaleString()}
-              </p>
-            </div>
-          </div>
-        </Card>
+      <div className="mb-8">
+        <StatsOverview
+          totalUseCases={useCases.length}
+          totalPrompts={prompts.length}
+          annualTimeSavedHours={stats.annualTimeSavedHours}
+          annualMoneySaved={stats.annualMoneySaved}
+          averageScore={stats.averageScore}
+        />
       </div>
 
-      {/* Charts row */}
+      {/* Charts row - category & department */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         {/* Category distribution */}
         <Card padding="lg">
@@ -247,6 +290,17 @@ function DashboardPage() {
             <p style={{ color: 'var(--nx-text-tertiary)' }} className="text-sm text-center py-10">No data yet</p>
           )}
         </Card>
+      </div>
+
+      {/* NEW: Value vs Scale Scatter Chart (full width) */}
+      <div className="mb-8">
+        <ValueScaleScatterChart data={scatterData} />
+      </div>
+
+      {/* NEW: Score Distribution + Savings Horizon row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <ScoreDistributionChart data={scoreDistData} />
+        <SavingsHorizonChart data={savingsHorizonData} />
       </div>
 
       {/* Timeline chart */}

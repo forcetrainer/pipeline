@@ -2,7 +2,8 @@ import { Link } from 'react-router-dom';
 import { Card } from '../ui/Card';
 import { Badge, type BadgeVariant } from '../ui/Badge';
 import { Tag } from '../ui/Tag';
-import type { UseCase } from '../../types';
+import type { UseCase, ScoreGrade } from '../../types';
+import { calculateScore, formatMoney } from '../../utils/metricsCalculator';
 
 interface UseCaseCardProps {
   useCase: UseCase;
@@ -29,8 +30,20 @@ const statusAccentColor: Record<string, string> = {
   archived: 'var(--nx-text-ghost)',
 };
 
+const gradeColors: Record<ScoreGrade, string> = {
+  S: '#00d4ff',
+  A: '#00ff88',
+  B: '#3b82f6',
+  C: '#ffaa00',
+  D: '#ff3366',
+};
+
 function UseCaseCard({ useCase }: UseCaseCardProps) {
   const accent = statusAccentColor[useCase.status] || 'var(--nx-cyan-base)';
+  const score = useCase.metrics ? calculateScore(useCase.metrics) : null;
+  const hasAnnualMetrics =
+    useCase.metrics &&
+    (useCase.metrics.annualTimeSavedHours > 0 || useCase.metrics.annualMoneySaved > 0);
 
   return (
     <Link to={`/use-cases/${useCase.id}`} className="block group">
@@ -43,11 +56,34 @@ function UseCaseCard({ useCase }: UseCaseCardProps) {
           }}
         />
 
-        {/* Header: status + department */}
+        {/* Header: status + score grade + department */}
         <div className="flex items-center justify-between mb-3">
-          <Badge variant={statusVariant[useCase.status] || 'neutral'} size="sm">
-            {useCase.status}
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant={statusVariant[useCase.status] || 'neutral'} size="sm">
+              {useCase.status}
+            </Badge>
+            {score && score.overallScore > 0 && (
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '10px',
+                  fontWeight: 700,
+                  fontFamily: 'var(--font-mono)',
+                  lineHeight: 1,
+                  color: gradeColors[score.grade],
+                  backgroundColor: `${gradeColors[score.grade]}18`,
+                  border: `1px solid ${gradeColors[score.grade]}44`,
+                  borderRadius: '9999px',
+                  padding: '2px 8px',
+                  letterSpacing: '0.05em',
+                }}
+              >
+                {score.grade}
+              </span>
+            )}
+          </div>
           <span
             className="text-xs"
             style={{
@@ -78,6 +114,29 @@ function UseCaseCard({ useCase }: UseCaseCardProps) {
         >
           {useCase.description}
         </p>
+
+        {/* Compact annual metrics line */}
+        {hasAnnualMetrics && (
+          <p
+            className="mb-3"
+            style={{
+              fontSize: '12px',
+              fontFamily: "'JetBrains Mono', var(--font-mono), monospace",
+              color: 'var(--nx-text-tertiary)',
+            }}
+          >
+            {[
+              useCase.metrics.annualTimeSavedHours > 0
+                ? `${Math.round(useCase.metrics.annualTimeSavedHours)}h/yr`
+                : null,
+              useCase.metrics.annualMoneySaved > 0
+                ? `${formatMoney(useCase.metrics.annualMoneySaved)}/yr`
+                : null,
+            ]
+              .filter(Boolean)
+              .join(' \u00B7 ')}
+          </p>
+        )}
 
         {/* Impact / Effort badges */}
         <div className="flex items-center gap-2 mb-3">
