@@ -94,7 +94,15 @@ function Sidebar() {
               border: '1px solid rgba(0, 212, 255, 0.3)',
             }}
           >
-            <Lightbulb size={18} style={{ color: 'var(--nx-cyan-base)' }} />
+            <svg width="18" height="18" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <line x1="7" y1="16" x2="12" y2="16" stroke="var(--nx-cyan-base)" strokeWidth="2" strokeLinecap="round"/>
+              <line x1="20" y1="16" x2="25" y2="16" stroke="var(--nx-cyan-base)" strokeWidth="2" strokeLinecap="round"/>
+              <polyline points="10.5,13.5 13,16 10.5,18.5" fill="none" stroke="var(--nx-cyan-base)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" opacity="0.5"/>
+              <polyline points="23.5,13.5 26,16 23.5,18.5" fill="none" stroke="var(--nx-cyan-base)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" opacity="0.5"/>
+              <circle cx="4" cy="16" r="3" fill="rgba(0,212,255,0.2)" stroke="var(--nx-cyan-base)" strokeWidth="1.5"/>
+              <circle cx="16" cy="16" r="3.5" fill="rgba(0,212,255,0.25)" stroke="var(--nx-cyan-base)" strokeWidth="1.5"/>
+              <circle cx="28" cy="16" r="3" fill="rgba(0,212,255,0.2)" stroke="var(--nx-cyan-base)" strokeWidth="1.5"/>
+            </svg>
           </div>
           <div>
             <h1
