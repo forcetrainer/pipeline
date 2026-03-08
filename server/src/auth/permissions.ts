@@ -15,6 +15,11 @@ export type Permission =
   | 'users:create'
   | 'users:update'
   | 'users:delete'
+  | 'assessments:create'
+  | 'assessments:update'
+  | 'assessments:delete'
+  | 'assessments:promote'
+  | 'assessments:read_all'
   | 'admin:dashboard';
 
 export const rolePermissions: Record<string, Permission[]> = {
@@ -27,11 +32,15 @@ export const rolePermissions: Record<string, Permission[]> = {
     'prompts:update', // own items only
     'prompts:star',
     'prompts:comment',
+    'assessments:create',
+    'assessments:update', // own items only — enforced at route level
+    'assessments:promote',
   ],
   admin: [
     'use-cases:read', 'use-cases:create', 'use-cases:update', 'use-cases:delete', 'use-cases:review',
     'prompts:read', 'prompts:create', 'prompts:update', 'prompts:delete', 'prompts:review', 'prompts:star', 'prompts:comment',
     'users:read', 'users:create', 'users:update', 'users:delete',
+    'assessments:create', 'assessments:update', 'assessments:delete', 'assessments:promote', 'assessments:read_all',
     'admin:dashboard',
   ],
 };

@@ -12,6 +12,7 @@ import {
   XCircle,
   LogOut,
   FileText,
+  ClipboardCheck,
 } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -21,12 +22,14 @@ const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/use-cases', label: 'Use Cases', icon: Lightbulb },
   { to: '/prompts', label: 'Prompt Library', icon: BookOpen },
+  { to: '/assessments', label: 'Assessments', icon: ClipboardCheck },
   { to: '/my-submissions', label: 'My Submissions', icon: FileText },
 ];
 
 const quickActions = [
   { to: '/use-cases/new', label: 'New Use Case', icon: Plus },
   { to: '/prompts/new', label: 'New Prompt', icon: Plus },
+  { to: '/assessments/new', label: 'New Assessment', icon: Plus },
 ];
 
 const adminNavItems = [

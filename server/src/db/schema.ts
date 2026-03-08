@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, text, integer, uniqueIndex } from 'drizzle-orm/sqlite-core';
 
 export const users = sqliteTable('users', {
   id: text('id').primaryKey(),
@@ -87,3 +87,34 @@ export const promptComments = sqliteTable('prompt_comments', {
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),
 });
+
+export const assessments = sqliteTable('assessments', {
+  id: text('id').primaryKey(),
+  title: text('title').notNull(),
+  description: text('description').notNull(),
+  category: text('category').notNull(),
+  aiTool: text('ai_tool').notNull(),
+  department: text('department').notNull(),
+  status: text('status', { enum: ['draft', 'in_progress', 'completed', 'promoted'] }).notNull().default('draft'),
+  tags: text('tags').notNull(),
+  estimatedMetrics: text('estimated_metrics').notNull(),
+  estimatedCosts: text('estimated_costs').notNull(),
+  submittedBy: text('submitted_by').notNull(),
+  submitterTeam: text('submitter_team').notNull(),
+  submittedById: text('submitted_by_id').references(() => users.id).notNull(),
+  promotedToUseCaseId: text('promoted_to_use_case_id').references(() => useCases.id),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
+export const assessmentCheckpoints = sqliteTable('assessment_checkpoints', {
+  id: text('id').primaryKey(),
+  assessmentId: text('assessment_id').references(() => assessments.id, { onDelete: 'cascade' }).notNull(),
+  checkpoint: text('checkpoint', { enum: ['documentation', 'squint_check', 'auto_manual_switches', 'automation_pyramid', 'risk_governance'] }).notNull(),
+  status: text('status', { enum: ['not_started', 'pass', 'concern', 'fail'] }).notNull().default('not_started'),
+  score: integer('score'),
+  notes: text('notes').notNull().default(''),
+  updatedAt: text('updated_at').notNull(),
+}, (table) => ({
+  assessmentCheckpointUnique: uniqueIndex('assessment_checkpoint_unique').on(table.assessmentId, table.checkpoint),
+}));

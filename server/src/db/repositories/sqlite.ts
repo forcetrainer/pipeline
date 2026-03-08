@@ -1,6 +1,6 @@
 import { eq, and, type SQL } from 'drizzle-orm';
 import { db } from '../index.js';
-import { users, useCases, prompts, refreshTokens, promptStars, promptComments } from '../schema.js';
+import { users, useCases, prompts, refreshTokens, promptStars, promptComments, assessments, assessmentCheckpoints } from '../schema.js';
 import type {
   IUserRepository,
   IUseCaseRepository,
@@ -8,6 +8,8 @@ import type {
   IRefreshTokenRepository,
   IPromptStarRepository,
   IPromptCommentRepository,
+  IAssessmentRepository,
+  IAssessmentCheckpointRepository,
   UserRow,
   NewUser,
   UseCaseRow,
@@ -16,8 +18,13 @@ import type {
   NewPrompt,
   PromptStarRow,
   PromptCommentRow,
+  AssessmentRow,
+  NewAssessment,
+  AssessmentCheckpointRow,
+  NewAssessmentCheckpoint,
   UseCaseFilters,
   PromptFilters,
+  AssessmentFilters,
 } from './interfaces.js';
 
 export class SqliteUserRepository implements IUserRepository {
@@ -205,6 +212,88 @@ export class SqlitePromptCommentRepository implements IPromptCommentRepository {
     // Delete child comments first (replies)
     db.delete(promptComments).where(eq(promptComments.parentId, id)).run();
     db.delete(promptComments).where(eq(promptComments.id, id)).run();
+    return true;
+  }
+}
+
+export class SqliteAssessmentRepository implements IAssessmentRepository {
+  findAll(filters?: AssessmentFilters): AssessmentRow[] {
+    const conditions: SQL[] = [];
+
+    if (filters) {
+      if (filters.status) conditions.push(eq(assessments.status, filters.status as 'draft' | 'in_progress' | 'completed' | 'promoted'));
+      if (filters.category) conditions.push(eq(assessments.category, filters.category));
+      if (filters.department) conditions.push(eq(assessments.department, filters.department));
+      if (filters.submittedById) conditions.push(eq(assessments.submittedById, filters.submittedById));
+    }
+
+    if (conditions.length > 0) {
+      return db.select().from(assessments).where(and(...conditions)).all();
+    }
+    return db.select().from(assessments).all();
+  }
+
+  findById(id: string): AssessmentRow | undefined {
+    return db.select().from(assessments).where(eq(assessments.id, id)).get();
+  }
+
+  findByUserId(userId: string): AssessmentRow[] {
+    return db.select().from(assessments).where(eq(assessments.submittedById, userId)).all();
+  }
+
+  create(assessment: NewAssessment): AssessmentRow {
+    db.insert(assessments).values(assessment).run();
+    return db.select().from(assessments).where(eq(assessments.id, assessment.id!)).get()!;
+  }
+
+  update(id: string, data: Partial<NewAssessment>): AssessmentRow | undefined {
+    const existing = this.findById(id);
+    if (!existing) return undefined;
+    db.update(assessments).set(data).where(eq(assessments.id, id)).run();
+    return this.findById(id);
+  }
+
+  delete(id: string): boolean {
+    const existing = this.findById(id);
+    if (!existing) return false;
+    db.delete(assessments).where(eq(assessments.id, id)).run();
+    return true;
+  }
+
+  count(filters?: AssessmentFilters): number {
+    return this.findAll(filters).length;
+  }
+}
+
+export class SqliteAssessmentCheckpointRepository implements IAssessmentCheckpointRepository {
+  findByAssessmentId(assessmentId: string): AssessmentCheckpointRow[] {
+    return db.select().from(assessmentCheckpoints).where(eq(assessmentCheckpoints.assessmentId, assessmentId)).all();
+  }
+
+  findById(id: string): AssessmentCheckpointRow | undefined {
+    return db.select().from(assessmentCheckpoints).where(eq(assessmentCheckpoints.id, id)).get();
+  }
+
+  findByAssessmentAndCheckpoint(assessmentId: string, checkpoint: string): AssessmentCheckpointRow | undefined {
+    return db.select().from(assessmentCheckpoints).where(and(eq(assessmentCheckpoints.assessmentId, assessmentId), eq(assessmentCheckpoints.checkpoint, checkpoint as 'documentation' | 'squint_check' | 'auto_manual_switches' | 'automation_pyramid' | 'risk_governance'))).get();
+  }
+
+  create(checkpoint: NewAssessmentCheckpoint): AssessmentCheckpointRow {
+    db.insert(assessmentCheckpoints).values(checkpoint).run();
+    return db.select().from(assessmentCheckpoints).where(eq(assessmentCheckpoints.id, checkpoint.id!)).get()!;
+  }
+
+  update(id: string, data: Partial<NewAssessmentCheckpoint>): AssessmentCheckpointRow | undefined {
+    const existing = this.findById(id);
+    if (!existing) return undefined;
+    db.update(assessmentCheckpoints).set(data).where(eq(assessmentCheckpoints.id, id)).run();
+    return this.findById(id);
+  }
+
+  delete(id: string): boolean {
+    const existing = this.findById(id);
+    if (!existing) return false;
+    db.delete(assessmentCheckpoints).where(eq(assessmentCheckpoints.id, id)).run();
     return true;
   }
 }

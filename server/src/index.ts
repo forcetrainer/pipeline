@@ -9,6 +9,7 @@ import { useCaseRoutes } from './routes/useCases.js';
 import { promptRoutes } from './routes/prompts.js';
 import { userRoutes } from './routes/users.js';
 import { aiReadinessRoutes } from './routes/aiReadiness.js';
+import { assessmentRoutes } from './routes/assessments.js';
 
 const server = Fastify({ logger: true });
 
@@ -31,6 +32,7 @@ await server.register(useCaseRoutes);
 await server.register(promptRoutes);
 await server.register(userRoutes);
 await server.register(aiReadinessRoutes);
+await server.register(assessmentRoutes);
 
 // Serve frontend static files in production
 if (process.env.NODE_ENV === 'production') {

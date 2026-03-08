@@ -268,3 +268,62 @@ export interface PromptFilters {
   aiTool?: string;
   minEffectiveness?: number;
 }
+
+// ── Assessment types ─────────────────────────────────────────────────
+
+export type AssessmentStatus = 'draft' | 'in_progress' | 'completed' | 'promoted';
+export type CheckpointName = 'documentation' | 'squint_check' | 'auto_manual_switches' | 'automation_pyramid' | 'risk_governance';
+export type CheckpointStatus = 'not_started' | 'pass' | 'concern' | 'fail';
+
+export interface AssessmentCheckpoint {
+  id: string;
+  assessmentId: string;
+  checkpoint: CheckpointName;
+  status: CheckpointStatus;
+  score: number | null;
+  notes: string;
+  updatedAt: string;
+}
+
+export interface Assessment {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  aiTool: string;
+  department: string;
+  status: AssessmentStatus;
+  tags: string[];
+  estimatedMetrics: {
+    timeSavedPerUse: number;
+    usesPerWeek: number;
+    moneySavedPerUse: number;
+    revenuePerUse: number;
+    errorReduction: number;
+  };
+  estimatedCosts: {
+    buildCostInternal: number;
+    buildCostExternal: number;
+    licensingOneTime: number;
+    licensingRecurring: number;
+    computeRecurring: number;
+    maintenanceRecurring: number;
+    totalOneTime: number;
+    totalMonthlyRecurring: number;
+    totalAnnualRecurring: number;
+    notes: string;
+  };
+  submittedBy: string;
+  submitterTeam: string;
+  submittedById: string;
+  promotedToUseCaseId: string | null;
+  checkpoints?: AssessmentCheckpoint[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AssessmentFilters {
+  status?: AssessmentStatus;
+  category?: string;
+  department?: string;
+}

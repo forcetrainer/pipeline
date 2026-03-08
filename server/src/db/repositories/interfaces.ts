@@ -1,5 +1,5 @@
 import type { InferSelectModel, InferInsertModel } from 'drizzle-orm';
-import type { users, useCases, prompts, refreshTokens, promptStars, promptComments } from '../schema.js';
+import type { users, useCases, prompts, refreshTokens, promptStars, promptComments, assessments, assessmentCheckpoints } from '../schema.js';
 
 export type UserRow = InferSelectModel<typeof users>;
 export type NewUser = InferInsertModel<typeof users>;
@@ -10,6 +10,10 @@ export type NewPrompt = InferInsertModel<typeof prompts>;
 export type RefreshTokenRow = InferSelectModel<typeof refreshTokens>;
 export type PromptStarRow = InferSelectModel<typeof promptStars>;
 export type PromptCommentRow = InferSelectModel<typeof promptComments>;
+export type AssessmentRow = InferSelectModel<typeof assessments>;
+export type NewAssessment = InferInsertModel<typeof assessments>;
+export type AssessmentCheckpointRow = InferSelectModel<typeof assessmentCheckpoints>;
+export type NewAssessmentCheckpoint = InferInsertModel<typeof assessmentCheckpoints>;
 
 export interface UseCaseFilters {
   category?: string;
@@ -68,6 +72,32 @@ export interface IPromptCommentRepository {
   countByPrompt(promptId: string): number;
   create(comment: { id: string; promptId: string; userId: string; parentId: string | null; content: string; createdAt: string; updatedAt: string }): PromptCommentRow;
   update(id: string, data: { content: string; updatedAt: string }): PromptCommentRow | undefined;
+  delete(id: string): boolean;
+}
+
+export interface AssessmentFilters {
+  status?: string;
+  category?: string;
+  department?: string;
+  submittedById?: string;
+}
+
+export interface IAssessmentRepository {
+  findAll(filters?: AssessmentFilters): AssessmentRow[];
+  findById(id: string): AssessmentRow | undefined;
+  findByUserId(userId: string): AssessmentRow[];
+  create(assessment: NewAssessment): AssessmentRow;
+  update(id: string, data: Partial<NewAssessment>): AssessmentRow | undefined;
+  delete(id: string): boolean;
+  count(filters?: AssessmentFilters): number;
+}
+
+export interface IAssessmentCheckpointRepository {
+  findByAssessmentId(assessmentId: string): AssessmentCheckpointRow[];
+  findById(id: string): AssessmentCheckpointRow | undefined;
+  findByAssessmentAndCheckpoint(assessmentId: string, checkpoint: string): AssessmentCheckpointRow | undefined;
+  create(checkpoint: NewAssessmentCheckpoint): AssessmentCheckpointRow;
+  update(id: string, data: Partial<NewAssessmentCheckpoint>): AssessmentCheckpointRow | undefined;
   delete(id: string): boolean;
 }
 

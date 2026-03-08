@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Calendar, User, Building2 } from 'lucide-react';
+import { ArrowLeft, Calendar, User, Building2, Pencil } from 'lucide-react';
 import { Badge, Button } from '../components/ui';
+import { useAuth } from '../contexts/AuthContext';
 import * as useCaseService from '../services/useCaseService';
 import { format } from 'date-fns';
 import type { UseCase, ScoreGrade, CostTracking } from '../types';
@@ -23,6 +24,7 @@ const statusVariant = {
 function UseCaseDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { currentUser } = useAuth();
   const [useCase, setUseCase] = useState<UseCase | undefined>(undefined);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -94,7 +96,17 @@ function UseCaseDetailPage() {
           >
             {useCase.title}
           </h1>
-          <Badge variant={statusVariant[useCase.status]} size="md">{useCase.status}</Badge>
+          <div className="flex items-center gap-3">
+            {(useCase.submittedById === currentUser?.id || currentUser?.role === 'admin') && (
+              <Link to={`/use-cases/${id}/edit`}>
+                <Button variant="secondary">
+                  <Pencil size={14} />
+                  Edit
+                </Button>
+              </Link>
+            )}
+            <Badge variant={statusVariant[useCase.status]} size="md">{useCase.status}</Badge>
+          </div>
         </div>
 
         <div className="flex items-center gap-4 mb-6 text-sm" style={{ color: 'var(--nx-text-tertiary)' }}>

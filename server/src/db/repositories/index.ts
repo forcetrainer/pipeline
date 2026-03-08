@@ -5,6 +5,8 @@ import {
   SqliteRefreshTokenRepository,
   SqlitePromptStarRepository,
   SqlitePromptCommentRepository,
+  SqliteAssessmentRepository,
+  SqliteAssessmentCheckpointRepository,
 } from './sqlite.js';
 import type {
   IUserRepository,
@@ -13,10 +15,12 @@ import type {
   IRefreshTokenRepository,
   IPromptStarRepository,
   IPromptCommentRepository,
+  IAssessmentRepository,
+  IAssessmentCheckpointRepository,
 } from './interfaces.js';
 
-export type { IUserRepository, IUseCaseRepository, IPromptRepository, IRefreshTokenRepository, IPromptStarRepository, IPromptCommentRepository };
-export type { UserRow, NewUser, UseCaseRow, NewUseCase, PromptRow, NewPrompt, RefreshTokenRow, PromptStarRow, PromptCommentRow, UseCaseFilters, PromptFilters } from './interfaces.js';
+export type { IUserRepository, IUseCaseRepository, IPromptRepository, IRefreshTokenRepository, IPromptStarRepository, IPromptCommentRepository, IAssessmentRepository, IAssessmentCheckpointRepository };
+export type { UserRow, NewUser, UseCaseRow, NewUseCase, PromptRow, NewPrompt, RefreshTokenRow, PromptStarRow, PromptCommentRow, AssessmentRow, NewAssessment, AssessmentCheckpointRow, NewAssessmentCheckpoint, UseCaseFilters, PromptFilters, AssessmentFilters } from './interfaces.js';
 
 export function getUserRepository(): IUserRepository {
   return new SqliteUserRepository();
@@ -40,4 +44,12 @@ export function getPromptStarRepository(): IPromptStarRepository {
 
 export function getPromptCommentRepository(): IPromptCommentRepository {
   return new SqlitePromptCommentRepository();
+}
+
+export function getAssessmentRepository(): IAssessmentRepository {
+  return new SqliteAssessmentRepository();
+}
+
+export function getAssessmentCheckpointRepository(): IAssessmentCheckpointRepository {
+  return new SqliteAssessmentCheckpointRepository();
 }

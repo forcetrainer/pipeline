@@ -8,6 +8,7 @@ import DashboardPage from './pages/DashboardPage';
 import UseCasesPage from './pages/UseCasesPage';
 import UseCaseDetailPage from './pages/UseCaseDetailPage';
 import NewUseCasePage from './pages/NewUseCasePage';
+import EditUseCasePage from './pages/EditUseCasePage';
 import PromptsPage from './pages/PromptsPage';
 import PromptDetailPage from './pages/PromptDetailPage';
 import NewPromptPage from './pages/NewPromptPage';
@@ -17,6 +18,10 @@ import AdminDashboardPage from './pages/admin/AdminDashboardPage';
 import UserManagementPage from './pages/admin/UserManagementPage';
 import PendingReviewsPage from './pages/admin/PendingReviewsPage';
 import DeniedItemsPage from './pages/admin/DeniedItemsPage';
+import MyAssessmentsPage from './pages/assessments/MyAssessmentsPage';
+import NewAssessmentPage from './pages/assessments/NewAssessmentPage';
+import AssessmentDetailPage from './pages/assessments/AssessmentDetailPage';
+import AssessmentEvaluatePage from './pages/assessments/AssessmentEvaluatePage';
 
 function App() {
   return (
@@ -34,9 +39,14 @@ function App() {
                 <Route path="/use-cases" element={<UseCasesPage />} />
                 <Route path="/use-cases/new" element={<NewUseCasePage />} />
                 <Route path="/use-cases/:id" element={<UseCaseDetailPage />} />
+                <Route path="/use-cases/:id/edit" element={<EditUseCasePage />} />
                 <Route path="/prompts" element={<PromptsPage />} />
                 <Route path="/prompts/new" element={<NewPromptPage />} />
                 <Route path="/prompts/:id" element={<PromptDetailPage />} />
+                <Route path="/assessments" element={<MyAssessmentsPage />} />
+                <Route path="/assessments/new" element={<NewAssessmentPage />} />
+                <Route path="/assessments/:id" element={<AssessmentDetailPage />} />
+                <Route path="/assessments/:id/evaluate" element={<AssessmentEvaluatePage />} />
                 <Route path="/my-submissions" element={<MySubmissionsPage />} />
 
                 {/* Admin routes */}
