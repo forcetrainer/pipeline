@@ -8,6 +8,7 @@
     "build": "tsc"
   },
   "dependencies": {
+    "@fastify/cookie": "^11.0.2",
     "@fastify/cors": "^10.0.2",
     "bcryptjs": "^2.4.3",
     "better-sqlite3": "^11.7.0",

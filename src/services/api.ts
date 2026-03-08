@@ -16,6 +16,8 @@ interface RequestOptions extends RequestInit {
   skipAuthRedirect?: boolean;
 }
 
+let isRefreshing = false;
+
 async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const { skipAuthRedirect, ...fetchOptions } = options;
   const token = getToken();
@@ -26,10 +28,42 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
   }
-  const response = await fetch(`/api${path}`, { ...fetchOptions, headers });
-  if (response.status === 401) {
+  const response = await fetch(`/api${path}`, { ...fetchOptions, headers, credentials: 'include' });
+
+  if (response.status === 401 && !skipAuthRedirect && !isRefreshing) {
+    // Try to refresh the token
+    isRefreshing = true;
+    try {
+      const refreshResponse = await fetch('/api/auth/refresh', {
+        method: 'POST',
+        credentials: 'include',
+      });
+      if (refreshResponse.ok) {
+        const { token: newToken } = await refreshResponse.json();
+        setToken(newToken);
+        isRefreshing = false;
+        // Retry the original request with new token
+        headers['Authorization'] = `Bearer ${newToken}`;
+        const retryResponse = await fetch(`/api${path}`, { ...fetchOptions, headers, credentials: 'include' });
+        if (!retryResponse.ok) {
+          const error = await retryResponse.json().catch(() => ({ message: 'Request failed' }));
+          throw new Error(error.message || `HTTP ${retryResponse.status}`);
+        }
+        if (retryResponse.status === 204) return undefined as T;
+        return retryResponse.json();
+      }
+    } catch {
+      // refresh failed
+    }
+    isRefreshing = false;
     clearToken();
+    window.location.href = '/login';
+    throw new Error('Unauthorized');
+  }
+
+  if (response.status === 401) {
     if (!skipAuthRedirect) {
+      clearToken();
       window.location.href = '/login';
     }
     throw new Error('Unauthorized');

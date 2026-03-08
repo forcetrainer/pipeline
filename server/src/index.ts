@@ -1,5 +1,6 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
+import cookie from '@fastify/cookie';
 import { seedDatabase } from './db/seed.js';
 import { authRoutes } from './routes/auth.js';
 import { useCaseRoutes } from './routes/useCases.js';
@@ -13,6 +14,8 @@ await server.register(cors, {
   origin: 'http://localhost:5173',
   credentials: true,
 });
+
+await server.register(cookie);
 
 // Seed database on startup
 await seedDatabase();

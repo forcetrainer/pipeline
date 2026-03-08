@@ -4,7 +4,7 @@ import crypto from 'crypto';
 import { db } from '../db/index.js';
 import { useCases } from '../db/schema.js';
 import { authenticate } from '../middleware/authenticate.js';
-import { requireRole } from '../middleware/authorize.js';
+import { requirePermission } from '../middleware/authorize.js';
 
 function parseUseCase(row: typeof useCases.$inferSelect) {
   return {
@@ -117,7 +117,7 @@ export async function useCaseRoutes(app: FastifyInstance) {
   });
 
   // DELETE /api/use-cases/:id
-  app.delete('/api/use-cases/:id', { preHandler: [authenticate, requireRole('admin')] }, async (request, reply) => {
+  app.delete('/api/use-cases/:id', { preHandler: [authenticate, requirePermission('use-cases:delete')] }, async (request, reply) => {
     const { id } = request.params as { id: string };
     const existing = db.select().from(useCases).where(eq(useCases.id, id)).get();
 
@@ -130,7 +130,7 @@ export async function useCaseRoutes(app: FastifyInstance) {
   });
 
   // PUT /api/use-cases/:id/review
-  app.put('/api/use-cases/:id/review', { preHandler: [authenticate, requireRole('admin')] }, async (request, reply) => {
+  app.put('/api/use-cases/:id/review', { preHandler: [authenticate, requirePermission('use-cases:review')] }, async (request, reply) => {
     const { id } = request.params as { id: string };
     const existing = db.select().from(useCases).where(eq(useCases.id, id)).get();
 

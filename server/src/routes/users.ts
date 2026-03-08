@@ -5,7 +5,7 @@ import { db } from '../db/index.js';
 import { users } from '../db/schema.js';
 import { hashPassword } from '../services/authService.js';
 import { authenticate } from '../middleware/authenticate.js';
-import { requireRole } from '../middleware/authorize.js';
+import { requirePermission } from '../middleware/authorize.js';
 
 function stripPassword(user: typeof users.$inferSelect) {
   const { password: _, ...rest } = user;
@@ -13,16 +13,14 @@ function stripPassword(user: typeof users.$inferSelect) {
 }
 
 export async function userRoutes(app: FastifyInstance) {
-  const adminOnly = [authenticate, requireRole('admin')];
-
   // GET /api/users
-  app.get('/api/users', { preHandler: adminOnly }, async () => {
+  app.get('/api/users', { preHandler: [authenticate, requirePermission('users:read')] }, async () => {
     const rows = db.select().from(users).all();
     return rows.map(stripPassword);
   });
 
   // POST /api/users
-  app.post('/api/users', { preHandler: adminOnly }, async (request, reply) => {
+  app.post('/api/users', { preHandler: [authenticate, requirePermission('users:create')] }, async (request, reply) => {
     const body = request.body as Record<string, unknown>;
     const now = new Date().toISOString();
 
@@ -45,7 +43,7 @@ export async function userRoutes(app: FastifyInstance) {
   });
 
   // PUT /api/users/:id
-  app.put('/api/users/:id', { preHandler: adminOnly }, async (request, reply) => {
+  app.put('/api/users/:id', { preHandler: [authenticate, requirePermission('users:update')] }, async (request, reply) => {
     const { id } = request.params as { id: string };
     const existing = db.select().from(users).where(eq(users.id, id)).get();
 
@@ -73,7 +71,7 @@ export async function userRoutes(app: FastifyInstance) {
   });
 
   // DELETE /api/users/:id
-  app.delete('/api/users/:id', { preHandler: adminOnly }, async (request, reply) => {
+  app.delete('/api/users/:id', { preHandler: [authenticate, requirePermission('users:delete')] }, async (request, reply) => {
     const { id } = request.params as { id: string };
     const existing = db.select().from(users).where(eq(users.id, id)).get();
 

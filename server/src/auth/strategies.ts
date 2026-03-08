@@ -2,6 +2,7 @@ import { eq } from 'drizzle-orm';
 import { db } from '../db/index.js';
 import { users } from '../db/schema.js';
 import { verifyPassword } from '../services/authService.js';
+import { SSOStrategy, type AuthMode } from './sso.js';
 
 export interface UserWithoutPassword {
   id: string;
@@ -46,5 +47,15 @@ export class LocalStrategy implements AuthStrategy {
 }
 
 export function getStrategy(): AuthStrategy {
-  return new LocalStrategy();
+  const authMode = (process.env.AUTH_MODE || 'local') as AuthMode;
+  switch (authMode) {
+    case 'sso':
+      return new SSOStrategy();
+    case 'hybrid':
+      // In hybrid mode, try local first (for admin/service accounts)
+      return new LocalStrategy();
+    case 'local':
+    default:
+      return new LocalStrategy();
+  }
 }

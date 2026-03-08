@@ -9,7 +9,7 @@
 //    - AZURE_TENANT_ID:   Your Entra ID tenant (directory) ID
 //    - AZURE_CLIENT_ID:   Application (client) ID from app registration
 //    - AZURE_CLIENT_SECRET: Client secret for confidential client flow
-//    - AZURE_REDIRECT_URI: Callback URL (e.g. http://localhost:3001/api/auth/callback)
+//    - AZURE_REDIRECT_URI: Callback URL (e.g. http://localhost:3001/api/auth/sso/callback)
 //
 // 2. TOKEN EXCHANGE FLOW:
 //    a. Frontend redirects user to /api/auth/sso/login
@@ -60,26 +60,79 @@ export class SSOStrategy implements AuthStrategy {
   async authenticate(_email: string, _password: string): Promise<AuthResult> {
     // SSO does not use email/password authentication.
     // Instead, the flow is:
-    //   1. getAuthUrl() -> redirect user to Entra ID
+    //   1. getAuthorizationUrl() -> redirect user to Entra ID
     //   2. handleCallback(code) -> exchange code for tokens
-    //   3. Validate and provision user
+    //   3. provisionUser(claims) -> create/update local user
     return {
       success: false,
       error: 'SSO authentication requires redirect flow, not direct credentials',
     };
   }
 
-  // TODO: Implement these methods when SSO is enabled
-  //
-  // async getAuthUrl(): Promise<string> {
-  //   // Generate authorization URL with MSAL
-  //   // Include scopes: ['openid', 'profile', 'email']
-  // }
-  //
-  // async handleCallback(code: string): Promise<AuthResult> {
-  //   // Exchange authorization code for tokens
-  //   // Validate id_token claims
-  //   // Provision or update local user
-  //   // Return AuthResult with user data
-  // }
+  /**
+   * Generate the Entra ID authorization URL for the OIDC redirect flow.
+   * When implemented, this will use MSAL to build the URL with:
+   * - client_id, redirect_uri, response_type=code
+   * - scopes: openid, profile, email
+   * - state parameter for CSRF protection
+   */
+  getAuthorizationUrl(): string {
+    // TODO: Implement with @azure/msal-node
+    // const authUrlParams = {
+    //   scopes: ['openid', 'profile', 'email'],
+    //   redirectUri: process.env.AZURE_REDIRECT_URI,
+    //   state: crypto.randomUUID(),
+    // };
+    // return await this.msalClient.getAuthCodeUrl(authUrlParams);
+    throw new Error('SSO not yet implemented');
+  }
+
+  /**
+   * Exchange the authorization code from Entra ID callback for tokens.
+   * When implemented, this will:
+   * 1. Call MSAL acquireTokenByCode with the auth code
+   * 2. Validate the id_token
+   * 3. Extract user claims (email, name, oid)
+   * 4. Call provisionUser() to create/update local user
+   * 5. Return AuthResult with user data
+   */
+  async handleCallback(_code: string): Promise<AuthResult> {
+    // TODO: Implement with @azure/msal-node
+    // const tokenRequest = {
+    //   code,
+    //   scopes: ['openid', 'profile', 'email'],
+    //   redirectUri: process.env.AZURE_REDIRECT_URI,
+    // };
+    // const response = await this.msalClient.acquireTokenByCode(tokenRequest);
+    // const claims = response.idTokenClaims;
+    // const user = await this.provisionUser(claims);
+    // return { success: true, user };
+    return {
+      success: false,
+      error: 'SSO callback not yet implemented',
+    };
+  }
+
+  /**
+   * Create or update a local user from Entra ID claims.
+   * On first SSO login, creates a new user with role 'user'.
+   * On subsequent logins, updates the last login timestamp.
+   */
+  async provisionUser(_claims: { email: string; given_name: string; family_name: string; oid: string }): Promise<void> {
+    // TODO: Implement user provisioning
+    // const existing = db.select().from(users).where(eq(users.email, claims.email)).get();
+    // if (!existing) {
+    //   db.insert(users).values({
+    //     id: crypto.randomUUID(),
+    //     email: claims.email,
+    //     firstName: claims.given_name,
+    //     lastName: claims.family_name,
+    //     role: 'user',
+    //     password: '', // not used with SSO
+    //     createdAt: new Date().toISOString(),
+    //     updatedAt: new Date().toISOString(),
+    //   }).run();
+    // }
+    throw new Error('User provisioning not yet implemented');
+  }
 }

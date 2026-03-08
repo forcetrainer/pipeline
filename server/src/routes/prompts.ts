@@ -4,7 +4,7 @@ import crypto from 'crypto';
 import { db } from '../db/index.js';
 import { prompts } from '../db/schema.js';
 import { authenticate } from '../middleware/authenticate.js';
-import { requireRole } from '../middleware/authorize.js';
+import { requirePermission } from '../middleware/authorize.js';
 
 function parsePrompt(row: typeof prompts.$inferSelect) {
   return {
@@ -110,7 +110,7 @@ export async function promptRoutes(app: FastifyInstance) {
   });
 
   // DELETE /api/prompts/:id
-  app.delete('/api/prompts/:id', { preHandler: [authenticate, requireRole('admin')] }, async (request, reply) => {
+  app.delete('/api/prompts/:id', { preHandler: [authenticate, requirePermission('prompts:delete')] }, async (request, reply) => {
     const { id } = request.params as { id: string };
     const existing = db.select().from(prompts).where(eq(prompts.id, id)).get();
 
@@ -123,7 +123,7 @@ export async function promptRoutes(app: FastifyInstance) {
   });
 
   // PUT /api/prompts/:id/review
-  app.put('/api/prompts/:id/review', { preHandler: [authenticate, requireRole('admin')] }, async (request, reply) => {
+  app.put('/api/prompts/:id/review', { preHandler: [authenticate, requirePermission('prompts:review')] }, async (request, reply) => {
     const { id } = request.params as { id: string };
     const existing = db.select().from(prompts).where(eq(prompts.id, id)).get();
 

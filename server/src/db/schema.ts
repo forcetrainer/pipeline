@@ -36,6 +36,14 @@ export const useCases = sqliteTable('use_cases', {
   updatedAt: text('updated_at').notNull(),
 });
 
+export const refreshTokens = sqliteTable('refresh_tokens', {
+  id: text('id').primaryKey(),
+  token: text('token').notNull().unique(),
+  userId: text('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  expiresAt: text('expires_at').notNull(),
+  createdAt: text('created_at').notNull(),
+});
+
 export const prompts = sqliteTable('prompts', {
   id: text('id').primaryKey(),
   title: text('title').notNull(),
