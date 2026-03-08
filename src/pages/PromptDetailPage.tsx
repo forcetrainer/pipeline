@@ -114,7 +114,15 @@ function PromptDetailPage() {
                 initialCount={prompt.starCount}
               />
             )}
-            <StarRating value={Math.round(prompt.rating)} readonly size={20} />
+            <StarRating
+              value={Math.round(prompt.rating)}
+              readonly={!isAuthenticated}
+              size={20}
+              onChange={async (rating) => {
+                const updated = await promptService.ratePrompt(prompt.id, rating);
+                if (updated) setPrompt(updated);
+              }}
+            />
           </div>
         </div>
 
