@@ -3,6 +3,7 @@ import type { FrequencyPeriod, UseCaseMetrics, UseCaseScore, ScoreGrade, CostTra
 export function calculateMetrics(input: {
   timeSavedPerUseMinutes: number;
   moneySavedPerUse: number;
+  revenuePerUse?: number;
   numberOfUsers: number;
   usesPerUserPerPeriod: number;
   frequencyPeriod: FrequencyPeriod;
@@ -10,6 +11,7 @@ export function calculateMetrics(input: {
   const {
     timeSavedPerUseMinutes,
     moneySavedPerUse,
+    revenuePerUse = 0,
     numberOfUsers,
     usesPerUserPerPeriod,
     frequencyPeriod,
@@ -37,9 +39,16 @@ export function calculateMetrics(input: {
   const monthlyMoneySaved = dailyMoneySaved * 30;
   const annualMoneySaved = dailyMoneySaved * 365;
 
+  // Revenue projections
+  const dailyRevenue = totalUsesPerDay * revenuePerUse;
+  const weeklyRevenue = dailyRevenue * 7;
+  const monthlyRevenue = dailyRevenue * 30;
+  const annualRevenue = dailyRevenue * 365;
+
   return {
     timeSavedPerUseMinutes,
     moneySavedPerUse,
+    revenuePerUse,
     numberOfUsers,
     usesPerUserPerPeriod,
     frequencyPeriod,
@@ -55,6 +64,11 @@ export function calculateMetrics(input: {
     monthlyMoneySaved,
     annualTimeSavedHours,
     annualMoneySaved,
+    // Revenue projections
+    dailyRevenue,
+    weeklyRevenue,
+    monthlyRevenue,
+    annualRevenue,
   };
 }
 
@@ -79,9 +93,9 @@ export function getQuadrant(
 }
 
 export function calculateScore(metrics: UseCaseMetrics): UseCaseScore {
-  // Value per use: convert time to dollars at $50/hr, add money saved
+  // Value per use: convert time to dollars at $50/hr, add money saved + revenue
   const dollarValuePerUse =
-    (metrics.timeSavedPerUseMinutes * 50) / 60 + metrics.moneySavedPerUse;
+    (metrics.timeSavedPerUseMinutes * 50) / 60 + metrics.moneySavedPerUse + (metrics.revenuePerUse || 0);
   const valuePerUse = Math.min(
     100,
     Math.log10(dollarValuePerUse + 1) * 33
@@ -160,7 +174,9 @@ export function calculateCostTotals(input: {
 
 export interface ROISummary {
   grossAnnualSavings: number;
-  netAnnualSavings: number;
+  annualRevenue: number;
+  grossAnnualValue: number;
+  netAnnualValue: number;
   totalInvestment: number;
   monthlyNetBenefit: number;
   paybackPeriodMonths: number | null; // null if never pays back
@@ -170,25 +186,30 @@ export interface ROISummary {
 
 export function calculateROI(metrics: UseCaseMetrics, costs: CostTracking): ROISummary {
   const grossAnnualSavings = metrics.annualMoneySaved;
-  const netAnnualSavings = grossAnnualSavings - costs.totalAnnualRecurring;
+  const annualRevenue = metrics.annualRevenue || 0;
+  const grossAnnualValue = grossAnnualSavings + annualRevenue;
+  const netAnnualValue = grossAnnualValue - costs.totalAnnualRecurring;
   const totalInvestment = costs.totalOneTime;
-  const monthlyNetBenefit = (metrics.monthlyMoneySaved) - costs.totalMonthlyRecurring;
+  const monthlyGrossValue = metrics.monthlyMoneySaved + (metrics.monthlyRevenue || 0);
+  const monthlyNetBenefit = monthlyGrossValue - costs.totalMonthlyRecurring;
 
   const paybackPeriodMonths = monthlyNetBenefit > 0
     ? totalInvestment / monthlyNetBenefit
     : null;
 
   const firstYearROI = totalInvestment > 0
-    ? ((netAnnualSavings - totalInvestment) / totalInvestment) * 100
+    ? ((netAnnualValue - totalInvestment) / totalInvestment) * 100
     : null;
 
   const ongoingROI = costs.totalAnnualRecurring > 0
-    ? (netAnnualSavings / costs.totalAnnualRecurring) * 100
+    ? (netAnnualValue / costs.totalAnnualRecurring) * 100
     : null;
 
   return {
     grossAnnualSavings,
-    netAnnualSavings,
+    annualRevenue,
+    grossAnnualValue,
+    netAnnualValue,
     totalInvestment,
     monthlyNetBenefit,
     paybackPeriodMonths,

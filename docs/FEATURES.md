@@ -26,7 +26,7 @@
 
 | Feature | Status | ADR | Notes |
 |---------|--------|-----|-------|
-| Use Case Cost Tracking | In Progress | [ADR-008](ADR/008-use-case-cost-tracking.md) | One-time + recurring costs, true ROI calculations, payback period |
+| Use Case Cost Tracking & Revenue | Done | [ADR-008](ADR/008-use-case-cost-tracking.md) | One-time + recurring costs, revenue per use, true ROI (net value, payback, first-year/ongoing ROI) |
 | Prompt Library Social Features | Planned | [ADR-006](ADR/006-prompt-library-social-features.md) | Stars/favorites, comments, threaded conversations |
 | Automation Readiness Assessment | Planned | [ADR-007](ADR/007-automation-readiness-assessment.md) | Guided self-assessment with 5 checkpoints, scoring, promote-to-use-case |
 

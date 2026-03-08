@@ -36,9 +36,10 @@ export const AUTH_CONFIG: DomainValidationConfig = {
 export type FrequencyPeriod = 'daily' | 'weekly' | 'monthly';
 
 export interface UseCaseMetrics {
-  // Per-use savings (what the user enters)
+  // Per-use values (what the user enters)
   timeSavedPerUseMinutes: number;
   moneySavedPerUse: number;
+  revenuePerUse: number;
 
   // Scale factors (what the user enters)
   numberOfUsers: number;
@@ -58,6 +59,12 @@ export interface UseCaseMetrics {
   monthlyMoneySaved: number;
   annualTimeSavedHours: number;
   annualMoneySaved: number;
+
+  // Projected revenue at different horizons
+  dailyRevenue: number;
+  weeklyRevenue: number;
+  monthlyRevenue: number;
+  annualRevenue: number;
 }
 
 // ── Cost Tracking types ────────────────────────────────────────────

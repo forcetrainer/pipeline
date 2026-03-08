@@ -142,7 +142,7 @@ function UseCaseDetailPage() {
         </div>
 
         {/* Metrics Breakdown Panel */}
-        {useCase.metrics && (useCase.metrics.timeSavedHours > 0 || useCase.metrics.moneySavedDollars > 0) && (
+        {useCase.metrics && (useCase.metrics.timeSavedHours > 0 || useCase.metrics.moneySavedDollars > 0 || (useCase.metrics.revenuePerUse || 0) > 0) && (
           <MetricsBreakdown metrics={useCase.metrics} />
         )}
 
@@ -227,32 +227,37 @@ const quadrantLabels: Record<string, string> = {
 
 function MetricsBreakdown({ metrics }: { metrics: import('../types').UseCaseMetrics }) {
   const score = calculateScore(metrics);
-  const hasPerUse = metrics.timeSavedPerUseMinutes > 0 || metrics.moneySavedPerUse > 0;
+  const hasPerUse = metrics.timeSavedPerUseMinutes > 0 || metrics.moneySavedPerUse > 0 || (metrics.revenuePerUse || 0) > 0;
   const hasScale = metrics.numberOfUsers > 0 && metrics.usesPerUserPerPeriod > 0;
+  const hasRevenue = (metrics.revenuePerUse || 0) > 0;
 
   const projections = [
     {
       label: 'Daily',
       time: formatTime(metrics.dailyTimeSavedMinutes),
       money: formatMoney(metrics.dailyMoneySaved),
+      revenue: formatMoney(metrics.dailyRevenue || 0),
       isAnnual: false,
     },
     {
       label: 'Weekly',
       time: formatTime(metrics.weeklyTimeSavedMinutes),
       money: formatMoney(metrics.weeklyMoneySaved),
+      revenue: formatMoney(metrics.weeklyRevenue || 0),
       isAnnual: false,
     },
     {
       label: 'Monthly',
       time: formatTime(metrics.monthlyTimeSavedHours * 60),
       money: formatMoney(metrics.monthlyMoneySaved),
+      revenue: formatMoney(metrics.monthlyRevenue || 0),
       isAnnual: false,
     },
     {
       label: 'Annual',
       time: formatTime(metrics.annualTimeSavedHours * 60),
       money: formatMoney(metrics.annualMoneySaved),
+      revenue: formatMoney(metrics.annualRevenue || 0),
       isAnnual: true,
     },
   ];
@@ -287,7 +292,7 @@ function MetricsBreakdown({ metrics }: { metrics: import('../types').UseCaseMetr
             Per-use savings
           </p>
           <p style={{ fontSize: '16px', fontFamily: "'JetBrains Mono', monospace", color: 'var(--nx-text-primary)' }}>
-            Saves{' '}
+            {(metrics.timeSavedPerUseMinutes > 0 || metrics.moneySavedPerUse > 0) && 'Saves '}
             {metrics.timeSavedPerUseMinutes > 0 && (
               <span style={{ color: 'var(--nx-green-base)' }}>
                 {formatTime(metrics.timeSavedPerUseMinutes)}
@@ -298,6 +303,15 @@ function MetricsBreakdown({ metrics }: { metrics: import('../types').UseCaseMetr
               <span style={{ color: 'var(--nx-amber-base)' }}>
                 {formatMoney(metrics.moneySavedPerUse)}
               </span>
+            )}
+            {(metrics.timeSavedPerUseMinutes > 0 || metrics.moneySavedPerUse > 0) && hasRevenue && ' · '}
+            {hasRevenue && (
+              <>
+                generates{' '}
+                <span style={{ color: '#a78bfa' }}>
+                  {formatMoney(metrics.revenuePerUse)}
+                </span>
+              </>
             )}
             {' '}per use
           </p>
@@ -409,6 +423,40 @@ function MetricsBreakdown({ metrics }: { metrics: import('../types').UseCaseMetr
             {p.money}
           </div>
         ))}
+
+        {/* Revenue row (hidden when zero) */}
+        {hasRevenue && (
+          <>
+            <div
+              style={{
+                fontSize: '11px',
+                color: '#a78bfa',
+                fontFamily: 'var(--font-sans)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.08em',
+                textAlign: 'left',
+                alignSelf: 'center',
+              }}
+            >
+              Revenue
+            </div>
+            {projections.map((p) => (
+              <div
+                key={`revenue-${p.label}`}
+                style={{
+                  fontFamily: p.isAnnual ? "'Orbitron', sans-serif" : "'JetBrains Mono', monospace",
+                  fontSize: p.isAnnual ? '18px' : '14px',
+                  fontWeight: p.isAnnual ? 600 : 500,
+                  color: '#a78bfa',
+                  padding: '0.375rem 0',
+                  textShadow: p.isAnnual ? '0 0 12px rgba(167, 139, 250, 0.5)' : undefined,
+                }}
+              >
+                {p.revenue}
+              </div>
+            ))}
+          </>
+        )}
       </div>
 
       {/* Impact Score */}
@@ -522,7 +570,8 @@ function CostAndROIPanel({ metrics, costs }: { metrics: import('../types').UseCa
   const roiColor = (value: number | null) =>
     value === null ? 'var(--nx-text-tertiary)' : value >= 0 ? 'var(--nx-green-base)' : '#ff6b6b';
 
-  const savingsColor = roi.netAnnualSavings >= 0 ? 'var(--nx-green-base)' : '#ff6b6b';
+  const hasRevenue = roi.annualRevenue > 0;
+  const netValueColor = roi.netAnnualValue >= 0 ? 'var(--nx-green-base)' : '#ff6b6b';
 
   const labelStyle: React.CSSProperties = {
     fontSize: '11px',
@@ -612,10 +661,15 @@ function CostAndROIPanel({ metrics, costs }: { metrics: import('../types').UseCa
         }}
       >
         <div style={{ textAlign: 'center' }}>
-          <div style={labelStyle}>Net Annual Savings</div>
-          <div style={{ ...valueStyle, color: savingsColor, textShadow: `0 0 12px ${savingsColor}88` }}>
-            {formatMoney(roi.netAnnualSavings)}
+          <div style={labelStyle}>{hasRevenue ? 'Net Annual Value' : 'Net Annual Savings'}</div>
+          <div style={{ ...valueStyle, color: netValueColor, textShadow: `0 0 12px ${netValueColor}88` }}>
+            {formatMoney(roi.netAnnualValue)}
           </div>
+          {hasRevenue && (
+            <div style={{ fontSize: '10px', color: 'var(--nx-text-ghost)', marginTop: '0.25rem', fontFamily: 'var(--font-sans)' }}>
+              {formatMoney(roi.grossAnnualSavings)} savings + {formatMoney(roi.annualRevenue)} revenue − {formatMoney(costs.totalAnnualRecurring)} costs
+            </div>
+          )}
         </div>
         <div style={{ textAlign: 'center' }}>
           <div style={labelStyle}>Payback Period</div>

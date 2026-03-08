@@ -45,7 +45,7 @@ pipeline/
     hooks/
       useSearch.ts          # Fuse.js search hook
     utils/
-      metricsCalculator.ts  # Scoring system (S-D grades)
+      metricsCalculator.ts  # Scoring (S-D grades), ROI calculations, revenue projections
     types/index.ts          # Shared TypeScript types
     App.tsx                 # Router and layout
     main.tsx                # Entry point
@@ -348,8 +348,8 @@ Required env vars for SSO (when implemented):
 
 Three major features are in progress or planned, documented via ADRs:
 
-### Use Case Cost Tracking (ADR-008 — In Progress)
-Adds `actual_costs` (JSON) and `assessment_id` (FK) columns to `use_cases`. Enables true ROI calculations: net savings, payback period, first-year ROI. Cost structure covers one-time costs (build, licensing) and recurring costs (compute, licensing, maintenance).
+### Use Case Cost Tracking & Revenue (ADR-008 — Implemented)
+Adds `actual_costs` (JSON) and `assessment_id` (FK) columns to `use_cases`. Adds `revenuePerUse` to metrics with full projections. Enables true ROI calculations using **Gross Annual Value** (savings + revenue): net annual value, payback period, first-year ROI, ongoing ROI. Cost structure covers one-time costs (build, licensing) and recurring costs (compute, licensing, maintenance). Revenue row shown in purple when non-zero.
 
 ### Prompt Library Social Features (ADR-006 — Planned)
 Two new tables: `prompt_stars` (favorites) and `prompt_comments` (threaded discussions). Stars show on user dashboard; comments support single-level threading. Independent of assessment features.

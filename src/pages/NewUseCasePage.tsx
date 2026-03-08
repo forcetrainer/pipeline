@@ -44,6 +44,7 @@ function NewUseCasePage() {
     calculateMetrics({
       timeSavedPerUseMinutes: 0,
       moneySavedPerUse: 0,
+      revenuePerUse: 0,
       numberOfUsers: 1,
       usesPerUserPerPeriod: 1,
       frequencyPeriod: 'weekly',

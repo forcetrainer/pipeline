@@ -102,10 +102,13 @@ function MetricsCalculator({ value, onChange }: MetricsCalculatorProps) {
   const [timeUnit, setTimeUnit] = useState<TimeUnit>('minutes');
   const [moneyFocused, setMoneyFocused] = useState(false);
   const [moneyRaw, setMoneyRaw] = useState('');
+  const [revenueFocused, setRevenueFocused] = useState(false);
+  const [revenueRaw, setRevenueRaw] = useState('');
 
   // Derive raw input values from the metrics value prop
   const timeSavedPerUseMinutes = value.timeSavedPerUseMinutes || 0;
   const moneySavedPerUse = value.moneySavedPerUse || 0;
+  const revenuePerUse = value.revenuePerUse || 0;
   const numberOfUsers = value.numberOfUsers || 0;
   const usesPerUserPerPeriod = value.usesPerUserPerPeriod || 0;
   const frequencyPeriod = value.frequencyPeriod || 'daily';
@@ -113,11 +116,12 @@ function MetricsCalculator({ value, onChange }: MetricsCalculatorProps) {
   const hasAnyValue =
     timeSavedPerUseMinutes > 0 ||
     moneySavedPerUse > 0 ||
+    revenuePerUse > 0 ||
     numberOfUsers > 0 ||
     usesPerUserPerPeriod > 0;
 
   const hasMetrics =
-    (timeSavedPerUseMinutes > 0 || moneySavedPerUse > 0) &&
+    (timeSavedPerUseMinutes > 0 || moneySavedPerUse > 0 || revenuePerUse > 0) &&
     numberOfUsers > 0 &&
     usesPerUserPerPeriod > 0;
 
@@ -130,6 +134,7 @@ function MetricsCalculator({ value, onChange }: MetricsCalculatorProps) {
     (overrides: Partial<{
       timeSavedPerUseMinutes: number;
       moneySavedPerUse: number;
+      revenuePerUse: number;
       numberOfUsers: number;
       usesPerUserPerPeriod: number;
       frequencyPeriod: FrequencyPeriod;
@@ -137,13 +142,14 @@ function MetricsCalculator({ value, onChange }: MetricsCalculatorProps) {
       const input = {
         timeSavedPerUseMinutes: overrides.timeSavedPerUseMinutes ?? timeSavedPerUseMinutes,
         moneySavedPerUse: overrides.moneySavedPerUse ?? moneySavedPerUse,
+        revenuePerUse: overrides.revenuePerUse ?? revenuePerUse,
         numberOfUsers: overrides.numberOfUsers ?? numberOfUsers,
         usesPerUserPerPeriod: overrides.usesPerUserPerPeriod ?? usesPerUserPerPeriod,
         frequencyPeriod: overrides.frequencyPeriod ?? frequencyPeriod,
       };
       onChange(calculateMetrics(input));
     },
-    [timeSavedPerUseMinutes, moneySavedPerUse, numberOfUsers, usesPerUserPerPeriod, frequencyPeriod, onChange]
+    [timeSavedPerUseMinutes, moneySavedPerUse, revenuePerUse, numberOfUsers, usesPerUserPerPeriod, frequencyPeriod, onChange]
   );
 
   // Display value for time input depending on unit toggle
@@ -158,13 +164,13 @@ function MetricsCalculator({ value, onChange }: MetricsCalculatorProps) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-      {/* Section 1: Per-Use Savings */}
+      {/* Section 1: Per-Use Value */}
       <section>
-        <h3 style={sectionHeaderStyle}>Per-Use Savings</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+        <h3 style={sectionHeaderStyle}>Per-Use Value</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem' }}>
           {/* Time saved per use */}
           <div>
-            <label style={labelStyle}>Time saved per use</label>
+            <label style={labelStyle}>Time saved</label>
             <div style={{ display: 'flex', gap: '0' }}>
               <input
                 type="number"
@@ -213,7 +219,7 @@ function MetricsCalculator({ value, onChange }: MetricsCalculatorProps) {
 
           {/* Money saved per use */}
           <div>
-            <label style={labelStyle}>Money saved per use</label>
+            <label style={labelStyle}>Money saved</label>
             <div style={{ position: 'relative' }}>
               <span
                 style={{
@@ -261,8 +267,59 @@ function MetricsCalculator({ value, onChange }: MetricsCalculatorProps) {
               />
             </div>
           </div>
+
+          {/* Revenue per use */}
+          <div>
+            <label style={labelStyle}>Revenue generated</label>
+            <div style={{ position: 'relative' }}>
+              <span
+                style={{
+                  position: 'absolute',
+                  left: '0.75rem',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  color: 'var(--nx-text-tertiary)',
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: 'var(--text-sm)',
+                  pointerEvents: 'none',
+                }}
+              >
+                $
+              </span>
+              <input
+                type="text"
+                inputMode="decimal"
+                placeholder="0"
+                value={revenuePerUse > 0
+                  ? (revenueFocused ? revenueRaw : formatWithCommas(revenuePerUse))
+                  : (revenueFocused ? revenueRaw : '')}
+                onChange={(e) => {
+                  const stripped = e.target.value.replace(/,/g, '');
+                  const cleaned = stripped.replace(/[^0-9.]/g, '');
+                  const parts = cleaned.split('.');
+                  const sanitized = parts.length > 2 ? parts[0] + '.' + parts.slice(1).join('') : cleaned;
+                  setRevenueRaw(sanitized);
+                  recalc({ revenuePerUse: parseFloat(sanitized) || 0 });
+                }}
+                onFocus={(e) => {
+                  setRevenueFocused(true);
+                  setRevenueRaw(revenuePerUse > 0 ? revenuePerUse.toString() : '');
+                  handleFocus(e);
+                }}
+                onBlur={(e) => {
+                  setRevenueFocused(false);
+                  setRevenueRaw('');
+                  handleBlur(e);
+                }}
+                style={{
+                  ...inputBaseStyle,
+                  paddingLeft: '1.5rem',
+                }}
+              />
+            </div>
+          </div>
         </div>
-        <p style={helperTextStyle}>How much is saved each time someone uses this?</p>
+        <p style={helperTextStyle}>Per-use savings and revenue generated each time someone uses this</p>
       </section>
 
       {/* Section 2: Scale */}
@@ -431,6 +488,32 @@ function MetricsCalculator({ value, onChange }: MetricsCalculatorProps) {
                 color="var(--nx-amber-base)"
                 isAnnual
               />
+
+              {/* Revenue row (hidden when zero) */}
+              {(value.revenuePerUse || 0) > 0 && (
+                <>
+                  <ProjectionCell
+                    value={formatMoney(value.dailyRevenue)}
+                    color="#a78bfa"
+                    isAnnual={false}
+                  />
+                  <ProjectionCell
+                    value={formatMoney(value.weeklyRevenue)}
+                    color="#a78bfa"
+                    isAnnual={false}
+                  />
+                  <ProjectionCell
+                    value={formatMoney(value.monthlyRevenue)}
+                    color="#a78bfa"
+                    isAnnual={false}
+                  />
+                  <ProjectionCell
+                    value={formatMoney(value.annualRevenue)}
+                    color="#a78bfa"
+                    isAnnual
+                  />
+                </>
+              )}
             </div>
           </div>
         </section>
