@@ -3,8 +3,9 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Textarea } from '../ui/Textarea';
 import { Select } from '../ui/Select';
-import type { UseCase, UseCaseMetrics } from '../../types';
+import type { UseCase, UseCaseMetrics, CostTracking } from '../../types';
 import { MetricsCalculator } from './MetricsCalculator';
+import { CostTracker } from './CostTracker';
 
 interface UseCaseFormProps {
   initialData?: Partial<UseCase>;
@@ -104,6 +105,7 @@ function UseCaseForm({ initialData, onSubmit, isSubmitting }: UseCaseFormProps) 
   const [status, setStatus] = useState<UseCase['status']>(initialData?.status || 'idea');
   const [tags, setTags] = useState(initialData?.tags?.join(', ') || '');
   const [submittedBy, setSubmittedBy] = useState(initialData?.submittedBy || '');
+  const [actualCosts, setActualCosts] = useState<CostTracking | undefined>(initialData?.actualCosts);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -124,6 +126,7 @@ function UseCaseForm({ initialData, onSubmit, isSubmitting }: UseCaseFormProps) 
       submitterTeam: department,
       submittedById: '',
       approvalStatus: 'pending',
+      actualCosts,
     });
   };
 
@@ -185,6 +188,11 @@ function UseCaseForm({ initialData, onSubmit, isSubmitting }: UseCaseFormProps) 
             rows={3}
           />
         </div>
+      </section>
+
+      {/* Cost Tracking */}
+      <section>
+        <CostTracker value={actualCosts} onChange={setActualCosts} />
       </section>
 
       {/* Classification */}

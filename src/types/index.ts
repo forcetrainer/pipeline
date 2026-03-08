@@ -60,6 +60,28 @@ export interface UseCaseMetrics {
   annualMoneySaved: number;
 }
 
+// ── Cost Tracking types ────────────────────────────────────────────
+
+export interface CostTracking {
+  // One-time costs
+  buildCostInternal: number;
+  buildCostExternal: number;
+  licensingOneTime: number;
+
+  // Recurring costs (monthly)
+  licensingRecurring: number;
+  computeRecurring: number;
+  maintenanceRecurring: number;
+
+  // Calculated
+  totalOneTime: number;
+  totalMonthlyRecurring: number;
+  totalAnnualRecurring: number;
+
+  // Optional context
+  notes: string;
+}
+
 export type ScoreGrade = 'S' | 'A' | 'B' | 'C' | 'D';
 
 export interface UseCaseScore {
@@ -92,6 +114,8 @@ export interface UseCase {
   reviewNotes?: string;
   reviewedAt?: string;
   aiReadinessScore?: number;
+  actualCosts?: CostTracking;
+  assessmentId?: string;
   createdAt: string;
   updatedAt: string;
 }

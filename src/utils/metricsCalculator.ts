@@ -1,4 +1,4 @@
-import type { FrequencyPeriod, UseCaseMetrics, UseCaseScore, ScoreGrade } from '../types';
+import type { FrequencyPeriod, UseCaseMetrics, UseCaseScore, ScoreGrade, CostTracking } from '../types';
 
 export function calculateMetrics(input: {
   timeSavedPerUseMinutes: number;
@@ -112,10 +112,13 @@ export function calculateScore(metrics: UseCaseMetrics): UseCaseScore {
 export function formatTime(minutes: number): string {
   if (minutes < 1) return '0m';
   if (minutes < 60) return `${Math.round(minutes)}m`;
-  const hours = Math.floor(minutes / 60);
+  const hours = minutes / 60;
+  if (hours >= 10_000) return `${(hours / 1_000).toFixed(1)}K hrs`;
+  if (hours >= 1_000) return `${Math.round(hours).toLocaleString()} hrs`;
+  const wholeHours = Math.floor(hours);
   const remainingMinutes = Math.round(minutes % 60);
-  if (remainingMinutes === 0) return `${hours}h`;
-  return `${hours}h ${remainingMinutes}m`;
+  if (remainingMinutes === 0) return `${wholeHours}h`;
+  return `${wholeHours}h ${remainingMinutes}m`;
 }
 
 export function formatMoney(dollars: number): string {
@@ -124,4 +127,72 @@ export function formatMoney(dollars: number): string {
   if (dollars >= 10_000) return `$${(dollars / 1_000).toFixed(1)}K`;
   if (dollars >= 1_000) return `$${Math.round(dollars).toLocaleString()}`;
   return `$${Math.round(dollars)}`;
+}
+
+// ── Cost tracking utilities ────────────────────────────────────────
+
+export function calculateCostTotals(input: {
+  buildCostInternal: number;
+  buildCostExternal: number;
+  licensingOneTime: number;
+  licensingRecurring: number;
+  computeRecurring: number;
+  maintenanceRecurring: number;
+  notes?: string;
+}): CostTracking {
+  const totalOneTime = input.buildCostInternal + input.buildCostExternal + input.licensingOneTime;
+  const totalMonthlyRecurring = input.licensingRecurring + input.computeRecurring + input.maintenanceRecurring;
+  const totalAnnualRecurring = totalMonthlyRecurring * 12;
+
+  return {
+    buildCostInternal: input.buildCostInternal,
+    buildCostExternal: input.buildCostExternal,
+    licensingOneTime: input.licensingOneTime,
+    licensingRecurring: input.licensingRecurring,
+    computeRecurring: input.computeRecurring,
+    maintenanceRecurring: input.maintenanceRecurring,
+    totalOneTime,
+    totalMonthlyRecurring,
+    totalAnnualRecurring,
+    notes: input.notes || '',
+  };
+}
+
+export interface ROISummary {
+  grossAnnualSavings: number;
+  netAnnualSavings: number;
+  totalInvestment: number;
+  monthlyNetBenefit: number;
+  paybackPeriodMonths: number | null; // null if never pays back
+  firstYearROI: number | null; // null if no investment
+  ongoingROI: number | null; // null if no recurring costs
+}
+
+export function calculateROI(metrics: UseCaseMetrics, costs: CostTracking): ROISummary {
+  const grossAnnualSavings = metrics.annualMoneySaved;
+  const netAnnualSavings = grossAnnualSavings - costs.totalAnnualRecurring;
+  const totalInvestment = costs.totalOneTime;
+  const monthlyNetBenefit = (metrics.monthlyMoneySaved) - costs.totalMonthlyRecurring;
+
+  const paybackPeriodMonths = monthlyNetBenefit > 0
+    ? totalInvestment / monthlyNetBenefit
+    : null;
+
+  const firstYearROI = totalInvestment > 0
+    ? ((netAnnualSavings - totalInvestment) / totalInvestment) * 100
+    : null;
+
+  const ongoingROI = costs.totalAnnualRecurring > 0
+    ? (netAnnualSavings / costs.totalAnnualRecurring) * 100
+    : null;
+
+  return {
+    grossAnnualSavings,
+    netAnnualSavings,
+    totalInvestment,
+    monthlyNetBenefit,
+    paybackPeriodMonths,
+    firstYearROI,
+    ongoingROI,
+  };
 }

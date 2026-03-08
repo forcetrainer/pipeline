@@ -208,6 +208,8 @@ Four tables defined in `server/src/db/schema.ts` using Drizzle's SQLite helpers:
 | approval_status | TEXT NOT NULL | draft, pending, approved, denied |
 | reviewed_by, review_notes, reviewed_at | TEXT | Nullable |
 | ai_readiness_score | INTEGER | Nullable |
+| actual_costs | TEXT | Nullable, JSON (CostTracking) |
+| assessment_id | TEXT | Nullable, FK -> assessments.id |
 | created_at, updated_at | TEXT NOT NULL | ISO 8601 |
 
 ### prompts
@@ -341,6 +343,19 @@ Required env vars for SSO (when implemented):
 - `AZURE_CLIENT_ID`
 - `AZURE_CLIENT_SECRET`
 - `AZURE_REDIRECT_URI`
+
+## Upcoming Features
+
+Three major features are in progress or planned, documented via ADRs:
+
+### Use Case Cost Tracking (ADR-008 — In Progress)
+Adds `actual_costs` (JSON) and `assessment_id` (FK) columns to `use_cases`. Enables true ROI calculations: net savings, payback period, first-year ROI. Cost structure covers one-time costs (build, licensing) and recurring costs (compute, licensing, maintenance).
+
+### Prompt Library Social Features (ADR-006 — Planned)
+Two new tables: `prompt_stars` (favorites) and `prompt_comments` (threaded discussions). Stars show on user dashboard; comments support single-level threading. Independent of assessment features.
+
+### Automation Readiness Assessment (ADR-007 — Planned)
+Two new tables: `assessments` and `assessment_checkpoints`. Users log ideas and evaluate them through five guided checkpoints (Documentation, Squint Check, Auto-Manual Switches, Automation Pyramid, Risk & Governance). Each checkpoint has a 1-5 scoring rubric. Completed assessments can be promoted to use cases. Assessments are user-specific (not shared) but available for admin reporting.
 
 ## Future Considerations
 

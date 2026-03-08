@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useRef } from 'react';
 import type { UseCaseMetrics, FrequencyPeriod, UseCaseScore, ScoreGrade } from '../../types';
 import {
   calculateMetrics,
@@ -90,10 +90,18 @@ function handleBlur(e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) {
   e.currentTarget.style.borderColor = 'rgba(0, 212, 255, 0.15)';
 }
 
+function formatWithCommas(num: number): string {
+  const parts = num.toString().split('.');
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return parts.join('.');
+}
+
 // --- Component ---
 
 function MetricsCalculator({ value, onChange }: MetricsCalculatorProps) {
   const [timeUnit, setTimeUnit] = useState<TimeUnit>('minutes');
+  const [moneyFocused, setMoneyFocused] = useState(false);
+  const [moneyRaw, setMoneyRaw] = useState('');
 
   // Derive raw input values from the metrics value prop
   const timeSavedPerUseMinutes = value.timeSavedPerUseMinutes || 0;
@@ -222,16 +230,30 @@ function MetricsCalculator({ value, onChange }: MetricsCalculatorProps) {
                 $
               </span>
               <input
-                type="number"
-                min="0"
-                step="1"
+                type="text"
+                inputMode="decimal"
                 placeholder="0"
-                value={moneySavedPerUse > 0 ? moneySavedPerUse : ''}
+                value={moneySavedPerUse > 0
+                  ? (moneyFocused ? moneyRaw : formatWithCommas(moneySavedPerUse))
+                  : (moneyFocused ? moneyRaw : '')}
                 onChange={(e) => {
-                  recalc({ moneySavedPerUse: parseFloat(e.target.value) || 0 });
+                  const stripped = e.target.value.replace(/,/g, '');
+                  const cleaned = stripped.replace(/[^0-9.]/g, '');
+                  const parts = cleaned.split('.');
+                  const sanitized = parts.length > 2 ? parts[0] + '.' + parts.slice(1).join('') : cleaned;
+                  setMoneyRaw(sanitized);
+                  recalc({ moneySavedPerUse: parseFloat(sanitized) || 0 });
                 }}
-                onFocus={handleFocus}
-                onBlur={handleBlur}
+                onFocus={(e) => {
+                  setMoneyFocused(true);
+                  setMoneyRaw(moneySavedPerUse > 0 ? moneySavedPerUse.toString() : '');
+                  handleFocus(e);
+                }}
+                onBlur={(e) => {
+                  setMoneyFocused(false);
+                  setMoneyRaw('');
+                  handleBlur(e);
+                }}
                 style={{
                   ...inputBaseStyle,
                   paddingLeft: '1.5rem',

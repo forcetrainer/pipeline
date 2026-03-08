@@ -10,6 +10,7 @@ function parseUseCase(row: UseCaseRow) {
     ...row,
     metrics: JSON.parse(row.metrics),
     tags: JSON.parse(row.tags),
+    actualCosts: row.actualCosts ? JSON.parse(row.actualCosts) : null,
   };
 }
 
@@ -68,6 +69,10 @@ export async function useCaseRoutes(app: FastifyInstance) {
       reviewedBy: null,
       reviewNotes: null,
       reviewedAt: null,
+      actualCosts: body.actualCosts
+        ? (typeof body.actualCosts === 'string' ? body.actualCosts : JSON.stringify(body.actualCosts))
+        : null,
+      assessmentId: (body.assessmentId as string) || null,
       createdAt: now,
       updatedAt: now,
     };
@@ -103,6 +108,14 @@ export async function useCaseRoutes(app: FastifyInstance) {
     }
     if (body.tags !== undefined) {
       updates.tags = typeof body.tags === 'string' ? body.tags : JSON.stringify(body.tags);
+    }
+    if (body.actualCosts !== undefined) {
+      updates.actualCosts = body.actualCosts
+        ? (typeof body.actualCosts === 'string' ? body.actualCosts : JSON.stringify(body.actualCosts))
+        : null;
+    }
+    if (body.assessmentId !== undefined) {
+      updates.assessmentId = body.assessmentId || null;
     }
 
     const updated = repo.update(id, updates);

@@ -22,16 +22,23 @@
 | Prompt Rating | Done | 0.2.0 | Running average rating system (1-5 stars) |
 | Fuzzy Search | Done | 0.0.1 | Fuse.js-powered search across use cases and prompts |
 
+## In Progress
+
+| Feature | Status | ADR | Notes |
+|---------|--------|-----|-------|
+| Use Case Cost Tracking | In Progress | [ADR-008](ADR/008-use-case-cost-tracking.md) | One-time + recurring costs, true ROI calculations, payback period |
+| Prompt Library Social Features | Planned | [ADR-006](ADR/006-prompt-library-social-features.md) | Stars/favorites, comments, threaded conversations |
+| Automation Readiness Assessment | Planned | [ADR-007](ADR/007-automation-readiness-assessment.md) | Guided self-assessment with 5 checkpoints, scoring, promote-to-use-case |
+
 ## Planned Features
 
-| Feature | Status | Version | Notes |
-|---------|--------|---------|-------|
-| AI Readiness Check | Planned | -- | Stub endpoint exists at `/api/ai-readiness/:useCaseId` |
-| PostgreSQL Support | Planned | -- | Repository pattern ready; implement Postgres repositories, switch via `DB_DRIVER` |
-| Entra ID SSO | Planned | -- | Strategy pattern + stubs in place; add `@azure/msal-node` |
-| CI/CD Pipeline | Planned | -- | Lint, test, build, deploy automation |
-| Testing (Vitest) | Planned | -- | Unit and integration test suite |
-| Rate Limiting | Planned | -- | Protect auth endpoints from brute force |
-| Audit Logging | Planned | -- | Track admin actions and data changes |
-| File Attachments | Planned | -- | Attach screenshots/docs to use cases |
-| Export/Import | Planned | -- | CSV/JSON export of use cases and prompts |
+| Feature | Status | Notes |
+|---------|--------|-------|
+| PostgreSQL Support | Planned | Repository pattern ready; implement Postgres repositories, switch via `DB_DRIVER` |
+| Entra ID SSO | Planned | Strategy pattern + stubs in place; add `@azure/msal-node` |
+| CI/CD Pipeline | Planned | Lint, test, build, deploy automation |
+| Testing (Vitest) | Planned | Unit and integration test suite |
+| Rate Limiting | Planned | Protect auth endpoints from brute force |
+| Audit Logging | Planned | Track admin actions and data changes |
+| File Attachments | Planned | Attach screenshots/docs to use cases |
+| Export/Import | Planned | CSV/JSON export of use cases and prompts |

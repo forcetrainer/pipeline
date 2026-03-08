@@ -4,8 +4,8 @@ import { ArrowLeft, Calendar, User, Building2 } from 'lucide-react';
 import { Badge, Button } from '../components/ui';
 import * as useCaseService from '../services/useCaseService';
 import { format } from 'date-fns';
-import type { UseCase, ScoreGrade } from '../types';
-import { calculateScore, formatTime, formatMoney } from '../utils/metricsCalculator';
+import type { UseCase, ScoreGrade, CostTracking } from '../types';
+import { calculateScore, calculateROI, formatTime, formatMoney } from '../utils/metricsCalculator';
 
 const impactVariant = {
   high: 'success' as const,
@@ -144,6 +144,11 @@ function UseCaseDetailPage() {
         {/* Metrics Breakdown Panel */}
         {useCase.metrics && (useCase.metrics.timeSavedHours > 0 || useCase.metrics.moneySavedDollars > 0) && (
           <MetricsBreakdown metrics={useCase.metrics} />
+        )}
+
+        {/* Cost & ROI Panel */}
+        {useCase.actualCosts && (
+          <CostAndROIPanel metrics={useCase.metrics} costs={useCase.actualCosts} />
         )}
 
         {/* Description */}
@@ -497,6 +502,191 @@ function MetricsBreakdown({ metrics }: { metrics: import('../types').UseCaseMetr
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function CostAndROIPanel({ metrics, costs }: { metrics: import('../types').UseCaseMetrics; costs: CostTracking }) {
+  const [showBreakdown, setShowBreakdown] = useState(false);
+  const roi = calculateROI(metrics, costs);
+
+  const paybackColor =
+    roi.paybackPeriodMonths === null
+      ? '#ff6b6b'
+      : roi.paybackPeriodMonths < 12
+        ? 'var(--nx-green-base)'
+        : roi.paybackPeriodMonths <= 24
+          ? 'var(--nx-amber-base)'
+          : '#ff6b6b';
+
+  const roiColor = (value: number | null) =>
+    value === null ? 'var(--nx-text-tertiary)' : value >= 0 ? 'var(--nx-green-base)' : '#ff6b6b';
+
+  const savingsColor = roi.netAnnualSavings >= 0 ? 'var(--nx-green-base)' : '#ff6b6b';
+
+  const labelStyle: React.CSSProperties = {
+    fontSize: '11px',
+    color: 'var(--nx-text-tertiary)',
+    textTransform: 'uppercase',
+    letterSpacing: '0.1em',
+    fontFamily: 'var(--font-sans)',
+    fontWeight: 500,
+    marginBottom: '0.25rem',
+  };
+
+  const valueStyle: React.CSSProperties = {
+    fontFamily: "'JetBrains Mono', monospace",
+    fontSize: '18px',
+    fontWeight: 600,
+  };
+
+  const costItems = [
+    { label: 'Internal build', value: costs.buildCostInternal },
+    { label: 'External build', value: costs.buildCostExternal },
+    { label: 'One-time licensing', value: costs.licensingOneTime },
+    { label: 'Monthly licensing', value: costs.licensingRecurring },
+    { label: 'Monthly compute/API', value: costs.computeRecurring },
+    { label: 'Monthly maintenance', value: costs.maintenanceRecurring },
+  ];
+
+  return (
+    <div
+      className="mb-8"
+      style={{
+        background: 'var(--nx-glass-medium)',
+        border: '1px solid rgba(0, 212, 255, 0.2)',
+        borderRadius: 'var(--radius-lg, 12px)',
+        padding: '1.5rem',
+        backdropFilter: 'blur(8px)',
+      }}
+    >
+      <h2
+        className="text-lg font-semibold mb-4"
+        style={{
+          color: 'var(--nx-text-primary)',
+          fontFamily: "'Orbitron', sans-serif",
+          fontSize: '16px',
+          letterSpacing: '0.03em',
+        }}
+      >
+        Cost & ROI
+      </h2>
+
+      {/* Row 1: Cost breakdown */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(3, 1fr)',
+          gap: '1rem',
+          marginBottom: '1.25rem',
+        }}
+      >
+        <div style={{ textAlign: 'center' }}>
+          <div style={labelStyle}>One-Time Investment</div>
+          <div style={{ ...valueStyle, color: '#ff6b6b', textShadow: '0 0 12px rgba(255, 107, 107, 0.5)' }}>
+            {formatMoney(roi.totalInvestment)}
+          </div>
+        </div>
+        <div style={{ textAlign: 'center' }}>
+          <div style={labelStyle}>Monthly Recurring</div>
+          <div style={{ ...valueStyle, color: '#ff6b6b', textShadow: '0 0 12px rgba(255, 107, 107, 0.5)' }}>
+            {formatMoney(costs.totalMonthlyRecurring)}
+          </div>
+        </div>
+        <div style={{ textAlign: 'center' }}>
+          <div style={labelStyle}>Annual Recurring</div>
+          <div style={{ ...valueStyle, color: '#ff6b6b', textShadow: '0 0 12px rgba(255, 107, 107, 0.5)' }}>
+            {formatMoney(costs.totalAnnualRecurring)}
+          </div>
+        </div>
+      </div>
+
+      {/* Row 2: ROI metrics */}
+      <div
+        style={{
+          borderTop: '1px solid rgba(0, 212, 255, 0.15)',
+          paddingTop: '1.25rem',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(4, 1fr)',
+          gap: '1rem',
+        }}
+      >
+        <div style={{ textAlign: 'center' }}>
+          <div style={labelStyle}>Net Annual Savings</div>
+          <div style={{ ...valueStyle, color: savingsColor, textShadow: `0 0 12px ${savingsColor}88` }}>
+            {formatMoney(roi.netAnnualSavings)}
+          </div>
+        </div>
+        <div style={{ textAlign: 'center' }}>
+          <div style={labelStyle}>Payback Period</div>
+          <div style={{ ...valueStyle, color: paybackColor, textShadow: `0 0 12px ${paybackColor}88` }}>
+            {roi.paybackPeriodMonths !== null
+              ? `${roi.paybackPeriodMonths.toFixed(1)} months`
+              : 'N/A'}
+          </div>
+        </div>
+        <div style={{ textAlign: 'center' }}>
+          <div style={labelStyle}>First Year ROI</div>
+          <div style={{ ...valueStyle, color: roiColor(roi.firstYearROI), textShadow: `0 0 12px ${roiColor(roi.firstYearROI)}88` }}>
+            {roi.firstYearROI !== null ? `${Math.round(roi.firstYearROI).toLocaleString()}%` : 'N/A'}
+          </div>
+        </div>
+        <div style={{ textAlign: 'center' }}>
+          <div style={labelStyle}>Ongoing ROI</div>
+          <div style={{ ...valueStyle, color: roiColor(roi.ongoingROI), textShadow: `0 0 12px ${roiColor(roi.ongoingROI)}88` }}>
+            {roi.ongoingROI !== null ? `${Math.round(roi.ongoingROI).toLocaleString()}%` : 'N/A'}
+          </div>
+        </div>
+      </div>
+
+      {/* Expandable cost detail */}
+      <div style={{ marginTop: '1rem' }}>
+        <button
+          onClick={() => setShowBreakdown(!showBreakdown)}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: 'var(--nx-text-tertiary)',
+            fontSize: '12px',
+            cursor: 'pointer',
+            fontFamily: 'var(--font-sans)',
+            padding: '0.25rem 0',
+            textDecoration: 'underline',
+            textDecorationColor: 'rgba(255, 255, 255, 0.15)',
+          }}
+        >
+          {showBreakdown ? 'Hide cost breakdown' : 'Show cost breakdown'}
+        </button>
+
+        {showBreakdown && (
+          <div
+            style={{
+              marginTop: '0.75rem',
+              padding: '1rem',
+              background: 'var(--nx-void-surface)',
+              borderRadius: 'var(--radius-md, 8px)',
+              display: 'grid',
+              gridTemplateColumns: 'repeat(2, 1fr)',
+              gap: '0.5rem 2rem',
+            }}
+          >
+            {costItems.map((item) => (
+              <div key={item.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '13px', color: 'var(--nx-text-tertiary)' }}>{item.label}</span>
+                <span style={{ fontSize: '13px', fontFamily: "'JetBrains Mono', monospace", color: 'var(--nx-text-secondary)' }}>
+                  {formatMoney(item.value)}
+                </span>
+              </div>
+            ))}
+            {costs.notes && (
+              <div style={{ gridColumn: '1 / -1', marginTop: '0.5rem', borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '0.5rem' }}>
+                <span style={{ fontSize: '11px', color: 'var(--nx-text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Notes</span>
+                <p style={{ fontSize: '13px', color: 'var(--nx-text-secondary)', marginTop: '0.25rem' }}>{costs.notes}</p>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

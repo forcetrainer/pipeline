@@ -49,6 +49,7 @@ export async function seedDatabase() {
       category: 'Code Review', aiTool: 'Copilot', department: 'Engineering', impact: 'high', effort: 'medium', status: 'active',
       tags: JSON.stringify(['code-review', 'automation', 'engineering']),
       submittedBy: 'Sarah Chen', submitterTeam: 'Engineering', submittedById: 'user-001', approvalStatus: 'approved',
+      actualCosts: JSON.stringify({ buildCostInternal: 8000, buildCostExternal: 0, licensingOneTime: 0, licensingRecurring: 200, computeRecurring: 350, maintenanceRecurring: 500, totalOneTime: 8000, totalMonthlyRecurring: 1050, totalAnnualRecurring: 12600, notes: 'Internal engineering time for GitHub Action setup. Recurring costs are Copilot licenses and CI compute.' }),
       createdAt: '2025-01-15T10:00:00Z', updatedAt: '2025-01-20T14:30:00Z',
     },
     {
@@ -60,6 +61,7 @@ export async function seedDatabase() {
       category: 'Content Creation', aiTool: 'ChatGPT', department: 'Marketing', impact: 'medium', effort: 'low', status: 'active',
       tags: JSON.stringify(['marketing', 'content', 'copywriting']),
       submittedBy: 'Mike Rodriguez', submitterTeam: 'Marketing', submittedById: 'user-002', approvalStatus: 'approved',
+      actualCosts: JSON.stringify({ buildCostInternal: 500, buildCostExternal: 0, licensingOneTime: 0, licensingRecurring: 20, computeRecurring: 30, maintenanceRecurring: 0, totalOneTime: 500, totalMonthlyRecurring: 50, totalAnnualRecurring: 600, notes: 'Minimal setup — just Notion templates and ChatGPT Plus subscription. Internal time was a few hours of prompt engineering.' }),
       createdAt: '2025-02-01T09:00:00Z', updatedAt: '2025-02-05T11:00:00Z',
     },
     {
@@ -71,6 +73,7 @@ export async function seedDatabase() {
       category: 'Customer Support', aiTool: 'Claude', department: 'Operations', impact: 'high', effort: 'medium', status: 'pilot',
       tags: JSON.stringify(['support', 'classification', 'routing']),
       submittedBy: 'Lisa Park', submitterTeam: 'Customer Success', submittedById: 'user-003', approvalStatus: 'approved',
+      actualCosts: JSON.stringify({ buildCostInternal: 12000, buildCostExternal: 5000, licensingOneTime: 0, licensingRecurring: 0, computeRecurring: 800, maintenanceRecurring: 1000, totalOneTime: 17000, totalMonthlyRecurring: 1800, totalAnnualRecurring: 21600, notes: 'External contractor for Zendesk integration. Recurring is Claude API usage and monthly maintenance.' }),
       createdAt: '2025-02-10T08:00:00Z', updatedAt: '2025-02-15T16:00:00Z',
     },
     {
@@ -82,6 +85,7 @@ export async function seedDatabase() {
       category: 'Documentation', aiTool: 'Claude', department: 'Operations', impact: 'medium', effort: 'low', status: 'active',
       tags: JSON.stringify(['meetings', 'summarization', 'productivity']),
       submittedBy: 'James Wilson', submitterTeam: 'Engineering', submittedById: 'user-004', approvalStatus: 'approved',
+      actualCosts: JSON.stringify({ buildCostInternal: 2000, buildCostExternal: 0, licensingOneTime: 0, licensingRecurring: 0, computeRecurring: 150, maintenanceRecurring: 100, totalOneTime: 2000, totalMonthlyRecurring: 250, totalAnnualRecurring: 3000, notes: 'Slack bot built internally. Recurring is Claude API costs for summarization and minor maintenance.' }),
       createdAt: '2025-03-01T10:00:00Z', updatedAt: '2025-03-05T12:00:00Z',
     },
     {
@@ -93,6 +97,7 @@ export async function seedDatabase() {
       category: 'Content Creation', aiTool: 'ChatGPT', department: 'Sales', impact: 'high', effort: 'low', status: 'active',
       tags: JSON.stringify(['sales', 'email', 'personalization']),
       submittedBy: 'Emma Thompson', submitterTeam: 'Sales', submittedById: 'user-005', approvalStatus: 'approved',
+      actualCosts: JSON.stringify({ buildCostInternal: 3000, buildCostExternal: 2000, licensingOneTime: 500, licensingRecurring: 100, computeRecurring: 450, maintenanceRecurring: 200, totalOneTime: 5500, totalMonthlyRecurring: 750, totalAnnualRecurring: 9000, notes: 'Chrome extension development. Recurring is ChatGPT API and CRM integration fees.' }),
       createdAt: '2025-03-10T09:00:00Z', updatedAt: '2025-03-15T10:00:00Z',
     },
     {
@@ -104,6 +109,7 @@ export async function seedDatabase() {
       category: 'Data Analysis', aiTool: 'Claude', department: 'Product', impact: 'high', effort: 'high', status: 'pilot',
       tags: JSON.stringify(['data', 'analysis', 'reporting']),
       submittedBy: 'David Kim', submitterTeam: 'Analytics', submittedById: 'user-006', approvalStatus: 'approved',
+      actualCosts: JSON.stringify({ buildCostInternal: 15000, buildCostExternal: 8000, licensingOneTime: 2000, licensingRecurring: 500, computeRecurring: 1200, maintenanceRecurring: 800, totalOneTime: 25000, totalMonthlyRecurring: 2500, totalAnnualRecurring: 30000, notes: 'Significant build effort — custom Python notebooks, data pipeline integration. External data engineering contractor. High API costs due to large dataset processing.' }),
       createdAt: '2025-03-20T08:00:00Z', updatedAt: '2025-03-25T14:00:00Z',
     },
     {
@@ -115,6 +121,7 @@ export async function seedDatabase() {
       category: 'Documentation', aiTool: 'Copilot', department: 'Engineering', impact: 'medium', effort: 'medium', status: 'active',
       tags: JSON.stringify(['documentation', 'api', 'automation']),
       submittedBy: 'Alex Rivera', submitterTeam: 'Engineering', submittedById: 'user-007', approvalStatus: 'approved',
+      actualCosts: JSON.stringify({ buildCostInternal: 4000, buildCostExternal: 0, licensingOneTime: 0, licensingRecurring: 19, computeRecurring: 25, maintenanceRecurring: 200, totalOneTime: 4000, totalMonthlyRecurring: 244, totalAnnualRecurring: 2928, notes: 'CI/CD pipeline integration built internally. Copilot license per-seat. Low compute costs since it only runs on merge to main.' }),
       createdAt: '2025-04-01T10:00:00Z', updatedAt: '2025-04-10T10:00:00Z',
     },
     {
@@ -126,6 +133,7 @@ export async function seedDatabase() {
       category: 'Research', aiTool: 'ChatGPT', department: 'Product', impact: 'medium', effort: 'high', status: 'active',
       tags: JSON.stringify(['research', 'competitive-analysis', 'market']),
       submittedBy: 'Rachel Foster', submitterTeam: 'Strategy', submittedById: 'user-008', approvalStatus: 'approved',
+      actualCosts: JSON.stringify({ buildCostInternal: 6000, buildCostExternal: 3000, licensingOneTime: 1500, licensingRecurring: 200, computeRecurring: 300, maintenanceRecurring: 500, totalOneTime: 10500, totalMonthlyRecurring: 1000, totalAnnualRecurring: 12000, notes: 'Web scraping infrastructure, data aggregation pipeline. External consultant for initial setup. Ongoing costs are API, scraping infra, and analyst time for review.' }),
       createdAt: '2025-04-05T09:00:00Z', updatedAt: '2025-04-12T09:00:00Z',
     },
   ]).run();

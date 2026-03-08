@@ -8,7 +8,9 @@ import * as useCaseService from '../services/useCaseService';
 import { USE_CASE_CATEGORIES, AI_TOOLS, DEPARTMENTS } from '../types';
 import type { UseCase, UseCaseMetrics } from '../types';
 import { MetricsCalculator } from '../components/use-cases/MetricsCalculator';
+import { CostTracker } from '../components/use-cases/CostTracker';
 import { calculateMetrics } from '../utils/metricsCalculator';
+import type { CostTracking } from '../types';
 
 type FormErrors = Partial<Record<string, string>>;
 
@@ -35,6 +37,8 @@ function NewUseCasePage() {
     tags: [] as string[],
     submitterTeam: '',
   });
+
+  const [actualCosts, setActualCosts] = useState<CostTracking | undefined>(undefined);
 
   const [metrics, setMetrics] = useState<UseCaseMetrics>(() =>
     calculateMetrics({
@@ -113,6 +117,7 @@ function NewUseCasePage() {
       submitterTeam: form.submitterTeam.trim(),
       submittedById: currentUser?.id ?? '',
       approvalStatus: 'pending',
+      actualCosts,
     };
 
     try {
@@ -247,6 +252,9 @@ function NewUseCasePage() {
 
           {/* Metrics */}
           <MetricsCalculator value={metrics} onChange={setMetrics} />
+
+          {/* Cost Tracking */}
+          <CostTracker value={actualCosts} onChange={setActualCosts} />
 
           {/* Selects */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
