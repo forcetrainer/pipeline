@@ -91,6 +91,7 @@ export interface UseCase {
   reviewedBy?: string;
   reviewNotes?: string;
   reviewedAt?: string;
+  aiReadinessScore?: number;
   createdAt: string;
   updatedAt: string;
 }

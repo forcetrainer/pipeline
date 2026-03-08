@@ -115,6 +115,18 @@ function UseCaseDetailPage() {
         <div className="flex items-center gap-3 mb-8">
           <Badge variant={impactVariant[useCase.impact]} size="md">{useCase.impact} impact</Badge>
           <Badge variant={impactVariant[useCase.effort]} size="md">{useCase.effort} effort</Badge>
+          <button
+            disabled
+            className="opacity-50 cursor-not-allowed px-3 py-1 rounded-md text-xs font-medium"
+            style={{
+              backgroundColor: 'var(--nx-void-surface)',
+              color: 'var(--nx-text-tertiary)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+            }}
+            title="AI Readiness Check coming soon"
+          >
+            Check AI Readiness (Coming Soon)
+          </button>
           <span
             className="text-xs px-2 py-1 rounded-sm"
             style={{ backgroundColor: 'var(--nx-void-surface)', color: 'var(--nx-text-secondary)' }}

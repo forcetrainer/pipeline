@@ -32,6 +32,7 @@ export const useCases = sqliteTable('use_cases', {
   reviewedBy: text('reviewed_by'),
   reviewNotes: text('review_notes'),
   reviewedAt: text('reviewed_at'),
+  aiReadinessScore: integer('ai_readiness_score'),
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),
 });
