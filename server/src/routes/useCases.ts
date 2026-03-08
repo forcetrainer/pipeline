@@ -18,7 +18,7 @@ export async function useCaseRoutes(app: FastifyInstance) {
   const repo = getUseCaseRepository();
 
   // GET /api/use-cases
-  app.get('/api/use-cases', async (request) => {
+  app.get('/api/use-cases', { preHandler: [authenticate] }, async (request) => {
     const query = request.query as Record<string, string | undefined>;
     const rows = repo.findAll({
       category: query.category,
@@ -32,7 +32,7 @@ export async function useCaseRoutes(app: FastifyInstance) {
   });
 
   // GET /api/use-cases/:id
-  app.get('/api/use-cases/:id', async (request, reply) => {
+  app.get('/api/use-cases/:id', { preHandler: [authenticate] }, async (request, reply) => {
     const { id } = request.params as { id: string };
     const row = repo.findById(id);
 
@@ -65,7 +65,7 @@ export async function useCaseRoutes(app: FastifyInstance) {
       submittedBy: body.submittedBy as string,
       submitterTeam: body.submitterTeam as string,
       submittedById: request.user!.userId,
-      approvalStatus: (body.approvalStatus as string) || 'draft',
+      approvalStatus: 'draft',
       reviewedBy: null,
       reviewNotes: null,
       reviewedAt: null,
@@ -98,7 +98,7 @@ export async function useCaseRoutes(app: FastifyInstance) {
     const now = new Date().toISOString();
 
     const updates: Record<string, unknown> = { updatedAt: now };
-    const stringFields = ['title', 'description', 'whatWasBuilt', 'keyLearnings', 'category', 'aiTool', 'department', 'impact', 'effort', 'status', 'submittedBy', 'submitterTeam', 'approvalStatus'] as const;
+    const stringFields = ['title', 'description', 'whatWasBuilt', 'keyLearnings', 'category', 'aiTool', 'department', 'impact', 'effort', 'status', 'submittedBy', 'submitterTeam'] as const;
 
     for (const field of stringFields) {
       if (body[field] !== undefined) updates[field] = body[field];

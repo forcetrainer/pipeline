@@ -3,6 +3,9 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { getRefreshTokenRepository } from '../db/repositories/index.js';
 
+if (!process.env.JWT_SECRET && process.env.NODE_ENV === 'production') {
+  throw new Error('JWT_SECRET environment variable must be set in production');
+}
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-in-production';
 const JWT_EXPIRY = '15m';
 const REFRESH_TOKEN_EXPIRY_DAYS = 7;

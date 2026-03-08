@@ -6,7 +6,7 @@ services:
       - "3001:3001"
     environment:
       - NODE_ENV=production
-      - JWT_SECRET=${JWT_SECRET:-change-me-in-production}
+      - JWT_SECRET=${JWT_SECRET:?JWT_SECRET must be set}
       - AUTH_MODE=${AUTH_MODE:-local}
       - DB_DRIVER=${DB_DRIVER:-sqlite}
     volumes:

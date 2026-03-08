@@ -18,7 +18,7 @@ export async function promptRoutes(app: FastifyInstance) {
   const commentRepo = getPromptCommentRepository();
 
   // GET /api/prompts
-  app.get('/api/prompts', async (request) => {
+  app.get('/api/prompts', { preHandler: [authenticate] }, async (request) => {
     const query = request.query as Record<string, string | undefined>;
     const rows = repo.findAll({
       category: query.category,
@@ -37,7 +37,7 @@ export async function promptRoutes(app: FastifyInstance) {
   });
 
   // GET /api/prompts/:id
-  app.get('/api/prompts/:id', async (request, reply) => {
+  app.get('/api/prompts/:id', { preHandler: [authenticate] }, async (request, reply) => {
     const { id } = request.params as { id: string };
     const row = repo.findById(id);
 
@@ -67,7 +67,7 @@ export async function promptRoutes(app: FastifyInstance) {
       tags: typeof body.tags === 'string' ? body.tags : JSON.stringify(body.tags || []),
       submittedBy: body.submittedBy as string,
       submittedById: request.user!.userId,
-      approvalStatus: (body.approvalStatus as string) || 'draft',
+      approvalStatus: 'draft',
       reviewedBy: null,
       reviewNotes: null,
       reviewedAt: null,
@@ -96,7 +96,7 @@ export async function promptRoutes(app: FastifyInstance) {
     const now = new Date().toISOString();
 
     const updates: Record<string, unknown> = { updatedAt: now };
-    const stringFields = ['title', 'content', 'description', 'problemBeingSolved', 'tips', 'category', 'aiTool', 'useCaseId', 'submittedBy', 'approvalStatus'] as const;
+    const stringFields = ['title', 'content', 'description', 'problemBeingSolved', 'tips', 'category', 'aiTool', 'useCaseId', 'submittedBy'] as const;
 
     for (const field of stringFields) {
       if (body[field] !== undefined) updates[field] = body[field];
@@ -173,7 +173,7 @@ export async function promptRoutes(app: FastifyInstance) {
   });
 
   // GET /api/prompts/:id/comments
-  app.get('/api/prompts/:id/comments', async (request) => {
+  app.get('/api/prompts/:id/comments', { preHandler: [authenticate] }, async (request) => {
     const { id } = request.params as { id: string };
     const comments = commentRepo.findByPrompt(id);
     return comments;

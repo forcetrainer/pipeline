@@ -1,15 +1,15 @@
-const TOKEN_KEY = 'pipeline:token';
+let inMemoryToken: string | null = null;
 
 function getToken(): string | null {
-  return localStorage.getItem(TOKEN_KEY);
+  return inMemoryToken;
 }
 
 export function setToken(token: string): void {
-  localStorage.setItem(TOKEN_KEY, token);
+  inMemoryToken = token;
 }
 
 export function clearToken(): void {
-  localStorage.removeItem(TOKEN_KEY);
+  inMemoryToken = null;
 }
 
 interface RequestOptions extends RequestInit {
@@ -30,7 +30,7 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
   }
   const response = await fetch(`/api${path}`, { ...fetchOptions, headers, credentials: 'include' });
 
-  if (response.status === 401 && !skipAuthRedirect && !isRefreshing) {
+  if (response.status === 401 && !isRefreshing) {
     // Try to refresh the token
     isRefreshing = true;
     try {
@@ -57,7 +57,9 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
     }
     isRefreshing = false;
     clearToken();
-    window.location.href = '/login';
+    if (!skipAuthRedirect) {
+      window.location.href = '/login';
+    }
     throw new Error('Unauthorized');
   }
 

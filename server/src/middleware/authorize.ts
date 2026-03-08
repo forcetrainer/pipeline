@@ -12,6 +12,7 @@ export function requireRole(...roles: string[]) {
       reply.code(403).send({
         error: `Forbidden: requires one of [${roles.join(', ')}] role`,
       });
+      return;
     }
   };
 }
@@ -25,6 +26,7 @@ export function requirePermission(...permissions: Permission[]) {
     const hasAll = permissions.every(p => hasPermission(request.user!.role, p));
     if (!hasAll) {
       reply.code(403).send({ error: 'Insufficient permissions' });
+      return;
     }
   };
 }

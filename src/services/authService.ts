@@ -12,7 +12,12 @@ export async function login(email: string, password: string): Promise<User> {
   return response.user;
 }
 
-export function logout(): void {
+export async function logout(): Promise<void> {
+  try {
+    await api.post('/auth/logout');
+  } catch {
+    // Best-effort server logout
+  }
   clearToken();
 }
 

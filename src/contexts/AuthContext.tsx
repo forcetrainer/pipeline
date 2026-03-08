@@ -28,8 +28,8 @@ function AuthProvider({ children }: AuthProviderProps) {
     setCurrentUser(user);
   }, []);
 
-  const logout = useCallback(() => {
-    authService.logout();
+  const logout = useCallback(async () => {
+    await authService.logout();
     setCurrentUser(null);
     navigate('/login');
   }, [navigate]);

@@ -5,7 +5,7 @@ import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const dbPath = resolve(__dirname, '../../data/dev.db');
+const dbPath = process.env.DB_PATH || resolve(__dirname, '../../data/pipeline.db');
 
 const sqlite = new Database(dbPath);
 sqlite.pragma('journal_mode = WAL');

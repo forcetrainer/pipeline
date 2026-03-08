@@ -14,6 +14,12 @@ export async function seedDatabase() {
   // Run migrations
   migrate(db, { migrationsFolder: resolve(__dirname, '../../drizzle') });
 
+  // Skip seeding in production
+  if (process.env.NODE_ENV === 'production') {
+    console.log('Production environment detected. Skipping seed data. Use CLI to create admin account.');
+    return;
+  }
+
   // Only seed if tables are empty
   const userCount = db.select({ count: sql<number>`count(*)` }).from(users).get();
   if (userCount && userCount.count > 0) {
