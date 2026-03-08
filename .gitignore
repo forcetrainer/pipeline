@@ -12,11 +12,22 @@ dist
 dist-ssr
 *.local
 
+# Environment files
+.env
+.env.*
+!.env.example
+
 # Claude Code
 .claude/
 
 # Agent team prompt (internal)
 AGENT_TEAM_PROMPT.md
+
+# Server database files
+server/data/*.db
+server/data/*.db-wal
+server/data/*.db-shm
+server/dist/
 
 # Editor directories and files
 .vscode/*

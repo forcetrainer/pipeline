@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Users } from 'lucide-react';
 import { Card } from '../components/ui';
 import { Link } from 'react-router-dom';
@@ -13,7 +13,7 @@ import {
   SavingsHorizonChart,
 } from '../components/dashboard/Charts';
 import type { ScatterDataPoint, ScoreDistributionData, SavingsHorizonData } from '../components/dashboard/Charts';
-import type { ScoreGrade } from '../types';
+import type { UseCase, Prompt, ScoreGrade } from '../types';
 import { calculateScore } from '../utils/metricsCalculator';
 import * as useCaseService from '../services/useCaseService';
 import * as promptService from '../services/promptService';
@@ -30,8 +30,28 @@ const GRADE_COLORS: Record<ScoreGrade, string> = {
 };
 
 function DashboardPage() {
-  const useCases = useCaseService.getAllUseCases();
-  const prompts = promptService.getAllPrompts();
+  const [useCases, setUseCases] = useState<UseCase[]>([]);
+  const [prompts, setPrompts] = useState<Prompt[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const [uc, p] = await Promise.all([
+          useCaseService.getAllUseCases(),
+          promptService.getAllPrompts(),
+        ]);
+        setUseCases(uc);
+        setPrompts(p);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'Failed to load dashboard data');
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
 
   // Compute scores for all use cases
   const useCaseScores = useMemo(() => {
@@ -190,6 +210,18 @@ function DashboardPage() {
     itemStyle: { color: 'var(--nx-text-primary)' },
     labelStyle: { color: 'var(--nx-text-secondary)' },
   };
+
+  if (loading) return (
+    <div className="flex items-center justify-center h-64">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-400"></div>
+    </div>
+  );
+
+  if (error) return (
+    <div className="text-center py-20">
+      <p style={{ color: 'var(--nx-red-base)' }}>{error}</p>
+    </div>
+  );
 
   return (
     <div>

@@ -1,9 +1,10 @@
+import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Calendar, User, Building2 } from 'lucide-react';
 import { Badge, Button, Card } from '../components/ui';
 import * as useCaseService from '../services/useCaseService';
 import { format } from 'date-fns';
-import type { ScoreGrade } from '../types';
+import type { UseCase, ScoreGrade } from '../types';
 import { calculateScore, formatTime, formatMoney } from '../utils/metricsCalculator';
 
 const impactVariant = {
@@ -22,7 +23,39 @@ const statusVariant = {
 function UseCaseDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const useCase = id ? useCaseService.getUseCaseById(id) : undefined;
+  const [useCase, setUseCase] = useState<UseCase | undefined>(undefined);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function load() {
+      if (!id) {
+        setLoading(false);
+        return;
+      }
+      try {
+        const data = await useCaseService.getUseCaseById(id);
+        setUseCase(data);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'Failed to load use case');
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, [id]);
+
+  if (loading) return (
+    <div className="flex items-center justify-center h-64">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-400"></div>
+    </div>
+  );
+
+  if (error) return (
+    <div className="text-center py-20">
+      <p style={{ color: 'var(--nx-red-base)' }}>{error}</p>
+    </div>
+  );
 
   if (!useCase) {
     return (

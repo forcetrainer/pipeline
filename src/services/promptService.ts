@@ -1,58 +1,53 @@
-import { v4 as uuidv4 } from 'uuid';
 import type { Prompt, PromptFilters, PromptSortField, SortDirection } from '../types';
-import * as storage from './storage';
+import { api } from './api';
 
-const COLLECTION = 'prompts';
-
-export function getAllPrompts(): Prompt[] {
-  return storage.getAll<Prompt>(COLLECTION);
+export async function getAllPrompts(): Promise<Prompt[]> {
+  return api.get<Prompt[]>('/prompts');
 }
 
-export function getPromptById(id: string): Prompt | undefined {
-  return storage.getById<Prompt>(COLLECTION, id);
+export async function getPromptById(id: string): Promise<Prompt | undefined> {
+  try {
+    return await api.get<Prompt>(`/prompts/${id}`);
+  } catch {
+    return undefined;
+  }
 }
 
-export function createPrompt(
+export async function createPrompt(
   data: Omit<Prompt, 'id' | 'createdAt' | 'updatedAt' | 'rating' | 'ratingCount'>
-): Prompt {
-  const now = new Date().toISOString();
-  const prompt: Prompt = {
-    ...data,
-    id: uuidv4(),
-    rating: 0,
-    ratingCount: 0,
-    createdAt: now,
-    updatedAt: now,
-  };
-  return storage.create(COLLECTION, prompt);
+): Promise<Prompt> {
+  return api.post<Prompt>('/prompts', data);
 }
 
-export function updatePrompt(
+export async function updatePrompt(
   id: string,
   data: Partial<Prompt>
-): Prompt | undefined {
-  return storage.update<Prompt>(COLLECTION, id, {
-    ...data,
-    updatedAt: new Date().toISOString(),
-  });
+): Promise<Prompt | undefined> {
+  try {
+    return await api.put<Prompt>(`/prompts/${id}`, data);
+  } catch {
+    return undefined;
+  }
 }
 
-export function ratePrompt(
+export async function ratePrompt(
   id: string,
-  newRating: number
-): Prompt | undefined {
-  const prompt = getPromptById(id);
-  if (!prompt) return undefined;
-  const totalRating = prompt.rating * prompt.ratingCount + newRating;
-  const newCount = prompt.ratingCount + 1;
-  return updatePrompt(id, {
-    rating: totalRating / newCount,
-    ratingCount: newCount,
-  });
+  rating: number
+): Promise<Prompt | undefined> {
+  try {
+    return await api.post<Prompt>(`/prompts/${id}/rate`, { rating });
+  } catch {
+    return undefined;
+  }
 }
 
-export function deletePrompt(id: string): boolean {
-  return storage.remove(COLLECTION, id);
+export async function deletePrompt(id: string): Promise<boolean> {
+  try {
+    await api.delete(`/prompts/${id}`);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export function filterPrompts(
@@ -92,12 +87,4 @@ export function sortPrompts(
   });
 
   return sorted;
-}
-
-export function isSeeded(): boolean {
-  return storage.isSeeded(COLLECTION);
-}
-
-export function seedPrompts(data: Prompt[]): void {
-  storage.setAll(COLLECTION, data);
 }

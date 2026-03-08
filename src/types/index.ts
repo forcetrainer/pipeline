@@ -1,3 +1,38 @@
+// ── Auth & User types ──────────────────────────────────────────────
+
+export type UserRole = 'user' | 'admin';
+
+export interface User {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: UserRole;
+  password: string; // plaintext for now — will be replaced by EntraID/MSAL
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type ApprovalStatus = 'draft' | 'pending' | 'approved' | 'denied';
+
+export interface AuthContextType {
+  currentUser: User | null;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => void;
+  isAdmin: boolean;
+  isAuthenticated: boolean;
+}
+
+export interface DomainValidationConfig {
+  allowedDomain: string;
+}
+
+export const AUTH_CONFIG: DomainValidationConfig = {
+  allowedDomain: 'example.com',
+};
+
+// ── Metrics & Scoring types ────────────────────────────────────────
+
 export type FrequencyPeriod = 'daily' | 'weekly' | 'monthly';
 
 export interface UseCaseMetrics {
@@ -51,6 +86,11 @@ export interface UseCase {
   tags: string[];
   submittedBy: string;
   submitterTeam: string;
+  submittedById: string;
+  approvalStatus: ApprovalStatus;
+  reviewedBy?: string;
+  reviewNotes?: string;
+  reviewedAt?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -68,6 +108,11 @@ export interface Prompt {
   useCaseId?: string;
   tags: string[];
   submittedBy: string;
+  submittedById: string;
+  approvalStatus: ApprovalStatus;
+  reviewedBy?: string;
+  reviewNotes?: string;
+  reviewedAt?: string;
   rating: number;
   ratingCount: number;
   createdAt: string;

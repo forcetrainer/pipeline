@@ -1,15 +1,36 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Copy, Check, User, Calendar } from 'lucide-react';
 import { Badge, Button, Card, StarRating } from '../components/ui';
 import * as promptService from '../services/promptService';
 import { format } from 'date-fns';
+import type { Prompt } from '../types';
 
 function PromptDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const prompt = id ? promptService.getPromptById(id) : undefined;
+  const [prompt, setPrompt] = useState<Prompt | undefined>(undefined);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    async function load() {
+      if (!id) {
+        setLoading(false);
+        return;
+      }
+      try {
+        const data = await promptService.getPromptById(id);
+        setPrompt(data);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'Failed to load prompt');
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, [id]);
 
   function handleCopy() {
     if (!prompt) return;
@@ -17,6 +38,18 @@ function PromptDetailPage() {
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }
+
+  if (loading) return (
+    <div className="flex items-center justify-center h-64">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-400"></div>
+    </div>
+  );
+
+  if (error) return (
+    <div className="text-center py-20">
+      <p style={{ color: 'var(--nx-red-base)' }}>{error}</p>
+    </div>
+  );
 
   if (!prompt) {
     return (

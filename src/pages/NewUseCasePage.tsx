@@ -3,16 +3,21 @@ import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Button, Input, Textarea, Select, Tag } from '../components/ui';
 import { useToast } from '../components/ui/ToastContainer';
+import { useAuth } from '../contexts/AuthContext';
 import * as useCaseService from '../services/useCaseService';
 import { USE_CASE_CATEGORIES, AI_TOOLS, DEPARTMENTS } from '../types';
-import type { UseCase } from '../types';
+import type { UseCase, UseCaseMetrics } from '../types';
+import { MetricsCalculator } from '../components/use-cases/MetricsCalculator';
+import { calculateMetrics } from '../utils/metricsCalculator';
 
 type FormErrors = Partial<Record<string, string>>;
 
 function NewUseCasePage() {
   const navigate = useNavigate();
   const { addToast } = useToast();
+  const { currentUser } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [tagInput, setTagInput] = useState('');
 
@@ -21,8 +26,6 @@ function NewUseCasePage() {
     description: '',
     whatWasBuilt: '',
     keyLearnings: '',
-    timeSavedHours: '',
-    moneySavedDollars: '',
     category: '',
     aiTool: '',
     department: '',
@@ -30,9 +33,18 @@ function NewUseCasePage() {
     effort: '',
     status: 'idea',
     tags: [] as string[],
-    submittedBy: '',
     submitterTeam: '',
   });
+
+  const [metrics, setMetrics] = useState<UseCaseMetrics>(() =>
+    calculateMetrics({
+      timeSavedPerUseMinutes: 0,
+      moneySavedPerUse: 0,
+      numberOfUsers: 1,
+      usesPerUserPerPeriod: 1,
+      frequencyPeriod: 'weekly',
+    })
+  );
 
   function updateField(field: string, value: string) {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -46,8 +58,8 @@ function NewUseCasePage() {
   }
 
   function addTag() {
-    const tag = tagInput.trim().toLowerCase();
-    if (tag && !form.tags.includes(tag)) {
+    const tag = tagInput.trim().toLowerCase().slice(0, 50);
+    if (tag && !form.tags.includes(tag) && form.tags.length < 20) {
       setForm((prev) => ({ ...prev, tags: [...prev.tags, tag] }));
       setTagInput('');
     }
@@ -60,13 +72,17 @@ function NewUseCasePage() {
   function validate(): FormErrors {
     const errs: FormErrors = {};
     if (!form.title.trim()) errs.title = 'Title is required';
+    else if (form.title.trim().length > 200) errs.title = 'Title must be 200 characters or less';
     if (!form.description.trim()) errs.description = 'Description is required';
+    else if (form.description.trim().length > 5000) errs.description = 'Description must be 5000 characters or less';
+    if (form.whatWasBuilt.trim().length > 5000) errs.whatWasBuilt = 'Must be 5000 characters or less';
+    if (form.keyLearnings.trim().length > 5000) errs.keyLearnings = 'Must be 5000 characters or less';
     if (!form.category) errs.category = 'Category is required';
-    if (!form.submittedBy.trim()) errs.submittedBy = 'Your name is required';
+    if (form.tags.length > 20) errs.tags = 'Maximum 20 tags allowed';
     return errs;
   }
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
@@ -76,15 +92,16 @@ function NewUseCasePage() {
 
     setIsSubmitting(true);
 
+    const submitterName = currentUser
+      ? `${currentUser.firstName} ${currentUser.lastName}`
+      : '';
+
     const data: Omit<UseCase, 'id' | 'createdAt' | 'updatedAt'> = {
       title: form.title.trim(),
       description: form.description.trim(),
       whatWasBuilt: form.whatWasBuilt.trim(),
       keyLearnings: form.keyLearnings.trim(),
-      metrics: {
-        timeSavedHours: form.timeSavedHours ? Number(form.timeSavedHours) : 0,
-        moneySavedDollars: form.moneySavedDollars ? Number(form.moneySavedDollars) : 0,
-      },
+      metrics,
       category: form.category,
       aiTool: form.aiTool || 'Other',
       department: form.department || 'Other',
@@ -92,14 +109,21 @@ function NewUseCasePage() {
       effort: (form.effort as UseCase['effort']) || 'medium',
       status: form.status as UseCase['status'],
       tags: form.tags,
-      submittedBy: form.submittedBy.trim(),
+      submittedBy: submitterName,
       submitterTeam: form.submitterTeam.trim(),
+      submittedById: currentUser?.id ?? '',
+      approvalStatus: 'pending',
     };
 
-    useCaseService.createUseCase(data);
-    addToast('Use case submitted successfully!', 'success');
-    setIsSubmitting(false);
-    navigate('/use-cases');
+    try {
+      await useCaseService.createUseCase(data);
+      addToast('Use case submitted successfully!', 'success');
+      setSubmitted(true);
+    } catch (err) {
+      addToast(err instanceof Error ? err.message : 'Failed to submit use case', 'error');
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   const categoryOptions = USE_CASE_CATEGORIES.map((c) => ({ value: c, label: c }));
@@ -115,6 +139,44 @@ function NewUseCasePage() {
     { value: 'pilot', label: 'Pilot' },
     { value: 'active', label: 'Active' },
   ];
+
+  if (submitted) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20">
+        <div
+          className="rounded-lg p-8 max-w-md text-center"
+          style={{
+            backgroundColor: 'var(--nx-void-panel)',
+            border: '1px solid rgba(0, 212, 255, 0.2)',
+          }}
+        >
+          <div
+            className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
+            style={{ backgroundColor: 'rgba(0, 255, 136, 0.1)', border: '1px solid rgba(0, 255, 136, 0.25)' }}
+          >
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--nx-green-base)" strokeWidth="2">
+              <path d="M20 6L9 17l-5-5" />
+            </svg>
+          </div>
+          <h2
+            className="text-xl font-bold mb-2"
+            style={{ color: 'var(--nx-text-primary)', fontFamily: "'Orbitron', sans-serif" }}
+          >
+            Submission Received
+          </h2>
+          <p style={{ color: 'var(--nx-text-secondary)' }} className="mb-6">
+            Your submission has been sent for admin review. You will be able to see its status on your submissions page.
+          </p>
+          <div className="flex gap-3 justify-center">
+            <Button onClick={() => navigate('/use-cases')}>Browse Use Cases</Button>
+            <Button variant="secondary" onClick={() => { setSubmitted(false); setForm({ title: '', description: '', whatWasBuilt: '', keyLearnings: '', category: '', aiTool: '', department: '', impact: '', effort: '', status: 'idea', tags: [], submitterTeam: '' }); }}>
+              Submit Another
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -140,7 +202,12 @@ function NewUseCasePage() {
         >
           Submit a Use Case
         </h1>
-        <p style={{ color: 'var(--nx-text-secondary)' }} className="mb-8">Share how your team is using AI to help others learn and adopt.</p>
+        <p style={{ color: 'var(--nx-text-secondary)' }} className="mb-2">Share how your team is using AI to help others learn and adopt.</p>
+        {currentUser && (
+          <p style={{ color: 'var(--nx-text-tertiary)' }} className="text-sm mb-8">
+            Submitting as <span style={{ color: 'var(--nx-cyan-base)' }}>{currentUser.firstName} {currentUser.lastName}</span>
+          </p>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <Input
@@ -179,25 +246,7 @@ function NewUseCasePage() {
           />
 
           {/* Metrics */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Input
-              label="Time saved (hours)"
-              type="number"
-              min="0"
-              step="0.5"
-              placeholder="e.g. 10"
-              value={form.timeSavedHours}
-              onChange={(e) => updateField('timeSavedHours', e.target.value)}
-            />
-            <Input
-              label="Money saved ($)"
-              type="number"
-              min="0"
-              placeholder="e.g. 500"
-              value={form.moneySavedDollars}
-              onChange={(e) => updateField('moneySavedDollars', e.target.value)}
-            />
-          </div>
+          <MetricsCalculator value={metrics} onChange={setMetrics} />
 
           {/* Selects */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -278,24 +327,14 @@ function NewUseCasePage() {
             )}
           </div>
 
-          {/* Submitter info */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Input
-              label="Your name"
-              placeholder="e.g. Jane Doe"
-              value={form.submittedBy}
-              onChange={(e) => updateField('submittedBy', e.target.value)}
-              error={errors.submittedBy}
-              required
-            />
-            <Select
-              label="Team"
-              options={departmentOptions}
-              value={form.department}
-              onChange={(e) => updateField('department', e.target.value)}
-              placeholder="Select your team"
-            />
-          </div>
+          {/* Team */}
+          <Select
+            label="Team"
+            options={departmentOptions}
+            value={form.department}
+            onChange={(e) => updateField('department', e.target.value)}
+            placeholder="Select your team"
+          />
 
           <div className="flex gap-3 pt-4">
             <Button type="submit" isLoading={isSubmitting}>Submit Use Case</Button>

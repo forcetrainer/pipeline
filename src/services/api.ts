@@ -1,0 +1,59 @@
+const TOKEN_KEY = 'ai-usecase-app:token';
+
+function getToken(): string | null {
+  return localStorage.getItem(TOKEN_KEY);
+}
+
+export function setToken(token: string): void {
+  localStorage.setItem(TOKEN_KEY, token);
+}
+
+export function clearToken(): void {
+  localStorage.removeItem(TOKEN_KEY);
+}
+
+interface RequestOptions extends RequestInit {
+  skipAuthRedirect?: boolean;
+}
+
+async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
+  const { skipAuthRedirect, ...fetchOptions } = options;
+  const token = getToken();
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...(fetchOptions.headers as Record<string, string>),
+  };
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  const response = await fetch(`/api${path}`, { ...fetchOptions, headers });
+  if (response.status === 401) {
+    clearToken();
+    if (!skipAuthRedirect) {
+      window.location.href = '/login';
+    }
+    throw new Error('Unauthorized');
+  }
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Request failed' }));
+    throw new Error(error.message || `HTTP ${response.status}`);
+  }
+  if (response.status === 204) return undefined as T;
+  return response.json();
+}
+
+export const api = {
+  get: <T>(path: string, options?: { skipAuthRedirect?: boolean }) =>
+    request<T>(path, options),
+  post: <T>(path: string, body?: unknown) =>
+    request<T>(path, {
+      method: 'POST',
+      body: body ? JSON.stringify(body) : undefined,
+    }),
+  put: <T>(path: string, body?: unknown) =>
+    request<T>(path, {
+      method: 'PUT',
+      body: body ? JSON.stringify(body) : undefined,
+    }),
+  delete: <T>(path: string) => request<T>(path, { method: 'DELETE' }),
+};

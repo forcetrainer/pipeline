@@ -1,11 +1,27 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Lightbulb, BookOpen, Plus, Menu, X } from 'lucide-react';
+import {
+  LayoutDashboard,
+  Lightbulb,
+  BookOpen,
+  Plus,
+  Menu,
+  X,
+  Shield,
+  Users,
+  Clock,
+  XCircle,
+  LogOut,
+  FileText,
+} from 'lucide-react';
 import { useState } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
+import { Badge } from '../ui';
 
 const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/use-cases', label: 'Use Cases', icon: Lightbulb },
   { to: '/prompts', label: 'Prompt Library', icon: BookOpen },
+  { to: '/my-submissions', label: 'My Submissions', icon: FileText },
 ];
 
 const quickActions = [
@@ -13,8 +29,16 @@ const quickActions = [
   { to: '/prompts/new', label: 'New Prompt', icon: Plus },
 ];
 
+const adminNavItems = [
+  { to: '/admin', label: 'Admin Dashboard', icon: Shield },
+  { to: '/admin/users', label: 'User Management', icon: Users },
+  { to: '/admin/pending', label: 'Pending Reviews', icon: Clock },
+  { to: '/admin/denied', label: 'Denied Items', icon: XCircle },
+];
+
 function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
+  const { currentUser, isAdmin, logout } = useAuth();
 
   return (
     <>
@@ -96,7 +120,7 @@ function Sidebar() {
         </div>
 
         {/* Main navigation */}
-        <nav className="flex-1 px-3 py-4" aria-label="Main navigation">
+        <nav className="flex-1 px-3 py-4 overflow-y-auto" aria-label="Main navigation">
           <ul className="space-y-1">
             {navItems.map((item) => (
               <li key={item.to}>
@@ -165,22 +189,130 @@ function Sidebar() {
               ))}
             </ul>
           </div>
+
+          {/* Admin section - only visible to admins */}
+          {isAdmin && (
+            <div className="mt-8">
+              <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)', marginBottom: '12px' }} />
+              <p
+                className="px-3 mb-2 flex items-center gap-1.5"
+                style={{
+                  fontFamily: 'var(--font-sans)',
+                  fontSize: '11px',
+                  fontWeight: 500,
+                  color: 'var(--nx-text-ghost)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.1em',
+                }}
+              >
+                <Shield size={12} />
+                Admin
+              </p>
+              <ul className="space-y-1">
+                {adminNavItems.map((item) => (
+                  <li key={item.to}>
+                    <NavLink
+                      to={item.to}
+                      end={item.to === '/admin'}
+                      onClick={() => setIsOpen(false)}
+                      className="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium"
+                      style={({ isActive }) => ({
+                        transition: 'all 200ms ease-in-out',
+                        color: isActive ? 'var(--nx-text-primary)' : 'var(--nx-text-secondary)',
+                        backgroundColor: isActive ? 'rgba(0, 212, 255, 0.1)' : 'transparent',
+                        borderLeft: isActive ? '3px solid var(--nx-cyan-base)' : '3px solid transparent',
+                        marginLeft: '-1px',
+                      })}
+                    >
+                      {({ isActive }) => (
+                        <>
+                          <item.icon
+                            size={18}
+                            style={{
+                              color: isActive ? 'var(--nx-cyan-base)' : undefined,
+                              filter: isActive ? 'drop-shadow(0 0 4px rgba(0, 212, 255, 0.6))' : undefined,
+                            }}
+                          />
+                          {item.label}
+                        </>
+                      )}
+                    </NavLink>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </nav>
 
-        {/* Footer */}
-        <div
-          className="px-5 py-4"
-          style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}
-        >
-          <p
-            style={{
-              fontSize: 'var(--text-xs)',
-              color: 'var(--nx-text-ghost)',
-            }}
+        {/* Footer - User info + Logout */}
+        {currentUser && (
+          <div
+            className="px-4 py-3"
+            style={{ borderTop: '1px solid rgba(0, 212, 255, 0.15)' }}
           >
-            Built for sharing AI wins
-          </p>
-        </div>
+            <div className="flex items-center gap-3 mb-3">
+              <div
+                className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
+                style={{
+                  backgroundColor: 'rgba(0, 212, 255, 0.1)',
+                  color: 'var(--nx-cyan-base)',
+                  border: '1px solid rgba(0, 212, 255, 0.2)',
+                }}
+              >
+                {currentUser.firstName[0]}
+                {currentUser.lastName[0]}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p
+                  className="text-sm font-medium truncate"
+                  style={{ color: 'var(--nx-text-secondary)' }}
+                >
+                  {currentUser.firstName} {currentUser.lastName}
+                </p>
+                <div className="flex items-center gap-2">
+                  <p
+                    className="text-xs truncate"
+                    style={{ color: 'var(--nx-text-ghost)' }}
+                  >
+                    {currentUser.email}
+                  </p>
+                  <Badge
+                    variant={currentUser.role === 'admin' ? 'primary' : 'neutral'}
+                    size="sm"
+                  >
+                    {currentUser.role}
+                  </Badge>
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={logout}
+              className="flex items-center gap-2 w-full px-3 py-2 rounded-md text-sm font-medium transition-colors sidebar-nav-item"
+              style={{
+                color: 'var(--nx-text-secondary)',
+              }}
+            >
+              <LogOut size={16} />
+              Sign Out
+            </button>
+          </div>
+        )}
+
+        {!currentUser && (
+          <div
+            className="px-5 py-4"
+            style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}
+          >
+            <p
+              style={{
+                fontSize: 'var(--text-xs)',
+                color: 'var(--nx-text-ghost)',
+              }}
+            >
+              Built for sharing AI wins
+            </p>
+          </div>
+        )}
       </aside>
 
       <style>{`

@@ -1,8 +1,9 @@
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, Lightbulb } from 'lucide-react';
 import { SearchBar, Button, Badge, EmptyState, Card } from '../components/ui';
 import { Select } from '../components/ui';
+import { useAuth } from '../contexts/AuthContext';
 import * as useCaseService from '../services/useCaseService';
 import { USE_CASE_CATEGORIES, DEPARTMENTS } from '../types';
 import type { UseCase, UseCaseSortField, SortDirection } from '../types';
@@ -20,13 +21,25 @@ const statusVariant = {
   archived: 'neutral' as const,
 };
 
-function UseCaseCard({ useCase }: { useCase: UseCase }) {
+const approvalVariant = {
+  approved: 'success' as const,
+  pending: 'warning' as const,
+  denied: 'error' as const,
+  draft: 'neutral' as const,
+};
+
+function UseCaseCard({ useCase, showApproval }: { useCase: UseCase; showApproval?: boolean }) {
   return (
     <Link to={`/use-cases/${useCase.id}`}>
       <Card hoverable padding="md" className="h-full flex flex-col">
         <div className="flex items-start justify-between mb-2">
           <h3 style={{ color: 'var(--nx-text-primary)' }} className="text-base font-semibold line-clamp-1 flex-1 mr-2">{useCase.title}</h3>
-          <Badge variant={statusVariant[useCase.status]} size="sm">{useCase.status}</Badge>
+          <div className="flex gap-1.5 shrink-0">
+            {showApproval && (
+              <Badge variant={approvalVariant[useCase.approvalStatus]} size="sm">{useCase.approvalStatus}</Badge>
+            )}
+            <Badge variant={statusVariant[useCase.status]} size="sm">{useCase.status}</Badge>
+          </div>
         </div>
         <p style={{ color: 'var(--nx-text-secondary)' }} className="text-sm line-clamp-2 mb-3 flex-1">{useCase.description}</p>
         <div className="flex items-center gap-2 flex-wrap">
@@ -56,16 +69,37 @@ function UseCaseCard({ useCase }: { useCase: UseCase }) {
 }
 
 function UseCasesPage() {
+  const { isAdmin } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [departmentFilter, setDepartmentFilter] = useState('');
   const [sortField, setSortField] = useState<UseCaseSortField>('date');
   const [sortDirection] = useState<SortDirection>('desc');
+  const [useCases, setUseCases] = useState<UseCase[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const useCases = useCaseService.getAllUseCases();
+  useEffect(() => {
+    async function load() {
+      try {
+        const data = await useCaseService.getAllUseCases();
+        setUseCases(data);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'Failed to load use cases');
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
 
   const filtered = useMemo(() => {
     let result = [...useCases];
+
+    // Non-admin users only see approved items
+    if (!isAdmin) {
+      result = result.filter((uc) => uc.approvalStatus === 'approved');
+    }
 
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
@@ -100,7 +134,7 @@ function UseCasesPage() {
     });
 
     return result;
-  }, [useCases, searchQuery, categoryFilter, departmentFilter, sortField, sortDirection]);
+  }, [useCases, isAdmin, searchQuery, categoryFilter, departmentFilter, sortField, sortDirection]);
 
   const categoryOptions = [
     { value: '', label: 'All Categories' },
@@ -118,6 +152,18 @@ function UseCasesPage() {
     { value: 'timeSaved', label: 'Most Time Saved' },
     { value: 'moneySaved', label: 'Most Money Saved' },
   ];
+
+  if (loading) return (
+    <div className="flex items-center justify-center h-64">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-400"></div>
+    </div>
+  );
+
+  if (error) return (
+    <div className="text-center py-20">
+      <p style={{ color: 'var(--nx-red-base)' }}>{error}</p>
+    </div>
+  );
 
   return (
     <div>
@@ -175,7 +221,7 @@ function UseCasesPage() {
       {filtered.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
           {filtered.map((uc) => (
-            <UseCaseCard key={uc.id} useCase={uc} />
+            <UseCaseCard key={uc.id} useCase={uc} showApproval={isAdmin} />
           ))}
         </div>
       ) : (

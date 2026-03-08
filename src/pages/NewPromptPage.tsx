@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Button, Input, Textarea, Select, StarRating, Tag } from '../components/ui';
 import { useToast } from '../components/ui/ToastContainer';
+import { useAuth } from '../contexts/AuthContext';
 import * as promptService from '../services/promptService';
 import { PROMPT_CATEGORIES, AI_TOOLS } from '../types';
 
@@ -11,7 +12,9 @@ type FormErrors = Partial<Record<string, string>>;
 function NewPromptPage() {
   const navigate = useNavigate();
   const { addToast } = useToast();
+  const { currentUser } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [tagInput, setTagInput] = useState('');
 
@@ -25,7 +28,6 @@ function NewPromptPage() {
     category: '',
     aiTool: '',
     tags: [] as string[],
-    submittedBy: '',
   });
 
   function updateField(field: string, value: string | number) {
@@ -40,8 +42,8 @@ function NewPromptPage() {
   }
 
   function addTag() {
-    const tag = tagInput.trim().toLowerCase();
-    if (tag && !form.tags.includes(tag)) {
+    const tag = tagInput.trim().toLowerCase().slice(0, 50);
+    if (tag && !form.tags.includes(tag) && form.tags.length < 20) {
       setForm((prev) => ({ ...prev, tags: [...prev.tags, tag] }));
       setTagInput('');
     }
@@ -54,13 +56,18 @@ function NewPromptPage() {
   function validate(): FormErrors {
     const errs: FormErrors = {};
     if (!form.title.trim()) errs.title = 'Title is required';
+    else if (form.title.trim().length > 200) errs.title = 'Title must be 200 characters or less';
     if (!form.content.trim()) errs.content = 'Prompt text is required';
+    else if (form.content.trim().length > 10000) errs.content = 'Prompt text must be 10000 characters or less';
+    if (form.description.trim().length > 1000) errs.description = 'Description must be 1000 characters or less';
+    if (form.problemBeingSolved.trim().length > 5000) errs.problemBeingSolved = 'Must be 5000 characters or less';
+    if (form.tips.trim().length > 5000) errs.tips = 'Must be 5000 characters or less';
     if (!form.category) errs.category = 'Category is required';
-    if (!form.submittedBy.trim()) errs.submittedBy = 'Your name is required';
+    if (form.tags.length > 20) errs.tags = 'Maximum 20 tags allowed';
     return errs;
   }
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
@@ -70,26 +77,75 @@ function NewPromptPage() {
 
     setIsSubmitting(true);
 
-    promptService.createPrompt({
-      title: form.title.trim(),
-      content: form.content.trim(),
-      description: form.description.trim(),
-      problemBeingSolved: form.problemBeingSolved.trim(),
-      effectivenessRating: form.effectivenessRating,
-      tips: form.tips.trim(),
-      category: form.category,
-      aiTool: form.aiTool || 'Other',
-      tags: form.tags,
-      submittedBy: form.submittedBy.trim(),
-    });
+    const submitterName = currentUser
+      ? `${currentUser.firstName} ${currentUser.lastName}`
+      : '';
 
-    addToast('Prompt submitted successfully!', 'success');
-    setIsSubmitting(false);
-    navigate('/prompts');
+    try {
+      await promptService.createPrompt({
+        title: form.title.trim(),
+        content: form.content.trim(),
+        description: form.description.trim(),
+        problemBeingSolved: form.problemBeingSolved.trim(),
+        effectivenessRating: form.effectivenessRating,
+        tips: form.tips.trim(),
+        category: form.category,
+        aiTool: form.aiTool || 'Other',
+        tags: form.tags,
+        submittedBy: submitterName,
+        submittedById: currentUser?.id ?? '',
+        approvalStatus: 'pending',
+      });
+
+      addToast('Prompt submitted successfully!', 'success');
+      setSubmitted(true);
+    } catch (err) {
+      addToast(err instanceof Error ? err.message : 'Failed to submit prompt', 'error');
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   const categoryOptions = PROMPT_CATEGORIES.map((c) => ({ value: c, label: c }));
   const aiToolOptions = AI_TOOLS.map((t) => ({ value: t, label: t }));
+
+  if (submitted) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20">
+        <div
+          className="rounded-lg p-8 max-w-md text-center"
+          style={{
+            backgroundColor: 'var(--nx-void-panel)',
+            border: '1px solid rgba(0, 212, 255, 0.2)',
+          }}
+        >
+          <div
+            className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
+            style={{ backgroundColor: 'rgba(0, 255, 136, 0.1)', border: '1px solid rgba(0, 255, 136, 0.25)' }}
+          >
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--nx-green-base)" strokeWidth="2">
+              <path d="M20 6L9 17l-5-5" />
+            </svg>
+          </div>
+          <h2
+            className="text-xl font-bold mb-2"
+            style={{ color: 'var(--nx-text-primary)', fontFamily: "'Orbitron', sans-serif" }}
+          >
+            Submission Received
+          </h2>
+          <p style={{ color: 'var(--nx-text-secondary)' }} className="mb-6">
+            Your submission has been sent for admin review. You will be able to see its status on your submissions page.
+          </p>
+          <div className="flex gap-3 justify-center">
+            <Button onClick={() => navigate('/prompts')}>Browse Prompts</Button>
+            <Button variant="secondary" onClick={() => { setSubmitted(false); setForm({ title: '', content: '', description: '', problemBeingSolved: '', effectivenessRating: 0, tips: '', category: '', aiTool: '', tags: [] }); }}>
+              Submit Another
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -115,7 +171,12 @@ function NewPromptPage() {
         >
           Submit a Prompt
         </h1>
-        <p style={{ color: 'var(--nx-text-secondary)' }} className="mb-8">Share an effective AI prompt with your team.</p>
+        <p style={{ color: 'var(--nx-text-secondary)' }} className="mb-2">Share an effective AI prompt with your team.</p>
+        {currentUser && (
+          <p style={{ color: 'var(--nx-text-tertiary)' }} className="text-sm mb-8">
+            Submitting as <span style={{ color: 'var(--nx-cyan-base)' }}>{currentUser.firstName} {currentUser.lastName}</span>
+          </p>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <Input
@@ -224,16 +285,6 @@ function NewPromptPage() {
               </div>
             )}
           </div>
-
-          {/* Submitter */}
-          <Input
-            label="Your name"
-            placeholder="e.g. Jane Doe"
-            value={form.submittedBy}
-            onChange={(e) => updateField('submittedBy', e.target.value)}
-            error={errors.submittedBy}
-            required
-          />
 
           <div className="flex gap-3 pt-4">
             <Button type="submit" isLoading={isSubmitting}>Submit Prompt</Button>

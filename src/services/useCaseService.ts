@@ -1,43 +1,43 @@
-import { v4 as uuidv4 } from 'uuid';
 import type { UseCase, UseCaseFilters, UseCaseSortField, SortDirection } from '../types';
 import { calculateScore } from '../utils/metricsCalculator';
-import * as storage from './storage';
+import { api } from './api';
 
-const COLLECTION = 'usecases';
-
-export function getAllUseCases(): UseCase[] {
-  return storage.getAll<UseCase>(COLLECTION);
+export async function getAllUseCases(): Promise<UseCase[]> {
+  return api.get<UseCase[]>('/use-cases');
 }
 
-export function getUseCaseById(id: string): UseCase | undefined {
-  return storage.getById<UseCase>(COLLECTION, id);
+export async function getUseCaseById(id: string): Promise<UseCase | undefined> {
+  try {
+    return await api.get<UseCase>(`/use-cases/${id}`);
+  } catch {
+    return undefined;
+  }
 }
 
-export function createUseCase(
+export async function createUseCase(
   data: Omit<UseCase, 'id' | 'createdAt' | 'updatedAt'>
-): UseCase {
-  const now = new Date().toISOString();
-  const useCase: UseCase = {
-    ...data,
-    id: uuidv4(),
-    createdAt: now,
-    updatedAt: now,
-  };
-  return storage.create(COLLECTION, useCase);
+): Promise<UseCase> {
+  return api.post<UseCase>('/use-cases', data);
 }
 
-export function updateUseCase(
+export async function updateUseCase(
   id: string,
   data: Partial<UseCase>
-): UseCase | undefined {
-  return storage.update<UseCase>(COLLECTION, id, {
-    ...data,
-    updatedAt: new Date().toISOString(),
-  });
+): Promise<UseCase | undefined> {
+  try {
+    return await api.put<UseCase>(`/use-cases/${id}`, data);
+  } catch {
+    return undefined;
+  }
 }
 
-export function deleteUseCase(id: string): boolean {
-  return storage.remove(COLLECTION, id);
+export async function deleteUseCase(id: string): Promise<boolean> {
+  try {
+    await api.delete(`/use-cases/${id}`);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export function filterUseCases(
@@ -84,12 +84,4 @@ export function sortUseCases(
   });
 
   return sorted;
-}
-
-export function isSeeded(): boolean {
-  return storage.isSeeded(COLLECTION);
-}
-
-export function seedUseCases(data: UseCase[]): void {
-  storage.setAll(COLLECTION, data);
 }
