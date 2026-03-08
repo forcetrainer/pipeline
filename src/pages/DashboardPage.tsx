@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Users } from 'lucide-react';
+import { Users, Star } from 'lucide-react';
 import { Card } from '../components/ui';
 import { Link } from 'react-router-dom';
 import {
@@ -32,18 +32,21 @@ const GRADE_COLORS: Record<ScoreGrade, string> = {
 function DashboardPage() {
   const [useCases, setUseCases] = useState<UseCase[]>([]);
   const [prompts, setPrompts] = useState<Prompt[]>([]);
+  const [starredPrompts, setStarredPrompts] = useState<Prompt[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function load() {
       try {
-        const [uc, p] = await Promise.all([
+        const [uc, p, starred] = await Promise.all([
           useCaseService.getAllUseCases(),
           promptService.getAllPrompts(),
+          promptService.getStarred().catch(() => [] as Prompt[]),
         ]);
         setUseCases(uc);
         setPrompts(p);
+        setStarredPrompts(starred);
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Failed to load dashboard data');
       } finally {
@@ -354,6 +357,50 @@ function DashboardPage() {
               <Line type="monotone" dataKey="prompts" name="Prompts" stroke="var(--nx-violet-base)" strokeWidth={2} dot={{ r: 4 }} />
             </LineChart>
           </ResponsiveContainer>
+        </Card>
+      )}
+
+      {/* My Starred Prompts */}
+      {starredPrompts.length > 0 && (
+        <Card padding="lg" className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Star size={18} style={{ color: '#fbbf24', fill: '#fbbf24' }} />
+              <h2
+                style={{ color: 'var(--nx-text-primary)', fontFamily: "'Orbitron', sans-serif", fontSize: '14px', letterSpacing: '0.05em' }}
+                className="font-semibold"
+              >
+                My Starred Prompts
+              </h2>
+            </div>
+            <Link to="/prompts" style={{ color: 'var(--nx-cyan-base)', fontSize: '12px', fontWeight: 500 }} className="hover:opacity-80 transition-opacity">
+              View all
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {starredPrompts.slice(0, 6).map((p) => (
+              <Link key={p.id} to={`/prompts/${p.id}`} className="block group">
+                <div
+                  className="p-3 rounded-lg transition-all duration-200"
+                  style={{
+                    background: 'var(--nx-void-elevated)',
+                    border: '1px solid rgba(0, 212, 255, 0.08)',
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.borderColor = 'rgba(0, 212, 255, 0.2)';
+                    e.currentTarget.style.background = 'var(--nx-void-surface)';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.borderColor = 'rgba(0, 212, 255, 0.08)';
+                    e.currentTarget.style.background = 'var(--nx-void-elevated)';
+                  }}
+                >
+                  <p style={{ color: 'var(--nx-text-secondary)' }} className="text-sm font-medium truncate group-hover:text-[var(--nx-cyan-base)] transition-colors">{p.title}</p>
+                  <p style={{ color: 'var(--nx-text-tertiary)' }} className="text-xs mt-1">{p.category} &middot; {p.rating > 0 ? `${p.rating.toFixed(1)} stars` : 'No ratings'}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
         </Card>
       )}
 

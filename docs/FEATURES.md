@@ -22,12 +22,12 @@
 | Prompt Rating | Done | 0.2.0 | Running average rating system (1-5 stars) |
 | Fuzzy Search | Done | 0.0.1 | Fuse.js-powered search across use cases and prompts |
 | Use Case Cost Tracking & Revenue | Done | 0.5.0 | One-time + recurring costs, revenue per use, true ROI ([ADR-008](ADR/008-use-case-cost-tracking.md)) |
+| Prompt Library Social Features | Done | 0.6.0 | Stars/favorites, comments with single-level threading ([ADR-006](ADR/006-prompt-library-social-features.md)) |
 
 ## In Progress
 
 | Feature | Status | ADR | Notes |
 |---------|--------|-----|-------|
-| Prompt Library Social Features | Planned | [ADR-006](ADR/006-prompt-library-social-features.md) | Stars/favorites, comments, threaded conversations |
 | Automation Readiness Assessment | Planned | [ADR-007](ADR/007-automation-readiness-assessment.md) | Guided self-assessment with 5 checkpoints, scoring, promote-to-use-case |
 
 ## Planned Features

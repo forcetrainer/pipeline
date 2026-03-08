@@ -1,5 +1,5 @@
 import type { InferSelectModel, InferInsertModel } from 'drizzle-orm';
-import type { users, useCases, prompts, refreshTokens } from '../schema.js';
+import type { users, useCases, prompts, refreshTokens, promptStars, promptComments } from '../schema.js';
 
 export type UserRow = InferSelectModel<typeof users>;
 export type NewUser = InferInsertModel<typeof users>;
@@ -8,6 +8,8 @@ export type NewUseCase = InferInsertModel<typeof useCases>;
 export type PromptRow = InferSelectModel<typeof prompts>;
 export type NewPrompt = InferInsertModel<typeof prompts>;
 export type RefreshTokenRow = InferSelectModel<typeof refreshTokens>;
+export type PromptStarRow = InferSelectModel<typeof promptStars>;
+export type PromptCommentRow = InferSelectModel<typeof promptComments>;
 
 export interface UseCaseFilters {
   category?: string;
@@ -50,6 +52,23 @@ export interface IPromptRepository {
   update(id: string, data: Partial<PromptRow>): PromptRow | undefined;
   delete(id: string): boolean;
   count(): number;
+}
+
+export interface IPromptStarRepository {
+  findByPromptAndUser(promptId: string, userId: string): PromptStarRow | undefined;
+  findByUser(userId: string): PromptStarRow[];
+  countByPrompt(promptId: string): number;
+  create(star: { id: string; promptId: string; userId: string; createdAt: string }): PromptStarRow;
+  delete(promptId: string, userId: string): boolean;
+}
+
+export interface IPromptCommentRepository {
+  findByPrompt(promptId: string): PromptCommentRow[];
+  findById(id: string): PromptCommentRow | undefined;
+  countByPrompt(promptId: string): number;
+  create(comment: { id: string; promptId: string; userId: string; parentId: string | null; content: string; createdAt: string; updatedAt: string }): PromptCommentRow;
+  update(id: string, data: { content: string; updatedAt: string }): PromptCommentRow | undefined;
+  delete(id: string): boolean;
 }
 
 export interface IRefreshTokenRepository {

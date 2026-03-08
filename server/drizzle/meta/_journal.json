@@ -22,6 +22,13 @@
       "when": 1772955202423,
       "tag": "0002_free_supernaut",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1772982859147,
+      "tag": "0003_overrated_romulus",
+      "breakpoints": true
     }
   ]
 }

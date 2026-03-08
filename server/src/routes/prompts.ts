@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import crypto from 'crypto';
-import { getPromptRepository } from '../db/repositories/index.js';
+import { getPromptRepository, getPromptStarRepository, getPromptCommentRepository } from '../db/repositories/index.js';
 import { authenticate } from '../middleware/authenticate.js';
 import { requirePermission } from '../middleware/authorize.js';
 import type { PromptRow } from '../db/repositories/index.js';
@@ -14,6 +14,8 @@ function parsePrompt(row: PromptRow) {
 
 export async function promptRoutes(app: FastifyInstance) {
   const repo = getPromptRepository();
+  const starRepo = getPromptStarRepository();
+  const commentRepo = getPromptCommentRepository();
 
   // GET /api/prompts
   app.get('/api/prompts', async (request) => {
@@ -24,6 +26,14 @@ export async function promptRoutes(app: FastifyInstance) {
       approvalStatus: query.approvalStatus,
     });
     return rows.map(parsePrompt);
+  });
+
+  // GET /api/prompts/starred (must be before /:id to avoid matching "starred" as an id)
+  app.get('/api/prompts/starred', { preHandler: [authenticate] }, async (request) => {
+    const stars = starRepo.findByUser(request.user!.userId);
+    const promptIds = stars.map(s => s.promptId);
+    const allPrompts = repo.findAll();
+    return allPrompts.filter(p => promptIds.includes(p.id)).map(parsePrompt);
   });
 
   // GET /api/prompts/:id
@@ -164,5 +174,115 @@ export async function promptRoutes(app: FastifyInstance) {
     });
 
     return parsePrompt(updated!);
+  });
+
+  // POST /api/prompts/:id/star (toggle star)
+  app.post('/api/prompts/:id/star', { preHandler: [authenticate, requirePermission('prompts:star')] }, async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const prompt = repo.findById(id);
+    if (!prompt) return reply.code(404).send({ error: 'Prompt not found' });
+
+    const existing = starRepo.findByPromptAndUser(id, request.user!.userId);
+    if (existing) {
+      starRepo.delete(id, request.user!.userId);
+      const count = starRepo.countByPrompt(id);
+      repo.update(id, { starCount: count });
+      return { starred: false, starCount: count };
+    } else {
+      starRepo.create({ id: crypto.randomUUID(), promptId: id, userId: request.user!.userId, createdAt: new Date().toISOString() });
+      const count = starRepo.countByPrompt(id);
+      repo.update(id, { starCount: count });
+      return { starred: true, starCount: count };
+    }
+  });
+
+  // GET /api/prompts/:id/star (check if current user starred)
+  app.get('/api/prompts/:id/star', { preHandler: [authenticate] }, async (request) => {
+    const { id } = request.params as { id: string };
+    const existing = starRepo.findByPromptAndUser(id, request.user!.userId);
+    return { starred: !!existing };
+  });
+
+  // GET /api/prompts/:id/comments
+  app.get('/api/prompts/:id/comments', async (request) => {
+    const { id } = request.params as { id: string };
+    const comments = commentRepo.findByPrompt(id);
+    return comments;
+  });
+
+  // POST /api/prompts/:id/comments
+  app.post('/api/prompts/:id/comments', { preHandler: [authenticate, requirePermission('prompts:comment')] }, async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const prompt = repo.findById(id);
+    if (!prompt) return reply.code(404).send({ error: 'Prompt not found' });
+
+    const body = request.body as { content: string; parentId?: string };
+    if (!body.content || body.content.length > 5000) {
+      return reply.code(400).send({ error: 'Content is required and must be under 5000 characters' });
+    }
+
+    // If parentId provided, verify it exists and is a top-level comment (single-level threading)
+    if (body.parentId) {
+      const parent = commentRepo.findById(body.parentId);
+      if (!parent) return reply.code(400).send({ error: 'Parent comment not found' });
+      if (parent.parentId) return reply.code(400).send({ error: 'Cannot reply to a reply (single-level threading only)' });
+    }
+
+    const now = new Date().toISOString();
+    const comment = commentRepo.create({
+      id: crypto.randomUUID(),
+      promptId: id,
+      userId: request.user!.userId,
+      parentId: body.parentId || null,
+      content: body.content,
+      createdAt: now,
+      updatedAt: now,
+    });
+
+    // Update cached count
+    const count = commentRepo.countByPrompt(id);
+    repo.update(id, { commentCount: count });
+
+    return reply.code(201).send(comment);
+  });
+
+  // PUT /api/prompts/:id/comments/:commentId
+  app.put('/api/prompts/:id/comments/:commentId', { preHandler: [authenticate, requirePermission('prompts:comment')] }, async (request, reply) => {
+    const { commentId } = request.params as { id: string; commentId: string };
+    const existing = commentRepo.findById(commentId);
+    if (!existing) return reply.code(404).send({ error: 'Comment not found' });
+
+    // Owner or admin can edit
+    if (existing.userId !== request.user!.userId && request.user!.role !== 'admin') {
+      return reply.code(403).send({ error: 'Not authorized to edit this comment' });
+    }
+
+    const body = request.body as { content: string };
+    if (!body.content || body.content.length > 5000) {
+      return reply.code(400).send({ error: 'Content is required and must be under 5000 characters' });
+    }
+
+    const updated = commentRepo.update(commentId, { content: body.content, updatedAt: new Date().toISOString() });
+    return updated;
+  });
+
+  // DELETE /api/prompts/:id/comments/:commentId
+  app.delete('/api/prompts/:id/comments/:commentId', { preHandler: [authenticate] }, async (request, reply) => {
+    const { id, commentId } = request.params as { id: string; commentId: string };
+    const existing = commentRepo.findById(commentId);
+    if (!existing) return reply.code(404).send({ error: 'Comment not found' });
+
+    // Admin can delete any, regular user can only delete their own
+    if (request.user!.role !== 'admin' && existing.userId !== request.user!.userId) {
+      return reply.code(403).send({ error: 'Not authorized to delete this comment' });
+    }
+
+    commentRepo.delete(commentId);
+
+    // Update cached count
+    const count = commentRepo.countByPrompt(id);
+    repo.update(id, { commentCount: count });
+
+    return { success: true };
   });
 }

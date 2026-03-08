@@ -67,6 +67,25 @@ export const prompts = sqliteTable('prompts', {
   reviewedAt: text('reviewed_at'),
   rating: real('rating').notNull().default(0),
   ratingCount: integer('rating_count').notNull().default(0),
+  starCount: integer('star_count').notNull().default(0),
+  commentCount: integer('comment_count').notNull().default(0),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
+export const promptStars = sqliteTable('prompt_stars', {
+  id: text('id').primaryKey(),
+  promptId: text('prompt_id').references(() => prompts.id, { onDelete: 'cascade' }).notNull(),
+  userId: text('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  createdAt: text('created_at').notNull(),
+});
+
+export const promptComments = sqliteTable('prompt_comments', {
+  id: text('id').primaryKey(),
+  promptId: text('prompt_id').references(() => prompts.id, { onDelete: 'cascade' }).notNull(),
+  userId: text('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  parentId: text('parent_id'),
+  content: text('content').notNull(),
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),
 });

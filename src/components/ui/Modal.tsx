@@ -52,6 +52,9 @@ function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalProps) {
         backgroundColor: 'var(--nx-void-panel)',
         border: '1px solid rgba(0, 212, 255, 0.2)',
         boxShadow: '0 0 30px rgba(0, 212, 255, 0.1), 0 8px 32px rgba(0, 0, 0, 0.6)',
+        margin: 'auto',
+        position: 'fixed',
+        inset: 0,
       }}
       onClick={(e) => {
         if (e.target === dialogRef.current) onClose();

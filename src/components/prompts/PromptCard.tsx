@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Copy, Check } from 'lucide-react';
+import { Copy, Check, Star } from 'lucide-react';
 import { Card } from '../ui/Card';
 import { Badge } from '../ui/Badge';
 import { StarRating } from '../ui/StarRating';
@@ -127,6 +127,12 @@ function PromptCard({ prompt }: PromptCardProps) {
               >
                 {prompt.rating.toFixed(1)} ({prompt.ratingCount})
               </span>
+              {prompt.starCount > 0 && (
+                <span className="flex items-center gap-1 text-xs" style={{ color: '#fbbf24' }}>
+                  <Star size={12} fill="#fbbf24" strokeWidth={0} />
+                  {prompt.starCount}
+                </span>
+              )}
             </div>
 
             {/* Effectiveness indicator */}

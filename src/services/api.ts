@@ -22,7 +22,7 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
   const { skipAuthRedirect, ...fetchOptions } = options;
   const token = getToken();
   const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
+    ...(fetchOptions.body ? { 'Content-Type': 'application/json' } : {}),
     ...(fetchOptions.headers as Record<string, string>),
   };
   if (token) {

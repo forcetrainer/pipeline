@@ -1,7 +1,7 @@
 import { db, sqlite } from './connection.js';
-import { users, useCases, prompts } from './schema.js';
+import { users, useCases, prompts, promptStars, promptComments } from './schema.js';
 import bcryptjs from 'bcryptjs';
-import { sql } from 'drizzle-orm';
+import { sql, eq } from 'drizzle-orm';
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -237,6 +237,38 @@ export async function seedDatabase() {
       createdAt: '2025-04-06T09:00:00Z', updatedAt: '2025-04-10T09:00:00Z',
     },
   ]).run();
+
+  // Seed prompt stars
+  db.insert(promptStars).values([
+    { id: 'star-001', promptId: 'pr-001', userId: 'user-002', createdAt: '2025-01-17T10:00:00Z' },
+    { id: 'star-002', promptId: 'pr-001', userId: 'user-003', createdAt: '2025-01-18T10:00:00Z' },
+    { id: 'star-003', promptId: 'pr-001', userId: 'user-004', createdAt: '2025-01-19T10:00:00Z' },
+    { id: 'star-004', promptId: 'pr-003', userId: 'user-001', createdAt: '2025-02-12T10:00:00Z' },
+    { id: 'star-005', promptId: 'pr-003', userId: 'user-002', createdAt: '2025-02-13T10:00:00Z' },
+    { id: 'star-006', promptId: 'pr-003', userId: 'user-004', createdAt: '2025-02-14T10:00:00Z' },
+    { id: 'star-007', promptId: 'pr-003', userId: 'user-005', createdAt: '2025-02-15T10:00:00Z' },
+    { id: 'star-008', promptId: 'pr-004', userId: 'user-001', createdAt: '2025-03-03T10:00:00Z' },
+    { id: 'star-009', promptId: 'pr-004', userId: 'user-003', createdAt: '2025-03-04T10:00:00Z' },
+    { id: 'star-010', promptId: 'pr-005', userId: 'user-002', createdAt: '2025-03-12T10:00:00Z' },
+    { id: 'star-011', promptId: 'pr-005', userId: 'user-006', createdAt: '2025-03-13T10:00:00Z' },
+    { id: 'star-012', promptId: 'pr-005', userId: 'user-007', createdAt: '2025-03-14T10:00:00Z' },
+  ]).run();
+
+  // Seed prompt comments
+  db.insert(promptComments).values([
+    { id: 'comment-001', promptId: 'pr-001', userId: 'user-002', parentId: null, content: 'This is incredibly useful for our team. We added a few extra rules specific to our coding style and it works even better.', createdAt: '2025-01-18T14:00:00Z', updatedAt: '2025-01-18T14:00:00Z' },
+    { id: 'comment-002', promptId: 'pr-001', userId: 'user-004', parentId: 'comment-001', content: 'Can you share which extra rules you added? We\'d love to try them too.', createdAt: '2025-01-19T09:00:00Z', updatedAt: '2025-01-19T09:00:00Z' },
+    { id: 'comment-003', promptId: 'pr-001', userId: 'user-002', parentId: 'comment-001', content: 'Sure! We added rules about our naming conventions and error handling patterns. I\'ll send them over in Slack.', createdAt: '2025-01-19T10:30:00Z', updatedAt: '2025-01-19T10:30:00Z' },
+    { id: 'comment-004', promptId: 'pr-003', userId: 'user-005', parentId: null, content: 'The JSON output format makes integration with our ticketing system super easy. Great prompt!', createdAt: '2025-02-14T11:00:00Z', updatedAt: '2025-02-14T11:00:00Z' },
+    { id: 'comment-005', promptId: 'pr-003', userId: 'user-003', parentId: 'comment-004', content: 'Glad it works well for you! We\'ve been iterating on the categories list. @lisa.park updated it last week.', createdAt: '2025-02-15T08:00:00Z', updatedAt: '2025-02-15T08:00:00Z' },
+    { id: 'comment-006', promptId: 'pr-004', userId: 'user-001', parentId: null, content: 'Our team adopted this across all departments. The action item format is perfect for follow-ups.', createdAt: '2025-03-05T15:00:00Z', updatedAt: '2025-03-05T15:00:00Z' },
+  ]).run();
+
+  // Update cached star and comment counts on prompts
+  db.update(prompts).set({ starCount: 3, commentCount: 3 }).where(eq(prompts.id, 'pr-001')).run();
+  db.update(prompts).set({ starCount: 4, commentCount: 2 }).where(eq(prompts.id, 'pr-003')).run();
+  db.update(prompts).set({ starCount: 2, commentCount: 1 }).where(eq(prompts.id, 'pr-004')).run();
+  db.update(prompts).set({ starCount: 3 }).where(eq(prompts.id, 'pr-005')).run();
 
   console.log('Database seeded successfully.');
 }

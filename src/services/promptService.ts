@@ -1,4 +1,4 @@
-import type { Prompt, PromptFilters, PromptSortField, SortDirection } from '../types';
+import type { Prompt, PromptFilters, PromptSortField, SortDirection, PromptComment, StarToggleResponse } from '../types';
 import { api } from './api';
 
 export async function getAllPrompts(): Promise<Prompt[]> {
@@ -81,10 +81,42 @@ export function sortPrompts(
         return dir * (a.effectivenessRating - b.effectivenessRating);
       case 'title':
         return dir * a.title.localeCompare(b.title);
+      case 'stars':
+        return dir * (a.starCount - b.starCount);
       default:
         return 0;
     }
   });
 
   return sorted;
+}
+
+// Stars
+export async function toggleStar(promptId: string): Promise<StarToggleResponse> {
+  return api.post<StarToggleResponse>(`/prompts/${promptId}/star`);
+}
+
+export async function getStarred(): Promise<Prompt[]> {
+  return api.get<Prompt[]>('/prompts/starred');
+}
+
+export async function checkStarred(promptId: string): Promise<{ starred: boolean }> {
+  return api.get<{ starred: boolean }>(`/prompts/${promptId}/star`);
+}
+
+// Comments
+export async function getComments(promptId: string): Promise<PromptComment[]> {
+  return api.get<PromptComment[]>(`/prompts/${promptId}/comments`);
+}
+
+export async function addComment(promptId: string, content: string, parentId?: string): Promise<PromptComment> {
+  return api.post<PromptComment>(`/prompts/${promptId}/comments`, { content, parentId });
+}
+
+export async function updateComment(promptId: string, commentId: string, content: string): Promise<PromptComment> {
+  return api.put<PromptComment>(`/prompts/${promptId}/comments/${commentId}`, { content });
+}
+
+export async function deleteComment(promptId: string, commentId: string): Promise<{ success: boolean }> {
+  return api.delete<{ success: boolean }>(`/prompts/${promptId}/comments/${commentId}`);
 }

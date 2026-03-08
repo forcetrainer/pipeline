@@ -147,8 +147,29 @@ export interface Prompt {
   reviewedAt?: string;
   rating: number;
   ratingCount: number;
+  starCount: number;
+  commentCount: number;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface PromptComment {
+  id: string;
+  promptId: string;
+  userId: string;
+  parentId: string | null;
+  content: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PromptCommentWithUser extends PromptComment {
+  userName: string;
+}
+
+export interface StarToggleResponse {
+  starred: boolean;
+  starCount: number;
 }
 
 export type UseCaseCategory =
@@ -232,7 +253,7 @@ export const DEPARTMENTS: Department[] = [
 ];
 
 export type UseCaseSortField = 'date' | 'timeSaved' | 'moneySaved' | 'title' | 'score' | 'annualSavings';
-export type PromptSortField = 'date' | 'rating' | 'effectiveness' | 'title';
+export type PromptSortField = 'date' | 'rating' | 'effectiveness' | 'title' | 'stars';
 export type SortDirection = 'asc' | 'desc';
 
 export interface UseCaseFilters {

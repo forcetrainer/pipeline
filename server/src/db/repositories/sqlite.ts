@@ -1,17 +1,21 @@
 import { eq, and, type SQL } from 'drizzle-orm';
 import { db } from '../index.js';
-import { users, useCases, prompts, refreshTokens } from '../schema.js';
+import { users, useCases, prompts, refreshTokens, promptStars, promptComments } from '../schema.js';
 import type {
   IUserRepository,
   IUseCaseRepository,
   IPromptRepository,
   IRefreshTokenRepository,
+  IPromptStarRepository,
+  IPromptCommentRepository,
   UserRow,
   NewUser,
   UseCaseRow,
   NewUseCase,
   PromptRow,
   NewPrompt,
+  PromptStarRow,
+  PromptCommentRow,
   UseCaseFilters,
   PromptFilters,
 } from './interfaces.js';
@@ -141,6 +145,67 @@ export class SqlitePromptRepository implements IPromptRepository {
 
   count(): number {
     return db.select().from(prompts).all().length;
+  }
+}
+
+export class SqlitePromptStarRepository implements IPromptStarRepository {
+  findByPromptAndUser(promptId: string, userId: string): PromptStarRow | undefined {
+    return db.select().from(promptStars).where(and(eq(promptStars.promptId, promptId), eq(promptStars.userId, userId))).get();
+  }
+
+  findByUser(userId: string): PromptStarRow[] {
+    return db.select().from(promptStars).where(eq(promptStars.userId, userId)).all();
+  }
+
+  countByPrompt(promptId: string): number {
+    return db.select().from(promptStars).where(eq(promptStars.promptId, promptId)).all().length;
+  }
+
+  create(star: { id: string; promptId: string; userId: string; createdAt: string }): PromptStarRow {
+    db.insert(promptStars).values(star).run();
+    return db.select().from(promptStars).where(eq(promptStars.id, star.id)).get()!;
+  }
+
+  delete(promptId: string, userId: string): boolean {
+    const existing = this.findByPromptAndUser(promptId, userId);
+    if (!existing) return false;
+    db.delete(promptStars).where(and(eq(promptStars.promptId, promptId), eq(promptStars.userId, userId))).run();
+    return true;
+  }
+}
+
+export class SqlitePromptCommentRepository implements IPromptCommentRepository {
+  findByPrompt(promptId: string): PromptCommentRow[] {
+    return db.select().from(promptComments).where(eq(promptComments.promptId, promptId)).all();
+  }
+
+  findById(id: string): PromptCommentRow | undefined {
+    return db.select().from(promptComments).where(eq(promptComments.id, id)).get();
+  }
+
+  countByPrompt(promptId: string): number {
+    return db.select().from(promptComments).where(eq(promptComments.promptId, promptId)).all().length;
+  }
+
+  create(comment: { id: string; promptId: string; userId: string; parentId: string | null; content: string; createdAt: string; updatedAt: string }): PromptCommentRow {
+    db.insert(promptComments).values(comment).run();
+    return db.select().from(promptComments).where(eq(promptComments.id, comment.id)).get()!;
+  }
+
+  update(id: string, data: { content: string; updatedAt: string }): PromptCommentRow | undefined {
+    const existing = this.findById(id);
+    if (!existing) return undefined;
+    db.update(promptComments).set(data).where(eq(promptComments.id, id)).run();
+    return this.findById(id);
+  }
+
+  delete(id: string): boolean {
+    const existing = this.findById(id);
+    if (!existing) return false;
+    // Delete child comments first (replies)
+    db.delete(promptComments).where(eq(promptComments.parentId, id)).run();
+    db.delete(promptComments).where(eq(promptComments.id, id)).run();
+    return true;
   }
 }
 

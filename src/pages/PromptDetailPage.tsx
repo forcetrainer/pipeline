@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Copy, Check, User, Calendar } from 'lucide-react';
+import { ArrowLeft, Copy, Check, User, Calendar, MessageSquare } from 'lucide-react';
 import { Badge, Button, Card, StarRating } from '../components/ui';
+import { StarButton } from '../components/prompts/StarButton';
+import { CommentSection } from '../components/prompts/CommentSection';
+import { useAuth } from '../contexts/AuthContext';
 import * as promptService from '../services/promptService';
 import { format } from 'date-fns';
 import type { Prompt } from '../types';
@@ -9,10 +12,12 @@ import type { Prompt } from '../types';
 function PromptDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const [prompt, setPrompt] = useState<Prompt | undefined>(undefined);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [starred, setStarred] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -31,6 +36,19 @@ function PromptDetailPage() {
     }
     load();
   }, [id]);
+
+  useEffect(() => {
+    async function loadStarred() {
+      if (!id || !isAuthenticated) return;
+      try {
+        const result = await promptService.checkStarred(id);
+        setStarred(result.starred);
+      } catch {
+        // ignore
+      }
+    }
+    loadStarred();
+  }, [id, isAuthenticated]);
 
   function handleCopy() {
     if (!prompt) return;
@@ -88,7 +106,16 @@ function PromptDetailPage() {
           >
             {prompt.title}
           </h1>
-          <StarRating value={Math.round(prompt.rating)} readonly size={20} />
+          <div className="flex items-center gap-3">
+            {isAuthenticated && (
+              <StarButton
+                promptId={prompt.id}
+                initialStarred={starred}
+                initialCount={prompt.starCount}
+              />
+            )}
+            <StarRating value={Math.round(prompt.rating)} readonly size={20} />
+          </div>
         </div>
 
         <div className="flex items-center gap-4 mb-6 text-sm" style={{ color: 'var(--nx-text-tertiary)' }}>
@@ -104,6 +131,12 @@ function PromptDetailPage() {
           <span style={{ color: 'var(--nx-text-tertiary)' }} className="text-xs">{prompt.aiTool}</span>
           {prompt.ratingCount > 0 && (
             <span style={{ color: 'var(--nx-text-tertiary)' }} className="text-xs">({prompt.ratingCount} ratings)</span>
+          )}
+          {prompt.commentCount > 0 && (
+            <span className="flex items-center gap-1.5">
+              <MessageSquare size={14} />
+              {prompt.commentCount} {prompt.commentCount === 1 ? 'comment' : 'comments'}
+            </span>
           )}
         </div>
 
@@ -197,6 +230,9 @@ function PromptDetailPage() {
             ))}
           </div>
         )}
+
+        {/* Comments */}
+        <CommentSection promptId={prompt.id} />
       </div>
     </div>
   );
