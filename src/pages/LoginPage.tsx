@@ -132,7 +132,7 @@ function LoginPage() {
               marginBottom: '0.25rem',
             }}
           >
-            AI Use Cases
+            Pipeline
           </h1>
           <p
             style={{
@@ -141,7 +141,7 @@ function LoginPage() {
               color: 'var(--nx-text-tertiary)',
             }}
           >
-            & Prompt Library
+            From Idea to Impact
           </p>
         </div>
 

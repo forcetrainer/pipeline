@@ -8,7 +8,7 @@ All 5 phases completed on 2026-03-08. The app has been migrated from a client-si
 
 ## Overview
 
-Migrate the ai-usecase-app from a client-side localStorage app to an enterprise-grade full-stack application with a real database, proper auth, and Docker deployment.
+Migrate Pipeline (formerly ai-usecase-app) from a client-side localStorage app to an enterprise-grade full-stack application with a real database, proper auth, and Docker deployment.
 
 **Original State**: React 19 SPA using localStorage for all persistence. Auth was client-side with base64 passwords.
 

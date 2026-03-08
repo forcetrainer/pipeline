@@ -105,7 +105,7 @@ function Sidebar() {
                 letterSpacing: '0.05em',
               }}
             >
-              AI Use Cases
+              Pipeline
             </h1>
             <p
               style={{
@@ -114,7 +114,7 @@ function Sidebar() {
                 color: 'var(--nx-text-tertiary)',
               }}
             >
-              & Prompt Library
+              From Idea to Impact
             </p>
           </div>
         </div>

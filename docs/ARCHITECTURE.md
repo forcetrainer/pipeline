@@ -18,7 +18,7 @@
 ## Project Structure
 
 ```
-ai-usecase-app/
+pipeline/
   src/                      # Frontend (React SPA)
     components/
       auth/                 # ProtectedRoute, AdminRoute

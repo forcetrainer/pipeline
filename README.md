@@ -1,131 +1,105 @@
-# AI Use Case & Prompt Library
+# Pipeline — From Idea to Impact
 
-A React web application for logging and sharing AI use cases and prompts within an organization. Track time and money saved, share effective prompts, and visualize AI adoption across departments -- all running locally with no cloud dependencies.
-
-## Key Pages
-
-- **Dashboard** (`/`) -- At-a-glance overview with total use cases, prompts submitted, time saved, and money saved. Includes charts for trends over time and breakdowns by category and department.
-- **Use Case Browser** (`/use-cases`) -- Searchable, filterable list of all submitted use cases. Filter by category, department, AI tool, or status. Sort by date, impact, or savings.
-- **Submit Use Case** (`/use-cases/new`) -- Form to log a new AI use case including title, description, category, department, AI tool used, time/money saved, impact level, effort level, and status.
-- **Prompt Browser** (`/prompts`) -- Browse and search shared prompts. Filter by category and sort by rating or effectiveness.
-- **Submit Prompt** (`/prompts/new`) -- Form to share a new prompt with the team, including the prompt text, category, tips for use, and effectiveness score.
-- **Detail Pages** (`/use-cases/:id`, `/prompts/:id`) -- Full view of a single use case or prompt with all details and metrics.
+An internal platform for managing AI initiatives across the organization. Track use cases with real business metrics, share effective prompts, and measure AI adoption — backed by a real database with proper auth and role-based access control.
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js 18+
+- Node.js 20+
 
 ### Install and Run
 
 ```bash
 npm install
+cd server && npm install && cd ..
 npm run dev
 ```
 
-The app will be available at `http://localhost:5173`.
+This starts both the frontend (http://localhost:5173) and the API server (port 3001) concurrently.
 
-## Features
+### Default Accounts
 
-- **Use Case Logger** -- Submit, browse, search, and filter AI use cases with metrics (time and money saved), categories, departments, impact/effort levels, and status tracking.
-- **Prompt Library** -- Share and discover AI prompts with ratings, effectiveness scores, categories, usage tips, and copy-to-clipboard.
-- **Dashboard** -- Overview stats, charts showing time and money saved over time, category breakdowns, and department usage.
-- **Search & Filtering** -- Full-text fuzzy search, filters by category, department, status, and AI tool, with sorting by multiple fields.
-- **Responsive Design** -- Mobile-friendly sidebar with hamburger menu, responsive card grids, and page transition animations.
-- **Warm Design System** -- Coral/amber color palette with earthy warm grays, accessible focus states, toast notifications, and reduced motion support.
+The database is seeded on first run with demo users:
+
+| Email | Password | Role |
+|-------|----------|------|
+| `admin@company.com` | `admin123` | Admin |
+| `sarah@company.com` | `password123` | User |
+
+## What's Inside
+
+- **Dashboard** — Aggregate stats, charts for time/money saved over time, breakdowns by category and department, scoring system (S–D grades)
+- **Use Case Tracker** — Submit, browse, search, and filter AI use cases with business metrics (time saved, money saved), impact/effort levels, and approval workflows
+- **Prompt Library** — Share and discover AI prompts with ratings, effectiveness scores, categories, and copy-to-clipboard
+- **My Submissions** — View your own submitted use cases and prompts with their approval status
+- **Admin Panel** — User management, pending review queue, denied items (admin role only)
 
 ## Tech Stack
 
 | Layer | Technology |
 |-------|------------|
-| Framework | React 19 + TypeScript |
-| Build Tool | Vite 7 |
+| Frontend | React 19 + TypeScript |
+| Build | Vite 7 |
 | Styling | Tailwind CSS 4 |
 | Routing | React Router v7 |
+| Backend | Fastify 5 |
+| Database | SQLite (better-sqlite3) |
+| ORM | Drizzle ORM |
+| Auth | JWT + bcrypt + refresh tokens |
 | Charts | Recharts |
 | Search | Fuse.js |
-| Icons | Lucide React |
-| IDs | uuid |
-| Dates | date-fns |
-
-## Project Structure
-
-```
-src/
-  App.tsx                        # Root component with routing and seed data initialization
-  main.tsx                       # Application entry point
-  index.css                      # Tailwind CSS v4 imports and theme configuration
-  components/
-    layout/
-      AppLayout.tsx              # Main layout with sidebar and content area
-      Sidebar.tsx                # Navigation sidebar with mobile hamburger menu
-    ui/                          # Shared UI component library
-      Button.tsx                 # Button (primary, secondary, ghost, danger variants)
-      Card.tsx                   # Card with optional hover effects
-      Input.tsx                  # Text input with label, error, helper text
-      Textarea.tsx               # Textarea with validation
-      Select.tsx                 # Select dropdown with custom styling
-      Badge.tsx                  # Color-coded status badges
-      Tag.tsx                    # Removable tag chips
-      Modal.tsx                  # Dialog modal (native dialog element)
-      StarRating.tsx             # Interactive star rating
-      SearchBar.tsx              # Search input with icon
-      EmptyState.tsx             # Empty state with icon and action
-      Toast.tsx / ToastContainer.tsx  # Toast notification system
-    use-cases/                   # Use case-specific components
-    prompts/                     # Prompt-specific components
-    dashboard/                   # Dashboard charts and stats
-  pages/                         # Route-level page components (7 pages)
-  hooks/
-    useSearch.ts                 # Fuse.js fuzzy search hook
-    useUseCases.ts               # Use case state management
-    usePrompts.ts                # Prompt state management
-  services/
-    storage.ts                   # localStorage CRUD abstraction
-    useCaseService.ts            # Use case business logic and filtering
-    promptService.ts             # Prompt business logic, filtering, and rating
-  data/
-    seed.ts                      # Demo seed data (8 use cases, 8 prompts)
-  types/
-    index.ts                     # TypeScript interfaces, types, and constants
-  styles/
-    design-system.css            # CSS custom properties and base styles
-    tailwind-extend.ts           # Tailwind theme extension values
-```
 
 ## Routes
 
-| Path | Page |
-|------|------|
-| `/` | Dashboard |
-| `/use-cases` | Browse use cases |
-| `/use-cases/new` | Submit new use case |
-| `/use-cases/:id` | Use case details |
-| `/prompts` | Browse prompts |
-| `/prompts/new` | Submit new prompt |
-| `/prompts/:id` | Prompt details |
+| Path | Page | Access |
+|------|------|--------|
+| `/login` | Login | Public |
+| `/` | Dashboard | Authenticated |
+| `/use-cases` | Use Case Browser | Authenticated |
+| `/use-cases/new` | Submit Use Case | Authenticated |
+| `/use-cases/:id` | Use Case Detail | Authenticated |
+| `/prompts` | Prompt Library | Authenticated |
+| `/prompts/new` | Submit Prompt | Authenticated |
+| `/prompts/:id` | Prompt Detail | Authenticated |
+| `/my-submissions` | My Submissions | Authenticated |
+| `/admin` | Admin Dashboard | Admin |
+| `/admin/users` | User Management | Admin |
+| `/admin/pending` | Pending Reviews | Admin |
+| `/admin/denied` | Denied Items | Admin |
 
-## Available Scripts
+## Scripts
 
 | Command | Description |
 |---------|-------------|
-| `npm run dev` | Start development server |
-| `npm run build` | Type-check and build for production |
+| `npm run dev` | Start frontend + backend dev servers |
+| `npm run build` | Type-check and build frontend for production |
 | `npm run lint` | Run ESLint |
-| `npm run preview` | Preview production build locally |
+| `npm run docker:build` | Build Docker image |
+| `npm run docker:up` | Start Docker container |
+| `npm run docker:down` | Stop Docker container |
 
-## Usage Guide
+Server-specific (run from `server/`):
 
-1. **Start the app** -- Run `npm install && npm run dev` and open `http://localhost:5173`.
-2. **Explore the dashboard** -- The home page shows aggregate stats and charts. Sample seed data is loaded on first run.
-3. **Log a use case** -- Navigate to Use Cases and click "New Use Case." Fill in details about how you used AI, the tool you used, and the time or money saved.
-4. **Share a prompt** -- Navigate to Prompts and click "New Prompt." Paste your prompt text, add a category and tips, then submit.
-5. **Browse and search** -- Use the search bar for fuzzy full-text search. Apply filters (category, department, status, AI tool) to narrow results. Click any item to see its full details.
-6. **Copy prompts** -- On any prompt detail page, use the copy button to copy the prompt text to your clipboard.
+| Command | Description |
+|---------|-------------|
+| `npm run db:generate` | Generate migration files from schema changes |
+| `npm run db:migrate` | Apply pending migrations |
+| `npm run db:studio` | Open Drizzle Studio GUI |
 
-## How It Works
+## Docker
 
-All data is persisted in the browser's **localStorage**. There is no backend or database -- the app runs entirely in the browser.
+```bash
+npm run docker:build
+npm run docker:up
+```
 
-On first launch, sample seed data is loaded automatically so the app is not empty. You can add, edit, and browse use cases and prompts from there. Clearing localStorage will reset the app to the initial seed data.
+The app runs on port 3001 in production mode, serving the built frontend via Fastify. Data persists via a Docker volume.
+
+## Documentation
+
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — System architecture, data flow, API routes, auth flow, RBAC model, database schema
+- [`docs/FEATURES.md`](docs/FEATURES.md) — Feature tracking with status
+- [`docs/CHANGELOG.md`](docs/CHANGELOG.md) — Version history
+- [`docs/DESIGN.md`](docs/DESIGN.md) — Design system (colors, typography, spacing, components)
+- [`docs/ADR/`](docs/ADR/) — Architecture Decision Records

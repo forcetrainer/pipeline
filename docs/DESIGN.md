@@ -1,4 +1,4 @@
-# AI Use Case & Prompt Library - Design System
+# Pipeline - Design System
 
 ## Design Philosophy
 

@@ -1,5 +1,5 @@
 /**
- * Tailwind CSS theme extension for the AI Use Case & Prompt Library.
+ * Tailwind CSS theme extension for Pipeline.
  * Dark sci-fi techy theme palette.
  *
  * NOTE: With Tailwind v4, theme tokens are defined as CSS custom properties

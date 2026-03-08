@@ -1,4 +1,4 @@
-const TOKEN_KEY = 'ai-usecase-app:token';
+const TOKEN_KEY = 'pipeline:token';
 
 function getToken(): string | null {
   return localStorage.getItem(TOKEN_KEY);
