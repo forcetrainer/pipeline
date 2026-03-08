@@ -145,8 +145,6 @@ export interface Prompt {
   reviewedBy?: string;
   reviewNotes?: string;
   reviewedAt?: string;
-  rating: number;
-  ratingCount: number;
   starCount: number;
   commentCount: number;
   createdAt: string;
@@ -253,7 +251,7 @@ export const DEPARTMENTS: Department[] = [
 ];
 
 export type UseCaseSortField = 'date' | 'timeSaved' | 'moneySaved' | 'title' | 'score' | 'annualSavings';
-export type PromptSortField = 'date' | 'rating' | 'effectiveness' | 'title' | 'stars';
+export type PromptSortField = 'date' | 'effectiveness' | 'title' | 'stars';
 export type SortDirection = 'asc' | 'desc';
 
 export interface UseCaseFilters {
@@ -269,5 +267,4 @@ export interface PromptFilters {
   category?: string;
   aiTool?: string;
   minEffectiveness?: number;
-  minRating?: number;
 }

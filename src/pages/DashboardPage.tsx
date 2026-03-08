@@ -396,7 +396,7 @@ function DashboardPage() {
                   }}
                 >
                   <p style={{ color: 'var(--nx-text-secondary)' }} className="text-sm font-medium truncate group-hover:text-[var(--nx-cyan-base)] transition-colors">{p.title}</p>
-                  <p style={{ color: 'var(--nx-text-tertiary)' }} className="text-xs mt-1">{p.category} &middot; {p.rating > 0 ? `${p.rating.toFixed(1)} stars` : 'No ratings'}</p>
+                  <p style={{ color: 'var(--nx-text-tertiary)' }} className="text-xs mt-1">{p.category} &middot; {p.starCount > 0 ? `${p.starCount} stars` : 'No stars'}</p>
                 </div>
               </Link>
             ))}
@@ -477,7 +477,7 @@ function DashboardPage() {
             {prompts.slice(0, 5).map((p) => (
               <Link key={p.id} to={`/prompts/${p.id}`} className="block group">
                 <p style={{ color: 'var(--nx-text-secondary)' }} className="text-sm font-medium group-hover:text-[var(--nx-cyan-base)] transition-colors truncate">{p.title}</p>
-                <p style={{ color: 'var(--nx-text-tertiary)' }} className="text-xs">{p.category} &middot; {p.rating > 0 ? `${p.rating.toFixed(1)} stars` : 'No ratings'}</p>
+                <p style={{ color: 'var(--nx-text-tertiary)' }} className="text-xs">{p.category} &middot; {p.starCount > 0 ? `${p.starCount} stars` : 'No stars'}</p>
               </Link>
             ))}
           </div>

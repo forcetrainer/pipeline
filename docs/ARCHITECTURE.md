@@ -70,7 +70,7 @@ pipeline/
       routes/
         auth.ts             # Login, logout, refresh, me, SSO stubs
         useCases.ts         # Use case CRUD + review
-        prompts.ts          # Prompt CRUD + review + rate
+        prompts.ts          # Prompt CRUD + review + star + comments
         users.ts            # User management (admin)
         aiReadiness.ts      # AI readiness stub endpoint
       services/
@@ -148,7 +148,8 @@ type Permission =
   | 'use-cases:read' | 'use-cases:create' | 'use-cases:update'
   | 'use-cases:delete' | 'use-cases:review'
   | 'prompts:read' | 'prompts:create' | 'prompts:update'
-  | 'prompts:delete' | 'prompts:review' | 'prompts:rate'
+  | 'prompts:delete' | 'prompts:review'
+  | 'prompts:star' | 'prompts:comment'
   | 'users:read' | 'users:create' | 'users:update' | 'users:delete'
   | 'admin:dashboard';
 ```
@@ -167,7 +168,8 @@ type Permission =
 | prompts:update | Y (own only) | Y |
 | prompts:delete | - | Y |
 | prompts:review | - | Y |
-| prompts:rate | Y | Y |
+| prompts:star | Y | Y |
+| prompts:comment | Y | Y |
 | users:* | - | Y |
 | admin:dashboard | - | Y |
 
@@ -225,8 +227,8 @@ Four tables defined in `server/src/db/schema.ts` using Drizzle's SQLite helpers:
 | submitted_by_id | TEXT NOT NULL FK -> users.id | |
 | approval_status | TEXT NOT NULL | draft, pending, approved, denied |
 | reviewed_by, review_notes, reviewed_at | TEXT | Nullable |
-| rating | REAL NOT NULL | Default 0 |
-| rating_count | INTEGER NOT NULL | Default 0 |
+| star_count | INTEGER NOT NULL | Default 0, cached from prompt_stars |
+| comment_count | INTEGER NOT NULL | Default 0, cached from prompt_comments |
 | created_at, updated_at | TEXT NOT NULL | ISO 8601 |
 
 ### refresh_tokens
@@ -238,6 +240,25 @@ Four tables defined in `server/src/db/schema.ts` using Drizzle's SQLite helpers:
 | expires_at | TEXT NOT NULL | ISO 8601 |
 | created_at | TEXT NOT NULL | ISO 8601 |
 
+### prompt_stars
+| Column | Type | Notes |
+|--------|------|-------|
+| id | TEXT PK | UUID |
+| prompt_id | TEXT NOT NULL FK -> prompts.id | CASCADE delete |
+| user_id | TEXT NOT NULL FK -> users.id | CASCADE delete |
+| created_at | TEXT NOT NULL | ISO 8601 |
+
+### prompt_comments
+| Column | Type | Notes |
+|--------|------|-------|
+| id | TEXT PK | UUID |
+| prompt_id | TEXT NOT NULL FK -> prompts.id | CASCADE delete |
+| user_id | TEXT NOT NULL FK -> users.id | CASCADE delete |
+| parent_id | TEXT | Nullable, FK -> prompt_comments.id (single-level threading) |
+| content | TEXT NOT NULL | Max 5000 chars |
+| created_at | TEXT NOT NULL | ISO 8601 |
+| updated_at | TEXT NOT NULL | ISO 8601 |
+
 ## Repository Pattern
 
 Database access is abstracted behind interfaces in `server/src/db/repositories/interfaces.ts`:
@@ -246,6 +267,8 @@ Database access is abstracted behind interfaces in `server/src/db/repositories/i
 - `IUseCaseRepository` -- findAll (with filters), findById, create, update, delete, count
 - `IPromptRepository` -- findAll (with filters), findById, create, update, delete, count
 - `IRefreshTokenRepository` -- create, findByToken, deleteByToken, deleteByUserId
+- `IPromptStarRepository` -- findByPromptAndUser, findByUser, countByPrompt, create, delete
+- `IPromptCommentRepository` -- findByPrompt, findById, countByPrompt, create, update, delete
 
 Factory functions in `server/src/db/repositories/index.ts` return the SQLite implementations. To add PostgreSQL support, create `postgres.ts` implementations and switch the factory based on a `DB_DRIVER` environment variable.
 
@@ -272,7 +295,13 @@ Factory functions in `server/src/db/repositories/index.ts` return the SQLite imp
 | PUT | /api/prompts/:id | Yes | - | Update prompt (owner or admin) |
 | DELETE | /api/prompts/:id | Yes | prompts:delete | Delete prompt (admin) |
 | PUT | /api/prompts/:id/review | Yes | prompts:review | Review prompt (admin) |
-| POST | /api/prompts/:id/rate | Yes | - | Rate a prompt (1-5) |
+| POST | /api/prompts/:id/star | Yes | prompts:star | Toggle star/unstar a prompt |
+| GET | /api/prompts/:id/star | Yes | - | Check if current user starred |
+| GET | /api/prompts/starred | Yes | - | Get current user's starred prompts |
+| GET | /api/prompts/:id/comments | No | - | List comments for a prompt |
+| POST | /api/prompts/:id/comments | Yes | prompts:comment | Add a comment |
+| PUT | /api/prompts/:id/comments/:cid | Yes | prompts:comment | Edit own comment (owner or admin) |
+| DELETE | /api/prompts/:id/comments/:cid | Yes | - | Delete comment (owner or admin) |
 | GET | /api/users | Yes | users:read | List all users (admin) |
 | POST | /api/users | Yes | users:create | Create user (admin) |
 | PUT | /api/users/:id | Yes | users:update | Update user (admin) |

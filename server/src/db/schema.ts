@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, real } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
 
 export const users = sqliteTable('users', {
   id: text('id').primaryKey(),
@@ -65,8 +65,6 @@ export const prompts = sqliteTable('prompts', {
   reviewedBy: text('reviewed_by'),
   reviewNotes: text('review_notes'),
   reviewedAt: text('reviewed_at'),
-  rating: real('rating').notNull().default(0),
-  ratingCount: integer('rating_count').notNull().default(0),
   starCount: integer('star_count').notNull().default(0),
   commentCount: integer('comment_count').notNull().default(0),
   createdAt: text('created_at').notNull(),

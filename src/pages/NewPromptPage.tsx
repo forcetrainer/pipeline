@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-import { Button, Input, Textarea, Select, StarRating, Tag } from '../components/ui';
+import { Button, Input, Textarea, Select, Tag } from '../components/ui';
 import { useToast } from '../components/ui/ToastContainer';
 import { useAuth } from '../contexts/AuthContext';
 import * as promptService from '../services/promptService';
@@ -215,13 +215,25 @@ function NewPromptPage() {
           />
 
           {/* Effectiveness rating */}
-          <div className="flex flex-col gap-1.5">
-            <label style={{ color: 'var(--nx-text-secondary)', fontSize: '14px', fontWeight: 500 }}>Effectiveness rating</label>
-            <StarRating
-              value={form.effectivenessRating}
-              onChange={(rating) => updateField('effectivenessRating', rating)}
-            />
-          </div>
+          <Select
+            label="Effectiveness rating"
+            options={[
+              { value: '0', label: 'Not rated' },
+              { value: '1', label: '1 - Poor' },
+              { value: '2', label: '2 - Fair' },
+              { value: '3', label: '3 - Good' },
+              { value: '4', label: '4 - Very Good' },
+              { value: '5', label: '5 - Excellent' },
+              { value: '6', label: '6' },
+              { value: '7', label: '7' },
+              { value: '8', label: '8' },
+              { value: '9', label: '9' },
+              { value: '10', label: '10 - Outstanding' },
+            ]}
+            value={String(form.effectivenessRating)}
+            onChange={(e) => updateField('effectivenessRating', Number(e.target.value))}
+            placeholder="Rate effectiveness"
+          />
 
           <Textarea
             label="Tips for usage"

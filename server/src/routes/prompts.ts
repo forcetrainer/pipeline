@@ -71,8 +71,6 @@ export async function promptRoutes(app: FastifyInstance) {
       reviewedBy: null,
       reviewNotes: null,
       reviewedAt: null,
-      rating: 0,
-      ratingCount: 0,
       createdAt: now,
       updatedAt: now,
     };
@@ -141,35 +139,6 @@ export async function promptRoutes(app: FastifyInstance) {
       reviewedBy: request.user!.email,
       reviewNotes: body.reviewNotes || null,
       reviewedAt: now,
-      updatedAt: now,
-    });
-
-    return parsePrompt(updated!);
-  });
-
-  // POST /api/prompts/:id/rate
-  app.post('/api/prompts/:id/rate', { preHandler: [authenticate] }, async (request, reply) => {
-    const { id } = request.params as { id: string };
-    const existing = repo.findById(id);
-
-    if (!existing) {
-      return reply.code(404).send({ error: 'Prompt not found' });
-    }
-
-    const { rating: newRating } = request.body as { rating: number };
-
-    if (typeof newRating !== 'number' || newRating < 1 || newRating > 5) {
-      return reply.code(400).send({ error: 'Rating must be a number between 1 and 5' });
-    }
-
-    const oldAvg = existing.rating;
-    const oldCount = existing.ratingCount;
-    const newAvg = ((oldAvg * oldCount) + newRating) / (oldCount + 1);
-    const now = new Date().toISOString();
-
-    const updated = repo.update(id, {
-      rating: newAvg,
-      ratingCount: oldCount + 1,
       updatedAt: now,
     });
 

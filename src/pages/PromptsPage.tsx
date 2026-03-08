@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, BookOpen, Copy, Check, Star } from 'lucide-react';
-import { SearchBar, Button, Badge, StarRating, EmptyState, Card, Select } from '../components/ui';
+import { SearchBar, Button, Badge, EmptyState, Card, Select } from '../components/ui';
 import { useAuth } from '../contexts/AuthContext';
 import * as promptService from '../services/promptService';
 import { PROMPT_CATEGORIES } from '../types';
@@ -59,7 +59,6 @@ function PromptCard({ prompt, showApproval }: { prompt: Prompt; showApproval?: b
             <span style={{ color: 'var(--nx-text-tertiary)' }} className="text-xs">{prompt.aiTool}</span>
           </div>
           <div className="flex items-center gap-2">
-            <StarRating value={Math.round(prompt.rating)} readonly size={14} />
             {prompt.starCount > 0 && (
               <span className="flex items-center gap-1 text-xs" style={{ color: '#fbbf24' }}>
                 <Star size={12} fill="#fbbf24" strokeWidth={0} />
@@ -124,8 +123,6 @@ function PromptsPage() {
       switch (sortField) {
         case 'date':
           return dir * (new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-        case 'rating':
-          return dir * (b.rating - a.rating);
         case 'effectiveness':
           return dir * ((b.effectivenessRating ?? 0) - (a.effectivenessRating ?? 0));
         case 'stars':
@@ -147,7 +144,6 @@ function PromptsPage() {
 
   const sortOptions = [
     { value: 'date', label: 'Newest First' },
-    { value: 'rating', label: 'Highest Rated' },
     { value: 'stars', label: 'Most Starred' },
     { value: 'title', label: 'By Title' },
   ];

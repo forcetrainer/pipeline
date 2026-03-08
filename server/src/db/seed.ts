@@ -149,7 +149,6 @@ export async function seedDatabase() {
       category: 'Coding', aiTool: 'Claude', useCaseId: 'uc-001',
       tags: JSON.stringify(['code-review', 'engineering']),
       submittedBy: 'Sarah Chen', submittedById: 'user-001', approvalStatus: 'approved',
-      rating: 4.5, ratingCount: 12,
       createdAt: '2025-01-16T10:00:00Z', updatedAt: '2025-01-20T14:00:00Z',
     },
     {
@@ -161,7 +160,6 @@ export async function seedDatabase() {
       category: 'Writing', aiTool: 'ChatGPT', useCaseId: 'uc-002',
       tags: JSON.stringify(['marketing', 'email', 'copywriting']),
       submittedBy: 'Mike Rodriguez', submittedById: 'user-002', approvalStatus: 'approved',
-      rating: 4.2, ratingCount: 8,
       createdAt: '2025-02-02T09:00:00Z', updatedAt: '2025-02-05T11:00:00Z',
     },
     {
@@ -173,7 +171,6 @@ export async function seedDatabase() {
       category: 'Analysis', aiTool: 'Claude', useCaseId: 'uc-003',
       tags: JSON.stringify(['support', 'classification']),
       submittedBy: 'Lisa Park', submittedById: 'user-003', approvalStatus: 'approved',
-      rating: 4.8, ratingCount: 15,
       createdAt: '2025-02-11T08:00:00Z', updatedAt: '2025-02-15T16:00:00Z',
     },
     {
@@ -185,7 +182,6 @@ export async function seedDatabase() {
       category: 'Summarization', aiTool: 'Claude', useCaseId: 'uc-004',
       tags: JSON.stringify(['meetings', 'summarization', 'productivity']),
       submittedBy: 'James Wilson', submittedById: 'user-004', approvalStatus: 'approved',
-      rating: 4.6, ratingCount: 20,
       createdAt: '2025-03-02T10:00:00Z', updatedAt: '2025-03-05T12:00:00Z',
     },
     {
@@ -197,7 +193,6 @@ export async function seedDatabase() {
       category: 'Writing', aiTool: 'ChatGPT', useCaseId: 'uc-005',
       tags: JSON.stringify(['sales', 'email', 'personalization']),
       submittedBy: 'Emma Thompson', submittedById: 'user-005', approvalStatus: 'approved',
-      rating: 4.3, ratingCount: 10,
       createdAt: '2025-03-11T09:00:00Z', updatedAt: '2025-03-15T10:00:00Z',
     },
     {
@@ -209,7 +204,6 @@ export async function seedDatabase() {
       category: 'Analysis', aiTool: 'Claude', useCaseId: 'uc-006',
       tags: JSON.stringify(['data', 'analysis', 'reporting']),
       submittedBy: 'David Kim', submittedById: 'user-006', approvalStatus: 'approved',
-      rating: 4.1, ratingCount: 6,
       createdAt: '2025-03-21T08:00:00Z', updatedAt: '2025-03-25T14:00:00Z',
     },
     {
@@ -221,7 +215,6 @@ export async function seedDatabase() {
       category: 'Coding', aiTool: 'Claude', useCaseId: null,
       tags: JSON.stringify(['debugging', 'engineering', 'triage']),
       submittedBy: 'Alex Rivera', submittedById: 'user-007', approvalStatus: 'approved',
-      rating: 3.9, ratingCount: 7,
       createdAt: '2025-04-02T10:00:00Z', updatedAt: '2025-04-08T10:00:00Z',
     },
     {
@@ -233,7 +226,6 @@ export async function seedDatabase() {
       category: 'Writing', aiTool: 'Claude', useCaseId: null,
       tags: JSON.stringify(['product', 'requirements', 'planning']),
       submittedBy: 'Rachel Foster', submittedById: 'user-008', approvalStatus: 'approved',
-      rating: 4.4, ratingCount: 9,
       createdAt: '2025-04-06T09:00:00Z', updatedAt: '2025-04-10T09:00:00Z',
     },
   ]).run();

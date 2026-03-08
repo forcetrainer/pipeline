@@ -9,7 +9,6 @@ export type Permission =
   | 'prompts:update'
   | 'prompts:delete'
   | 'prompts:review'
-  | 'prompts:rate'
   | 'prompts:star'
   | 'prompts:comment'
   | 'users:read'
@@ -26,13 +25,12 @@ export const rolePermissions: Record<string, Permission[]> = {
     'prompts:read',
     'prompts:create',
     'prompts:update', // own items only
-    'prompts:rate',
     'prompts:star',
     'prompts:comment',
   ],
   admin: [
     'use-cases:read', 'use-cases:create', 'use-cases:update', 'use-cases:delete', 'use-cases:review',
-    'prompts:read', 'prompts:create', 'prompts:update', 'prompts:delete', 'prompts:review', 'prompts:rate', 'prompts:star', 'prompts:comment',
+    'prompts:read', 'prompts:create', 'prompts:update', 'prompts:delete', 'prompts:review', 'prompts:star', 'prompts:comment',
     'users:read', 'users:create', 'users:update', 'users:delete',
     'admin:dashboard',
   ],

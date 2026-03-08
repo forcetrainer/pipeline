@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Copy, Check, User, Calendar, MessageSquare } from 'lucide-react';
-import { Badge, Button, Card, StarRating } from '../components/ui';
+import { Badge, Button, Card } from '../components/ui';
 import { StarButton } from '../components/prompts/StarButton';
 import { CommentSection } from '../components/prompts/CommentSection';
 import { useAuth } from '../contexts/AuthContext';
@@ -114,15 +114,6 @@ function PromptDetailPage() {
                 initialCount={prompt.starCount}
               />
             )}
-            <StarRating
-              value={Math.round(prompt.rating)}
-              readonly={!isAuthenticated}
-              size={20}
-              onChange={async (rating) => {
-                const updated = await promptService.ratePrompt(prompt.id, rating);
-                if (updated) setPrompt(updated);
-              }}
-            />
           </div>
         </div>
 
@@ -137,9 +128,6 @@ function PromptDetailPage() {
           </span>
           <Badge variant="neutral" size="sm">{prompt.category}</Badge>
           <span style={{ color: 'var(--nx-text-tertiary)' }} className="text-xs">{prompt.aiTool}</span>
-          {prompt.ratingCount > 0 && (
-            <span style={{ color: 'var(--nx-text-tertiary)' }} className="text-xs">({prompt.ratingCount} ratings)</span>
-          )}
           {prompt.commentCount > 0 && (
             <span className="flex items-center gap-1.5">
               <MessageSquare size={14} />

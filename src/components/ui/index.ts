@@ -6,7 +6,6 @@ export { Select, type SelectProps, type SelectOption } from './Select';
 export { Badge, type BadgeProps, type BadgeVariant } from './Badge';
 export { Tag, type TagProps } from './Tag';
 export { Modal, type ModalProps } from './Modal';
-export { StarRating, type StarRatingProps } from './StarRating';
 export { Toast, type ToastProps, type ToastVariant } from './Toast';
 export { SearchBar, type SearchBarProps } from './SearchBar';
 export { EmptyState, type EmptyStateProps } from './EmptyState';

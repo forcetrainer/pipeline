@@ -14,7 +14,7 @@ export async function getPromptById(id: string): Promise<Prompt | undefined> {
 }
 
 export async function createPrompt(
-  data: Omit<Prompt, 'id' | 'createdAt' | 'updatedAt' | 'rating' | 'ratingCount'>
+  data: Omit<Prompt, 'id' | 'createdAt' | 'updatedAt'>
 ): Promise<Prompt> {
   return api.post<Prompt>('/prompts', data);
 }
@@ -25,17 +25,6 @@ export async function updatePrompt(
 ): Promise<Prompt | undefined> {
   try {
     return await api.put<Prompt>(`/prompts/${id}`, data);
-  } catch {
-    return undefined;
-  }
-}
-
-export async function ratePrompt(
-  id: string,
-  rating: number
-): Promise<Prompt | undefined> {
-  try {
-    return await api.post<Prompt>(`/prompts/${id}/rate`, { rating });
   } catch {
     return undefined;
   }
@@ -58,7 +47,6 @@ export function filterPrompts(
     if (filters.category && p.category !== filters.category) return false;
     if (filters.aiTool && p.aiTool !== filters.aiTool) return false;
     if (filters.minEffectiveness && p.effectivenessRating < filters.minEffectiveness) return false;
-    if (filters.minRating && p.rating < filters.minRating) return false;
     return true;
   });
 }
@@ -75,8 +63,6 @@ export function sortPrompts(
     switch (field) {
       case 'date':
         return dir * (new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
-      case 'rating':
-        return dir * (a.rating - b.rating);
       case 'effectiveness':
         return dir * (a.effectivenessRating - b.effectivenessRating);
       case 'title':

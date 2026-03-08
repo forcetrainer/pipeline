@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { Copy, Check, Star } from 'lucide-react';
 import { Card } from '../ui/Card';
 import { Badge } from '../ui/Badge';
-import { StarRating } from '../ui/StarRating';
 import { Tag } from '../ui/Tag';
 import type { Prompt } from '../../types';
 
@@ -117,16 +116,9 @@ function PromptCard({ prompt }: PromptCardProps) {
             {prompt.content}
           </div>
 
-          {/* Rating row: stars + effectiveness indicator */}
+          {/* Stars + effectiveness indicator */}
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <StarRating value={Math.round(prompt.rating)} readonly size={14} />
-              <span
-                className="text-xs"
-                style={{ color: 'var(--nx-text-ghost)' }}
-              >
-                {prompt.rating.toFixed(1)} ({prompt.ratingCount})
-              </span>
               {prompt.starCount > 0 && (
                 <span className="flex items-center gap-1 text-xs" style={{ color: '#fbbf24' }}>
                   <Star size={12} fill="#fbbf24" strokeWidth={0} />
