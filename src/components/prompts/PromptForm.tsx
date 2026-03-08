@@ -53,6 +53,8 @@ function PromptForm({ initialData, onSubmit, isSubmitting }: PromptFormProps) {
       aiTool,
       tags: tags.split(',').map((t) => t.trim()).filter(Boolean),
       submittedBy,
+      submittedById: '',
+      approvalStatus: 'pending',
     });
   };
 

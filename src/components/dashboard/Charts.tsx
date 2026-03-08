@@ -549,10 +549,11 @@ function SavingsHorizonChart({ data }: SavingsHorizonChartProps) {
             <Tooltip
               contentStyle={TOOLTIP_STYLE}
               cursor={{ fill: 'rgba(0, 212, 255, 0.05)' }}
-              formatter={(value: number, name: string) => {
-                if (name === 'hours') return [`${value.toFixed(1)}h`, 'Time Saved'];
-                return [`$${value.toLocaleString()}`, 'Money Saved'];
-              }}
+              formatter={((value: number | undefined, name: string | undefined) => {
+                const v = value ?? 0;
+                if (name === 'hours') return [`${v.toFixed(1)}h`, 'Time Saved'];
+                return [`$${v.toLocaleString()}`, 'Money Saved'];
+              }) as never}
             />
             <Legend
               wrapperStyle={{

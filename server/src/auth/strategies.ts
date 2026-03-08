@@ -1,6 +1,4 @@
-import { eq } from 'drizzle-orm';
-import { db } from '../db/index.js';
-import { users } from '../db/schema.js';
+import { getUserRepository } from '../db/repositories/index.js';
 import { verifyPassword } from '../services/authService.js';
 import { SSOStrategy, type AuthMode } from './sso.js';
 
@@ -26,11 +24,8 @@ export interface AuthStrategy {
 
 export class LocalStrategy implements AuthStrategy {
   async authenticate(email: string, password: string): Promise<AuthResult> {
-    const user = db
-      .select()
-      .from(users)
-      .where(eq(users.email, email))
-      .get();
+    const userRepo = getUserRepository();
+    const user = userRepo.findByEmail(email);
 
     if (!user) {
       return { success: false, error: 'Invalid email or password' };

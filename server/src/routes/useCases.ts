@@ -1,12 +1,11 @@
 import type { FastifyInstance } from 'fastify';
-import { eq, and, type SQL } from 'drizzle-orm';
 import crypto from 'crypto';
-import { db } from '../db/index.js';
-import { useCases } from '../db/schema.js';
+import { getUseCaseRepository } from '../db/repositories/index.js';
 import { authenticate } from '../middleware/authenticate.js';
 import { requirePermission } from '../middleware/authorize.js';
+import type { UseCaseRow } from '../db/repositories/index.js';
 
-function parseUseCase(row: typeof useCases.$inferSelect) {
+function parseUseCase(row: UseCaseRow) {
   return {
     ...row,
     metrics: JSON.parse(row.metrics),
@@ -15,29 +14,26 @@ function parseUseCase(row: typeof useCases.$inferSelect) {
 }
 
 export async function useCaseRoutes(app: FastifyInstance) {
+  const repo = getUseCaseRepository();
+
   // GET /api/use-cases
   app.get('/api/use-cases', async (request) => {
     const query = request.query as Record<string, string | undefined>;
-    const conditions: SQL[] = [];
-
-    if (query.category) conditions.push(eq(useCases.category, query.category));
-    if (query.department) conditions.push(eq(useCases.department, query.department));
-    if (query.impact) conditions.push(eq(useCases.impact, query.impact));
-    if (query.status) conditions.push(eq(useCases.status, query.status));
-    if (query.aiTool) conditions.push(eq(useCases.aiTool, query.aiTool));
-    if (query.approvalStatus) conditions.push(eq(useCases.approvalStatus, query.approvalStatus));
-
-    const rows = conditions.length > 0
-      ? db.select().from(useCases).where(and(...conditions)).all()
-      : db.select().from(useCases).all();
-
+    const rows = repo.findAll({
+      category: query.category,
+      department: query.department,
+      impact: query.impact,
+      status: query.status,
+      aiTool: query.aiTool,
+      approvalStatus: query.approvalStatus,
+    });
     return rows.map(parseUseCase);
   });
 
   // GET /api/use-cases/:id
   app.get('/api/use-cases/:id', async (request, reply) => {
     const { id } = request.params as { id: string };
-    const row = db.select().from(useCases).where(eq(useCases.id, id)).get();
+    const row = repo.findById(id);
 
     if (!row) {
       return reply.code(404).send({ error: 'Use case not found' });
@@ -76,15 +72,14 @@ export async function useCaseRoutes(app: FastifyInstance) {
       updatedAt: now,
     };
 
-    db.insert(useCases).values(newUseCase).run();
-
-    return reply.code(201).send(parseUseCase(newUseCase));
+    const created = repo.create(newUseCase);
+    return reply.code(201).send(parseUseCase(created));
   });
 
   // PUT /api/use-cases/:id
   app.put('/api/use-cases/:id', { preHandler: [authenticate] }, async (request, reply) => {
     const { id } = request.params as { id: string };
-    const existing = db.select().from(useCases).where(eq(useCases.id, id)).get();
+    const existing = repo.findById(id);
 
     if (!existing) {
       return reply.code(404).send({ error: 'Use case not found' });
@@ -110,29 +105,26 @@ export async function useCaseRoutes(app: FastifyInstance) {
       updates.tags = typeof body.tags === 'string' ? body.tags : JSON.stringify(body.tags);
     }
 
-    db.update(useCases).set(updates).where(eq(useCases.id, id)).run();
-
-    const updated = db.select().from(useCases).where(eq(useCases.id, id)).get();
+    const updated = repo.update(id, updates);
     return parseUseCase(updated!);
   });
 
   // DELETE /api/use-cases/:id
   app.delete('/api/use-cases/:id', { preHandler: [authenticate, requirePermission('use-cases:delete')] }, async (request, reply) => {
     const { id } = request.params as { id: string };
-    const existing = db.select().from(useCases).where(eq(useCases.id, id)).get();
+    const deleted = repo.delete(id);
 
-    if (!existing) {
+    if (!deleted) {
       return reply.code(404).send({ error: 'Use case not found' });
     }
 
-    db.delete(useCases).where(eq(useCases.id, id)).run();
     return { success: true };
   });
 
   // PUT /api/use-cases/:id/review
   app.put('/api/use-cases/:id/review', { preHandler: [authenticate, requirePermission('use-cases:review')] }, async (request, reply) => {
     const { id } = request.params as { id: string };
-    const existing = db.select().from(useCases).where(eq(useCases.id, id)).get();
+    const existing = repo.findById(id);
 
     if (!existing) {
       return reply.code(404).send({ error: 'Use case not found' });
@@ -141,18 +133,14 @@ export async function useCaseRoutes(app: FastifyInstance) {
     const body = request.body as { approvalStatus: string; reviewNotes?: string };
     const now = new Date().toISOString();
 
-    db.update(useCases)
-      .set({
-        approvalStatus: body.approvalStatus,
-        reviewedBy: `${request.user!.email}`,
-        reviewNotes: body.reviewNotes || null,
-        reviewedAt: now,
-        updatedAt: now,
-      })
-      .where(eq(useCases.id, id))
-      .run();
+    const updated = repo.update(id, {
+      approvalStatus: body.approvalStatus,
+      reviewedBy: `${request.user!.email}`,
+      reviewNotes: body.reviewNotes || null,
+      reviewedAt: now,
+      updatedAt: now,
+    });
 
-    const updated = db.select().from(useCases).where(eq(useCases.id, id)).get();
     return parseUseCase(updated!);
   });
 }

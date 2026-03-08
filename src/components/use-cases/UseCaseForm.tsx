@@ -122,6 +122,8 @@ function UseCaseForm({ initialData, onSubmit, isSubmitting }: UseCaseFormProps) 
       tags: tags.split(',').map((t) => t.trim()).filter(Boolean),
       submittedBy,
       submitterTeam: department,
+      submittedById: '',
+      approvalStatus: 'pending',
     });
   };
 

@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  app:
+    build: .
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - JWT_SECRET=${JWT_SECRET:-change-me-in-production}
+      - AUTH_MODE=${AUTH_MODE:-local}
+      - DB_DRIVER=${DB_DRIVER:-sqlite}
+    volumes:
+      - app-data:/app/server/data
+    restart: unless-stopped
+
+volumes:
+  app-data:

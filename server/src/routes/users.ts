@@ -1,21 +1,22 @@
 import type { FastifyInstance } from 'fastify';
-import { eq } from 'drizzle-orm';
 import crypto from 'crypto';
-import { db } from '../db/index.js';
-import { users } from '../db/schema.js';
+import { getUserRepository } from '../db/repositories/index.js';
+import type { UserRow } from '../db/repositories/index.js';
 import { hashPassword } from '../services/authService.js';
 import { authenticate } from '../middleware/authenticate.js';
 import { requirePermission } from '../middleware/authorize.js';
 
-function stripPassword(user: typeof users.$inferSelect) {
+function stripPassword(user: UserRow) {
   const { password: _, ...rest } = user;
   return rest;
 }
 
 export async function userRoutes(app: FastifyInstance) {
+  const repo = getUserRepository();
+
   // GET /api/users
   app.get('/api/users', { preHandler: [authenticate, requirePermission('users:read')] }, async () => {
-    const rows = db.select().from(users).all();
+    const rows = repo.findAll();
     return rows.map(stripPassword);
   });
 
@@ -37,15 +38,14 @@ export async function userRoutes(app: FastifyInstance) {
       updatedAt: now,
     };
 
-    db.insert(users).values(newUser).run();
-
-    return reply.code(201).send(stripPassword(newUser));
+    const created = repo.create(newUser);
+    return reply.code(201).send(stripPassword(created));
   });
 
   // PUT /api/users/:id
   app.put('/api/users/:id', { preHandler: [authenticate, requirePermission('users:update')] }, async (request, reply) => {
     const { id } = request.params as { id: string };
-    const existing = db.select().from(users).where(eq(users.id, id)).get();
+    const existing = repo.findById(id);
 
     if (!existing) {
       return reply.code(404).send({ error: 'User not found' });
@@ -64,22 +64,19 @@ export async function userRoutes(app: FastifyInstance) {
       updates.password = await hashPassword(body.password as string);
     }
 
-    db.update(users).set(updates).where(eq(users.id, id)).run();
-
-    const updated = db.select().from(users).where(eq(users.id, id)).get();
+    const updated = repo.update(id, updates);
     return stripPassword(updated!);
   });
 
   // DELETE /api/users/:id
   app.delete('/api/users/:id', { preHandler: [authenticate, requirePermission('users:delete')] }, async (request, reply) => {
     const { id } = request.params as { id: string };
-    const existing = db.select().from(users).where(eq(users.id, id)).get();
+    const deleted = repo.delete(id);
 
-    if (!existing) {
+    if (!deleted) {
       return reply.code(404).send({ error: 'User not found' });
     }
 
-    db.delete(users).where(eq(users.id, id)).run();
     return { success: true };
   });
 }

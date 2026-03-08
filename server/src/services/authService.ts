@@ -1,9 +1,7 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
-import { db } from '../db/index.js';
-import { refreshTokens } from '../db/schema.js';
-import { eq } from 'drizzle-orm';
+import { getRefreshTokenRepository } from '../db/repositories/index.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-in-production';
 const JWT_EXPIRY = '15m';
@@ -32,32 +30,36 @@ export function verifyToken(token: string): TokenPayload {
 }
 
 export function generateRefreshToken(userId: string): string {
+  const tokenRepo = getRefreshTokenRepository();
   const token = crypto.randomUUID();
   const expiresAt = new Date(Date.now() + REFRESH_TOKEN_EXPIRY_DAYS * 24 * 60 * 60 * 1000).toISOString();
-  db.insert(refreshTokens).values({
+  tokenRepo.create({
     id: crypto.randomUUID(),
     token,
     userId,
     expiresAt,
     createdAt: new Date().toISOString(),
-  }).run();
+  });
   return token;
 }
 
 export function verifyRefreshToken(token: string): { userId: string } {
-  const record = db.select().from(refreshTokens).where(eq(refreshTokens.token, token)).get();
+  const tokenRepo = getRefreshTokenRepository();
+  const record = tokenRepo.findByToken(token);
   if (!record) throw new Error('Invalid refresh token');
   if (new Date(record.expiresAt) < new Date()) {
-    db.delete(refreshTokens).where(eq(refreshTokens.token, token)).run();
+    tokenRepo.deleteByToken(token);
     throw new Error('Refresh token expired');
   }
   return { userId: record.userId };
 }
 
 export function revokeRefreshToken(token: string): void {
-  db.delete(refreshTokens).where(eq(refreshTokens.token, token)).run();
+  const tokenRepo = getRefreshTokenRepository();
+  tokenRepo.deleteByToken(token);
 }
 
 export function revokeAllUserTokens(userId: string): void {
-  db.delete(refreshTokens).where(eq(refreshTokens.userId, userId)).run();
+  const tokenRepo = getRefreshTokenRepository();
+  tokenRepo.deleteByUserId(userId);
 }

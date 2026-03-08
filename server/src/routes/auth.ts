@@ -1,7 +1,5 @@
 import type { FastifyInstance } from 'fastify';
-import { eq } from 'drizzle-orm';
-import { db } from '../db/index.js';
-import { users } from '../db/schema.js';
+import { getUserRepository } from '../db/repositories/index.js';
 import { generateToken, generateRefreshToken, verifyRefreshToken, revokeRefreshToken } from '../services/authService.js';
 import { getStrategy } from '../auth/strategies.js';
 import { authenticate } from '../middleware/authenticate.js';
@@ -43,11 +41,8 @@ export async function authRoutes(app: FastifyInstance) {
 
   // GET /api/auth/me
   app.get('/api/auth/me', { preHandler: [authenticate] }, async (request, reply) => {
-    const user = db
-      .select()
-      .from(users)
-      .where(eq(users.id, request.user!.userId))
-      .get();
+    const userRepo = getUserRepository();
+    const user = userRepo.findById(request.user!.userId);
 
     if (!user) {
       return reply.code(404).send({ error: 'User not found' });
@@ -68,7 +63,8 @@ export async function authRoutes(app: FastifyInstance) {
       // Revoke old token (rotation)
       revokeRefreshToken(refreshTokenValue);
       // Look up user
-      const user = db.select().from(users).where(eq(users.id, userId)).get();
+      const userRepo = getUserRepository();
+      const user = userRepo.findById(userId);
       if (!user) return reply.code(401).send({ error: 'User not found' });
       // Issue new tokens
       const newAccessToken = generateToken({ userId: user.id, email: user.email, role: user.role });

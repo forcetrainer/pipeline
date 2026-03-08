@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Calendar, User, Building2 } from 'lucide-react';
-import { Badge, Button, Card } from '../components/ui';
+import { Badge, Button } from '../components/ui';
 import * as useCaseService from '../services/useCaseService';
 import { format } from 'date-fns';
 import type { UseCase, ScoreGrade } from '../types';

@@ -9,7 +9,10 @@
     "dev:server": "cd server && npm run dev",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "docker:build": "docker compose build",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down"
   },
   "dependencies": {
     "date-fns": "^4.1.0",

@@ -1,12 +1,11 @@
 import type { FastifyInstance } from 'fastify';
-import { eq, and, type SQL } from 'drizzle-orm';
 import crypto from 'crypto';
-import { db } from '../db/index.js';
-import { prompts } from '../db/schema.js';
+import { getPromptRepository } from '../db/repositories/index.js';
 import { authenticate } from '../middleware/authenticate.js';
 import { requirePermission } from '../middleware/authorize.js';
+import type { PromptRow } from '../db/repositories/index.js';
 
-function parsePrompt(row: typeof prompts.$inferSelect) {
+function parsePrompt(row: PromptRow) {
   return {
     ...row,
     tags: JSON.parse(row.tags),
@@ -14,26 +13,23 @@ function parsePrompt(row: typeof prompts.$inferSelect) {
 }
 
 export async function promptRoutes(app: FastifyInstance) {
+  const repo = getPromptRepository();
+
   // GET /api/prompts
   app.get('/api/prompts', async (request) => {
     const query = request.query as Record<string, string | undefined>;
-    const conditions: SQL[] = [];
-
-    if (query.category) conditions.push(eq(prompts.category, query.category));
-    if (query.aiTool) conditions.push(eq(prompts.aiTool, query.aiTool));
-    if (query.approvalStatus) conditions.push(eq(prompts.approvalStatus, query.approvalStatus));
-
-    const rows = conditions.length > 0
-      ? db.select().from(prompts).where(and(...conditions)).all()
-      : db.select().from(prompts).all();
-
+    const rows = repo.findAll({
+      category: query.category,
+      aiTool: query.aiTool,
+      approvalStatus: query.approvalStatus,
+    });
     return rows.map(parsePrompt);
   });
 
   // GET /api/prompts/:id
   app.get('/api/prompts/:id', async (request, reply) => {
     const { id } = request.params as { id: string };
-    const row = db.select().from(prompts).where(eq(prompts.id, id)).get();
+    const row = repo.findById(id);
 
     if (!row) {
       return reply.code(404).send({ error: 'Prompt not found' });
@@ -71,15 +67,14 @@ export async function promptRoutes(app: FastifyInstance) {
       updatedAt: now,
     };
 
-    db.insert(prompts).values(newPrompt).run();
-
-    return reply.code(201).send(parsePrompt(newPrompt));
+    const created = repo.create(newPrompt);
+    return reply.code(201).send(parsePrompt(created));
   });
 
   // PUT /api/prompts/:id
   app.put('/api/prompts/:id', { preHandler: [authenticate] }, async (request, reply) => {
     const { id } = request.params as { id: string };
-    const existing = db.select().from(prompts).where(eq(prompts.id, id)).get();
+    const existing = repo.findById(id);
 
     if (!existing) {
       return reply.code(404).send({ error: 'Prompt not found' });
@@ -103,29 +98,26 @@ export async function promptRoutes(app: FastifyInstance) {
       updates.tags = typeof body.tags === 'string' ? body.tags : JSON.stringify(body.tags);
     }
 
-    db.update(prompts).set(updates).where(eq(prompts.id, id)).run();
-
-    const updated = db.select().from(prompts).where(eq(prompts.id, id)).get();
+    const updated = repo.update(id, updates);
     return parsePrompt(updated!);
   });
 
   // DELETE /api/prompts/:id
   app.delete('/api/prompts/:id', { preHandler: [authenticate, requirePermission('prompts:delete')] }, async (request, reply) => {
     const { id } = request.params as { id: string };
-    const existing = db.select().from(prompts).where(eq(prompts.id, id)).get();
+    const deleted = repo.delete(id);
 
-    if (!existing) {
+    if (!deleted) {
       return reply.code(404).send({ error: 'Prompt not found' });
     }
 
-    db.delete(prompts).where(eq(prompts.id, id)).run();
     return { success: true };
   });
 
   // PUT /api/prompts/:id/review
   app.put('/api/prompts/:id/review', { preHandler: [authenticate, requirePermission('prompts:review')] }, async (request, reply) => {
     const { id } = request.params as { id: string };
-    const existing = db.select().from(prompts).where(eq(prompts.id, id)).get();
+    const existing = repo.findById(id);
 
     if (!existing) {
       return reply.code(404).send({ error: 'Prompt not found' });
@@ -134,25 +126,21 @@ export async function promptRoutes(app: FastifyInstance) {
     const body = request.body as { approvalStatus: string; reviewNotes?: string };
     const now = new Date().toISOString();
 
-    db.update(prompts)
-      .set({
-        approvalStatus: body.approvalStatus,
-        reviewedBy: request.user!.email,
-        reviewNotes: body.reviewNotes || null,
-        reviewedAt: now,
-        updatedAt: now,
-      })
-      .where(eq(prompts.id, id))
-      .run();
+    const updated = repo.update(id, {
+      approvalStatus: body.approvalStatus,
+      reviewedBy: request.user!.email,
+      reviewNotes: body.reviewNotes || null,
+      reviewedAt: now,
+      updatedAt: now,
+    });
 
-    const updated = db.select().from(prompts).where(eq(prompts.id, id)).get();
     return parsePrompt(updated!);
   });
 
   // POST /api/prompts/:id/rate
   app.post('/api/prompts/:id/rate', { preHandler: [authenticate] }, async (request, reply) => {
     const { id } = request.params as { id: string };
-    const existing = db.select().from(prompts).where(eq(prompts.id, id)).get();
+    const existing = repo.findById(id);
 
     if (!existing) {
       return reply.code(404).send({ error: 'Prompt not found' });
@@ -169,16 +157,12 @@ export async function promptRoutes(app: FastifyInstance) {
     const newAvg = ((oldAvg * oldCount) + newRating) / (oldCount + 1);
     const now = new Date().toISOString();
 
-    db.update(prompts)
-      .set({
-        rating: newAvg,
-        ratingCount: oldCount + 1,
-        updatedAt: now,
-      })
-      .where(eq(prompts.id, id))
-      .run();
+    const updated = repo.update(id, {
+      rating: newAvg,
+      ratingCount: oldCount + 1,
+      updatedAt: now,
+    });
 
-    const updated = db.select().from(prompts).where(eq(prompts.id, id)).get();
     return parsePrompt(updated!);
   });
 }

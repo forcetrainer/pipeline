@@ -2,80 +2,17 @@ import { db, sqlite } from './connection.js';
 import { users, useCases, prompts } from './schema.js';
 import bcryptjs from 'bcryptjs';
 import { sql } from 'drizzle-orm';
+import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
+import { resolve, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const BCRYPT_COST = 12;
 
 export async function seedDatabase() {
-  // Create tables if they don't exist
-  sqlite.exec(`
-    CREATE TABLE IF NOT EXISTS users (
-      id TEXT PRIMARY KEY,
-      email TEXT UNIQUE NOT NULL,
-      first_name TEXT NOT NULL,
-      last_name TEXT NOT NULL,
-      role TEXT NOT NULL DEFAULT 'user',
-      password TEXT NOT NULL,
-      created_at TEXT NOT NULL,
-      updated_at TEXT NOT NULL
-    );
-
-    CREATE TABLE IF NOT EXISTS refresh_tokens (
-      id TEXT PRIMARY KEY,
-      token TEXT NOT NULL UNIQUE,
-      user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-      expires_at TEXT NOT NULL,
-      created_at TEXT NOT NULL
-    );
-
-    CREATE TABLE IF NOT EXISTS use_cases (
-      id TEXT PRIMARY KEY,
-      title TEXT NOT NULL,
-      description TEXT NOT NULL,
-      what_was_built TEXT NOT NULL,
-      key_learnings TEXT NOT NULL,
-      metrics TEXT NOT NULL,
-      category TEXT NOT NULL,
-      ai_tool TEXT NOT NULL,
-      department TEXT NOT NULL,
-      impact TEXT NOT NULL,
-      effort TEXT NOT NULL,
-      status TEXT NOT NULL,
-      tags TEXT NOT NULL,
-      submitted_by TEXT NOT NULL,
-      submitter_team TEXT NOT NULL,
-      submitted_by_id TEXT NOT NULL REFERENCES users(id),
-      approval_status TEXT NOT NULL,
-      reviewed_by TEXT,
-      review_notes TEXT,
-      reviewed_at TEXT,
-      created_at TEXT NOT NULL,
-      updated_at TEXT NOT NULL
-    );
-
-    CREATE TABLE IF NOT EXISTS prompts (
-      id TEXT PRIMARY KEY,
-      title TEXT NOT NULL,
-      content TEXT NOT NULL,
-      description TEXT NOT NULL,
-      problem_being_solved TEXT NOT NULL,
-      effectiveness_rating INTEGER NOT NULL,
-      tips TEXT NOT NULL,
-      category TEXT NOT NULL,
-      ai_tool TEXT NOT NULL,
-      use_case_id TEXT REFERENCES use_cases(id),
-      tags TEXT NOT NULL,
-      submitted_by TEXT NOT NULL,
-      submitted_by_id TEXT NOT NULL REFERENCES users(id),
-      approval_status TEXT NOT NULL,
-      reviewed_by TEXT,
-      review_notes TEXT,
-      reviewed_at TEXT,
-      rating REAL NOT NULL DEFAULT 0,
-      rating_count INTEGER NOT NULL DEFAULT 0,
-      created_at TEXT NOT NULL,
-      updated_at TEXT NOT NULL
-    );
-  `);
+  // Run migrations
+  migrate(db, { migrationsFolder: resolve(__dirname, '../../drizzle') });
 
   // Only seed if tables are empty
   const userCount = db.select({ count: sql<number>`count(*)` }).from(users).get();
