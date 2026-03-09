@@ -65,7 +65,7 @@ export async function useCaseRoutes(app: FastifyInstance) {
       submittedBy: body.submittedBy as string,
       submitterTeam: body.submitterTeam as string,
       submittedById: request.user!.userId,
-      approvalStatus: 'draft',
+      approvalStatus: 'pending',
       reviewedBy: null,
       reviewNotes: null,
       reviewedAt: null,

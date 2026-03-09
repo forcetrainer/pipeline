@@ -67,7 +67,7 @@ export async function promptRoutes(app: FastifyInstance) {
       tags: typeof body.tags === 'string' ? body.tags : JSON.stringify(body.tags || []),
       submittedBy: body.submittedBy as string,
       submittedById: request.user!.userId,
-      approvalStatus: 'draft',
+      approvalStatus: 'pending',
       reviewedBy: null,
       reviewNotes: null,
       reviewedAt: null,
