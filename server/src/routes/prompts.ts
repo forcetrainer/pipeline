@@ -1,8 +1,9 @@
 import type { FastifyInstance } from 'fastify';
 import crypto from 'crypto';
-import { getPromptRepository, getPromptStarRepository, getPromptCommentRepository } from '../db/repositories/index.js';
+import { getPromptRepository, getPromptStarRepository, getPromptCommentRepository, getUserRepository } from '../db/repositories/index.js';
 import { authenticate } from '../middleware/authenticate.js';
 import { requirePermission } from '../middleware/authorize.js';
+import { getEmailService } from '../services/emailService.js';
 import type { PromptRow } from '../db/repositories/index.js';
 
 function parsePrompt(row: PromptRow) {
@@ -142,6 +143,20 @@ export async function promptRoutes(app: FastifyInstance) {
       updatedAt: now,
     });
 
+    // Send email notification to the submitter
+    if (existing.submittedById && (body.approvalStatus === 'approved' || body.approvalStatus === 'denied')) {
+      const userRepo = getUserRepository();
+      const submitter = userRepo.findById(existing.submittedById);
+      if (submitter) {
+        const template = body.approvalStatus === 'approved' ? 'prompt_approved' as const : 'prompt_denied' as const;
+        getEmailService().send(submitter.email, template, {
+          firstName: submitter.firstName,
+          itemTitle: existing.title,
+          reviewNotes: body.reviewNotes || null,
+        }).catch(err => request.log.error(err, 'Failed to send email'));
+      }
+    }
+
     return parsePrompt(updated!);
   });
 
@@ -211,6 +226,47 @@ export async function promptRoutes(app: FastifyInstance) {
     // Update cached count
     const count = commentRepo.countByPrompt(id);
     repo.update(id, { commentCount: count });
+
+    // Send comment_reply notification if this is a reply
+    if (body.parentId) {
+      const parent = commentRepo.findById(body.parentId);
+      if (parent && parent.userId !== request.user!.userId) {
+        const userRepo = getUserRepository();
+        const parentAuthor = userRepo.findById(parent.userId);
+        const replier = userRepo.findById(request.user!.userId);
+        const prompt = repo.findById(id);
+        if (parentAuthor) {
+          getEmailService().send(parentAuthor.email, 'comment_reply', {
+            firstName: parentAuthor.firstName,
+            replierName: replier ? `${replier.firstName} ${replier.lastName}` : 'Someone',
+            itemTitle: prompt?.title || 'a prompt',
+            commentPreview: body.content.slice(0, 200),
+          }).catch(err => request.log.error(err, 'Failed to send email'));
+        }
+      }
+    }
+
+    // Send comment_mention notifications for @firstName.lastName patterns
+    const mentionPattern = /@([a-zA-Z]+\.[a-zA-Z]+)/g;
+    let match;
+    while ((match = mentionPattern.exec(body.content)) !== null) {
+      const mentionName = match[1].toLowerCase();
+      const userRepo = getUserRepository();
+      const allUsers = userRepo.findAll();
+      const mentionedUser = allUsers.find(
+        u => `${u.firstName}.${u.lastName}`.toLowerCase() === mentionName
+      );
+      if (mentionedUser && mentionedUser.id !== request.user!.userId) {
+        const mentioner = userRepo.findById(request.user!.userId);
+        const prompt = repo.findById(id);
+        getEmailService().send(mentionedUser.email, 'comment_mention', {
+          firstName: mentionedUser.firstName,
+          mentionerName: mentioner ? `${mentioner.firstName} ${mentioner.lastName}` : 'Someone',
+          itemTitle: prompt?.title || 'a prompt',
+          commentPreview: body.content.slice(0, 200),
+        }).catch(err => request.log.error(err, 'Failed to send email'));
+      }
+    }
 
     return reply.code(201).send(comment);
   });

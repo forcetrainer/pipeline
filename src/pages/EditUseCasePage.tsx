@@ -186,7 +186,7 @@ function EditUseCasePage() {
         <h1
           className="text-3xl font-bold tracking-tight mb-1"
           style={{
-            fontFamily: "'Orbitron', sans-serif",
+            fontFamily: 'var(--font-display)',
             color: 'var(--nx-text-primary)',
             letterSpacing: '0.05em',
           }}
@@ -300,12 +300,12 @@ function EditUseCasePage() {
                 className="flex-1 h-10 px-3 rounded-md transition-colors duration-200"
                 style={{
                   backgroundColor: 'var(--nx-void-elevated)',
-                  border: '1px solid rgba(0, 212, 255, 0.15)',
+                  border: '1px solid var(--color-border-default)',
                   color: 'var(--nx-text-primary)',
                   outline: 'none',
                 }}
                 onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--nx-cyan-base)')}
-                onBlur={(e) => (e.currentTarget.style.borderColor = 'rgba(0, 212, 255, 0.15)')}
+                onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--color-border-default)')}
               />
               <Button type="button" variant="secondary" onClick={addTag}>Add</Button>
             </div>

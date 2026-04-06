@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useRef } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import type { UseCaseMetrics, FrequencyPeriod, UseCaseScore, ScoreGrade } from '../../types';
 import {
   calculateMetrics,
@@ -21,11 +21,11 @@ const frequencyOptions: { value: FrequencyPeriod; label: string }[] = [
 ];
 
 const gradeColors: Record<ScoreGrade, string> = {
-  S: '#00d4ff',
-  A: '#00ff88',
-  B: '#3b82f6',
-  C: '#ffaa00',
-  D: '#ff3366',
+  S: 'var(--nx-cyan-bright)',
+  A: 'var(--nx-green-bright)',
+  B: 'var(--nx-blue-bright)',
+  C: 'var(--nx-amber-bright)',
+  D: 'var(--nx-red-bright)',
 };
 
 const quadrantLabels: Record<UseCaseScore['quadrant'], string> = {
@@ -45,7 +45,7 @@ const sectionHeaderStyle: React.CSSProperties = {
   letterSpacing: '0.1em',
   textTransform: 'uppercase',
   paddingBottom: '0.5rem',
-  borderBottom: '1px solid rgba(0, 212, 255, 0.1)',
+  borderBottom: '1px solid var(--nx-cyan-aura)',
   marginBottom: '0.75rem',
 };
 
@@ -59,7 +59,7 @@ const inputBaseStyle: React.CSSProperties = {
   height: '2.5rem',
   width: '100%',
   padding: '0 0.75rem',
-  border: '1px solid rgba(0, 212, 255, 0.15)',
+  border: '1px solid var(--color-border-default)',
   borderRadius: 'var(--radius-md)',
   backgroundColor: 'var(--nx-void-elevated)',
   color: 'var(--nx-text-primary)',
@@ -87,7 +87,7 @@ function handleFocus(e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) 
 
 function handleBlur(e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) {
   e.currentTarget.style.boxShadow = '';
-  e.currentTarget.style.borderColor = 'rgba(0, 212, 255, 0.15)';
+  e.currentTarget.style.borderColor = 'var(--color-border-default)';
 }
 
 function formatWithCommas(num: number): string {
@@ -200,7 +200,7 @@ function MetricsCalculator({ value, onChange }: MetricsCalculatorProps) {
                   height: '2.5rem',
                   padding: '0 0.625rem',
                   backgroundColor: 'var(--nx-void-surface)',
-                  border: '1px solid rgba(0, 212, 255, 0.15)',
+                  border: '1px solid var(--color-border-default)',
                   borderTopRightRadius: 'var(--radius-md)',
                   borderBottomRightRadius: 'var(--radius-md)',
                   color: 'var(--nx-cyan-base)',
@@ -378,7 +378,7 @@ function MetricsCalculator({ value, onChange }: MetricsCalculatorProps) {
                   height: '2.5rem',
                   padding: '0 0.5rem',
                   backgroundColor: 'var(--nx-void-surface)',
-                  border: '1px solid rgba(0, 212, 255, 0.15)',
+                  border: '1px solid var(--color-border-default)',
                   borderTopRightRadius: 'var(--radius-md)',
                   borderBottomRightRadius: 'var(--radius-md)',
                   color: 'var(--nx-text-secondary)',
@@ -410,7 +410,7 @@ function MetricsCalculator({ value, onChange }: MetricsCalculatorProps) {
           <div
             style={{
               background: 'var(--nx-glass-medium)',
-              border: '1px solid rgba(0, 212, 255, 0.2)',
+              border: '1px solid var(--color-border-strong)',
               borderRadius: 'var(--radius-lg)',
               padding: '1.25rem',
               backdropFilter: 'blur(8px)',
@@ -437,8 +437,8 @@ function MetricsCalculator({ value, onChange }: MetricsCalculatorProps) {
                     fontWeight: i === 3 ? 600 : 500,
                     paddingBottom: '0.5rem',
                     borderBottom: i === 3
-                      ? '1px solid rgba(0, 212, 255, 0.3)'
-                      : '1px solid rgba(255, 255, 255, 0.05)',
+                      ? '1px solid var(--color-border-strong)'
+                      : '1px solid var(--color-border-subtle)',
                   }}
                 >
                   {label}
@@ -494,22 +494,22 @@ function MetricsCalculator({ value, onChange }: MetricsCalculatorProps) {
                 <>
                   <ProjectionCell
                     value={formatMoney(value.dailyRevenue)}
-                    color="#a78bfa"
+                    color="var(--nx-violet-bright)"
                     isAnnual={false}
                   />
                   <ProjectionCell
                     value={formatMoney(value.weeklyRevenue)}
-                    color="#a78bfa"
+                    color="var(--nx-violet-bright)"
                     isAnnual={false}
                   />
                   <ProjectionCell
                     value={formatMoney(value.monthlyRevenue)}
-                    color="#a78bfa"
+                    color="var(--nx-violet-bright)"
                     isAnnual={false}
                   />
                   <ProjectionCell
                     value={formatMoney(value.annualRevenue)}
-                    color="#a78bfa"
+                    color="var(--nx-violet-bright)"
                     isAnnual
                   />
                 </>
@@ -526,7 +526,7 @@ function MetricsCalculator({ value, onChange }: MetricsCalculatorProps) {
           <div
             style={{
               background: 'var(--nx-glass-medium)',
-              border: '1px solid rgba(0, 212, 255, 0.2)',
+              border: '1px solid var(--color-border-strong)',
               borderRadius: 'var(--radius-lg)',
               padding: '1.25rem',
               backdropFilter: 'blur(8px)',
@@ -570,13 +570,13 @@ function MetricsCalculator({ value, onChange }: MetricsCalculatorProps) {
                 label="Value"
                 value={Math.round(score.valuePerUse)}
                 color="var(--nx-green-base)"
-                glowColor="rgba(0, 255, 136, 0.3)"
+                glowColor="var(--nx-green-aura)"
               />
               <ScoreBar
                 label="Scale"
                 value={Math.round(score.scaleFactor)}
                 color="var(--nx-cyan-base)"
-                glowColor="rgba(0, 212, 255, 0.3)"
+                glowColor="var(--color-border-strong)"
               />
             </div>
           </div>

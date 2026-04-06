@@ -16,7 +16,7 @@ function UseCaseList({ useCases, isLoading }: UseCaseListProps) {
             className="h-52 rounded-lg animate-pulse"
             style={{
               backgroundColor: 'var(--nx-void-elevated)',
-              border: '1px solid rgba(0, 212, 255, 0.08)',
+              border: '1px solid var(--color-border-subtle)',
             }}
           />
         ))}

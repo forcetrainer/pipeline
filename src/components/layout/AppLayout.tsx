@@ -1,6 +1,5 @@
 import { Outlet, useLocation } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
-
 function AppLayout() {
   const location = useLocation();
 
@@ -19,15 +18,15 @@ function AppLayout() {
               0deg,
               transparent,
               transparent 59px,
-              rgba(0, 212, 255, 0.025) 59px,
-              rgba(0, 212, 255, 0.025) 60px
+              var(--nx-grid-line) 59px,
+              var(--nx-grid-line) 60px
             ),
             repeating-linear-gradient(
               90deg,
               transparent,
               transparent 59px,
-              rgba(0, 212, 255, 0.025) 59px,
-              rgba(0, 212, 255, 0.025) 60px
+              var(--nx-grid-line) 59px,
+              var(--nx-grid-line) 60px
             )
           `,
         }}

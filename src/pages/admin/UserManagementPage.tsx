@@ -10,7 +10,7 @@ import {
 import { Card, Button, Modal, Input, Select, Badge, SearchBar } from '../../components/ui';
 import { useAuth } from '../../contexts/AuthContext';
 import * as userService from '../../services/userService';
-import type { User, UserRole } from '../../types';
+import type { User, UserRole, UserStatus } from '../../types';
 import { AUTH_CONFIG } from '../../types';
 import { format, parseISO } from 'date-fns';
 
@@ -129,6 +129,7 @@ function UserManagementPage() {
           email: formData.email.trim(),
           password: formData.password,
           role: formData.role,
+          status: 'active',
         });
       } else if (modalMode === 'edit' && editingUserId) {
         const updates: Partial<User> = {
@@ -204,7 +205,7 @@ function UserManagementPage() {
             <h1
               className="text-3xl font-bold tracking-tight"
               style={{
-                fontFamily: "'Orbitron', sans-serif",
+                fontFamily: 'var(--font-display)',
                 color: 'var(--nx-text-primary)',
                 letterSpacing: '0.05em',
               }}
@@ -247,10 +248,10 @@ function UserManagementPage() {
             <thead>
               <tr
                 style={{
-                  borderBottom: '1px solid rgba(0, 212, 255, 0.15)',
+                  borderBottom: '1px solid var(--color-border-default)',
                 }}
               >
-                {['Name', 'Email', 'Role', 'Created', 'Actions'].map(
+                {['Name', 'Email', 'Role', 'Status', 'Created', 'Actions'].map(
                   (header) => (
                     <th
                       key={header}
@@ -270,7 +271,7 @@ function UserManagementPage() {
               {filteredUsers.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={5}
+                    colSpan={6}
                     className="text-center py-8 text-sm"
                     style={{ color: 'var(--nx-text-tertiary)' }}
                   >
@@ -283,11 +284,11 @@ function UserManagementPage() {
                     key={user.id}
                     className="transition-colors"
                     style={{
-                      borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+                      borderBottom: '1px solid var(--color-border-subtle)',
                     }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.backgroundColor =
-                        'rgba(0, 212, 255, 0.03)';
+                        'var(--color-border-subtle)';
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.backgroundColor = 'transparent';
@@ -298,9 +299,9 @@ function UserManagementPage() {
                         <div
                           className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
                           style={{
-                            backgroundColor: 'rgba(0, 212, 255, 0.1)',
+                            backgroundColor: 'var(--nx-cyan-aura)',
                             color: 'var(--nx-cyan-base)',
-                            border: '1px solid rgba(0, 212, 255, 0.2)',
+                            border: '1px solid var(--color-border-strong)',
                           }}
                         >
                           {user.firstName[0]}
@@ -331,6 +332,43 @@ function UserManagementPage() {
                       </Badge>
                     </td>
                     <td className="px-4 py-3">
+                      <select
+                        value={user.status || 'active'}
+                        onChange={async (e) => {
+                          if (user.id === currentUser?.id) return;
+                          await userService.updateUser(user.id, { status: e.target.value as UserStatus });
+                          await loadUsers();
+                        }}
+                        disabled={user.id === currentUser?.id}
+                        style={{
+                          background: 'transparent',
+                          border: 'none',
+                          cursor: user.id === currentUser?.id ? 'not-allowed' : 'pointer',
+                          fontSize: 'var(--text-xs)',
+                          fontWeight: 600,
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.05em',
+                          padding: '0.25rem 0.5rem',
+                          borderRadius: 'var(--radius-sm)',
+                          color: (user.status || 'active') === 'active'
+                            ? 'var(--nx-green-base, #00ff88)'
+                            : user.status === 'pending'
+                              ? '#facc15'
+                              : 'var(--nx-red-base, #ff3366)',
+                          backgroundColor: (user.status || 'active') === 'active'
+                            ? 'var(--nx-green-aura)'
+                            : user.status === 'pending'
+                              ? 'var(--nx-amber-aura)'
+                              : 'var(--nx-red-aura)',
+                          opacity: user.id === currentUser?.id ? 0.5 : 1,
+                        }}
+                      >
+                        <option value="active" style={{ background: '#1a1a2e', color: '#00ff88' }}>Active</option>
+                        <option value="pending" style={{ background: '#1a1a2e', color: '#facc15' }}>Pending</option>
+                        <option value="disabled" style={{ background: '#1a1a2e', color: '#ff3366' }}>Disabled</option>
+                      </select>
+                    </td>
+                    <td className="px-4 py-3">
                       <span
                         className="text-sm"
                         style={{ color: 'var(--nx-text-tertiary)' }}
@@ -350,7 +388,7 @@ function UserManagementPage() {
                               e.currentTarget.style.color =
                                 'var(--nx-cyan-base)';
                               e.currentTarget.style.backgroundColor =
-                                'rgba(0, 212, 255, 0.1)';
+                                'var(--nx-cyan-aura)';
                             }
                           }}
                           onMouseLeave={(e) => {
@@ -381,7 +419,7 @@ function UserManagementPage() {
                             e.currentTarget.style.color =
                               'var(--nx-cyan-base)';
                             e.currentTarget.style.backgroundColor =
-                              'rgba(0, 212, 255, 0.1)';
+                              'var(--nx-cyan-aura)';
                           }}
                           onMouseLeave={(e) => {
                             e.currentTarget.style.color =
@@ -403,7 +441,7 @@ function UserManagementPage() {
                               e.currentTarget.style.color =
                                 'var(--nx-red-base, #ff3366)';
                               e.currentTarget.style.backgroundColor =
-                                'rgba(255, 51, 102, 0.1)';
+                                'var(--nx-red-aura)';
                             }
                           }}
                           onMouseLeave={(e) => {
@@ -511,8 +549,8 @@ function UserManagementPage() {
                 className="text-sm text-center py-2 rounded-md"
                 style={{
                   color: 'var(--nx-red-base, #ff3366)',
-                  backgroundColor: 'rgba(255, 51, 102, 0.1)',
-                  border: '1px solid rgba(255, 51, 102, 0.2)',
+                  backgroundColor: 'var(--nx-red-aura)',
+                  border: '1px solid var(--nx-red-glow)',
                 }}
               >
                 {formError}

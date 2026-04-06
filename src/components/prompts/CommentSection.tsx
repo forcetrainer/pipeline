@@ -120,8 +120,8 @@ function CommentSection({ promptId, onCountChange }: CommentSectionProps) {
         style={{
           marginLeft: isReply ? '24px' : '0',
           padding: '12px 16px',
-          borderLeft: isReply ? '2px solid rgba(0, 212, 255, 0.15)' : 'none',
-          borderBottom: !isReply ? '1px solid rgba(0, 212, 255, 0.08)' : 'none',
+          borderLeft: isReply ? '2px solid var(--color-border-default)' : 'none',
+          borderBottom: !isReply ? '1px solid var(--color-border-subtle)' : 'none',
         }}
       >
         <div className="flex items-center justify-between mb-2">
@@ -176,7 +176,7 @@ function CommentSection({ promptId, onCountChange }: CommentSectionProps) {
               style={{
                 backgroundColor: 'var(--nx-void-deep)',
                 color: 'var(--nx-text-primary)',
-                border: '1px solid rgba(0, 212, 255, 0.2)',
+                border: '1px solid var(--color-border-strong)',
                 resize: 'vertical',
                 minHeight: '60px',
                 outline: 'none',
@@ -239,7 +239,7 @@ function CommentSection({ promptId, onCountChange }: CommentSectionProps) {
               style={{
                 backgroundColor: 'var(--nx-void-deep)',
                 color: 'var(--nx-text-primary)',
-                border: '1px solid rgba(0, 212, 255, 0.15)',
+                border: '1px solid var(--color-border-default)',
                 resize: 'vertical',
                 minHeight: '60px',
                 outline: 'none',
@@ -281,7 +281,7 @@ function CommentSection({ promptId, onCountChange }: CommentSectionProps) {
         className="text-lg font-semibold mb-4 flex items-center gap-2"
         style={{
           color: 'var(--nx-text-primary)',
-          fontFamily: "'Orbitron', sans-serif",
+          fontFamily: 'var(--font-display)',
           fontSize: '16px',
           letterSpacing: '0.03em',
         }}
@@ -301,7 +301,7 @@ function CommentSection({ promptId, onCountChange }: CommentSectionProps) {
           className="mb-4 p-4 rounded-lg"
           style={{
             background: 'var(--nx-glass-medium)',
-            border: '1px solid rgba(0, 212, 255, 0.15)',
+            border: '1px solid var(--color-border-default)',
             backdropFilter: 'blur(8px)',
           }}
         >
@@ -313,7 +313,7 @@ function CommentSection({ promptId, onCountChange }: CommentSectionProps) {
             style={{
               backgroundColor: 'var(--nx-void-deep)',
               color: 'var(--nx-text-primary)',
-              border: '1px solid rgba(0, 212, 255, 0.1)',
+              border: '1px solid var(--nx-cyan-aura)',
               resize: 'vertical',
               minHeight: '80px',
               outline: 'none',
@@ -359,7 +359,7 @@ function CommentSection({ promptId, onCountChange }: CommentSectionProps) {
         <div
           className="rounded-lg overflow-hidden"
           style={{
-            border: '1px solid rgba(0, 212, 255, 0.1)',
+            border: '1px solid var(--nx-cyan-aura)',
             background: 'var(--nx-void-surface)',
           }}
         >
@@ -376,7 +376,7 @@ function CommentSection({ promptId, onCountChange }: CommentSectionProps) {
         <div className="flex items-start gap-3 mb-6">
           <div
             className="p-2 rounded-lg shrink-0"
-            style={{ backgroundColor: 'rgba(255, 51, 102, 0.1)' }}
+            style={{ backgroundColor: 'var(--nx-red-aura, rgba(255, 51, 102, 0.1))' }}
           >
             <AlertTriangle size={20} style={{ color: 'var(--nx-red-base)' }} />
           </div>

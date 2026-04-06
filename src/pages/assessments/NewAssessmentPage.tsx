@@ -62,7 +62,7 @@ function DollarInput({
           className="w-full h-10 pl-7 pr-3 rounded-md transition-colors duration-200"
           style={{
             backgroundColor: 'var(--nx-void-elevated)',
-            border: '1px solid rgba(0, 212, 255, 0.15)',
+            border: '1px solid var(--color-border-default)',
             color: 'var(--nx-text-primary)',
             outline: 'none',
             fontSize: '14px',
@@ -92,11 +92,12 @@ function NewAssessmentPage() {
   });
 
   const [metrics, setMetrics] = useState({
-    timeSavedPerUse: 0,
-    usesPerWeek: 0,
+    timeSavedPerUseMinutes: 0,
     moneySavedPerUse: 0,
     revenuePerUse: 0,
-    errorReduction: 0,
+    numberOfUsers: 0,
+    usesPerUserPerPeriod: 0,
+    frequencyPeriod: 'weekly' as 'daily' | 'weekly' | 'monthly',
   });
 
   const [costs, setCosts] = useState({
@@ -202,7 +203,7 @@ function NewAssessmentPage() {
         <h1
           className="text-3xl font-bold tracking-tight mb-1"
           style={{
-            fontFamily: "'Orbitron', sans-serif",
+            fontFamily: 'var(--font-display)',
             color: 'var(--nx-text-primary)',
             letterSpacing: '0.05em',
           }}
@@ -288,12 +289,12 @@ function NewAssessmentPage() {
                 className="flex-1 h-10 px-3 rounded-md transition-colors duration-200"
                 style={{
                   backgroundColor: 'var(--nx-void-elevated)',
-                  border: '1px solid rgba(0, 212, 255, 0.15)',
+                  border: '1px solid var(--color-border-default)',
                   color: 'var(--nx-text-primary)',
                   outline: 'none',
                 }}
                 onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--nx-cyan-base)')}
-                onBlur={(e) => (e.currentTarget.style.borderColor = 'rgba(0, 212, 255, 0.15)')}
+                onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--color-border-default)')}
               />
               <Button type="button" variant="secondary" onClick={addTag}>
                 Add
@@ -314,7 +315,7 @@ function NewAssessmentPage() {
           <div
             style={{
               background: 'var(--nx-glass-medium)',
-              border: '1px solid rgba(0, 212, 255, 0.2)',
+              border: '1px solid var(--color-border-strong)',
               borderRadius: '12px',
               padding: '1.5rem',
               backdropFilter: 'blur(8px)',
@@ -324,13 +325,13 @@ function NewAssessmentPage() {
               className="text-sm font-semibold mb-4"
               style={{
                 color: 'var(--nx-text-primary)',
-                fontFamily: "'Orbitron', sans-serif",
+                fontFamily: 'var(--font-display)',
                 letterSpacing: '0.03em',
               }}
             >
               Estimated Metrics
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="flex flex-col gap-1">
                 <label style={{ color: 'var(--nx-text-secondary)', fontSize: '13px', fontWeight: 500 }}>
                   Time saved per use (minutes)
@@ -338,63 +339,16 @@ function NewAssessmentPage() {
                 <input
                   type="text"
                   inputMode="decimal"
-                  value={metrics.timeSavedPerUse || ''}
+                  value={metrics.timeSavedPerUseMinutes || ''}
                   onChange={(e) => {
                     const val = e.target.value.replace(/[^0-9.]/g, '');
-                    setMetrics((prev) => ({ ...prev, timeSavedPerUse: parseFloat(val) || 0 }));
+                    setMetrics((prev) => ({ ...prev, timeSavedPerUseMinutes: parseFloat(val) || 0 }));
                   }}
                   placeholder="0"
                   className="h-10 px-3 rounded-md"
                   style={{
                     backgroundColor: 'var(--nx-void-elevated)',
-                    border: '1px solid rgba(0, 212, 255, 0.15)',
-                    color: 'var(--nx-text-primary)',
-                    outline: 'none',
-                    fontSize: '14px',
-                  }}
-                />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label style={{ color: 'var(--nx-text-secondary)', fontSize: '13px', fontWeight: 500 }}>
-                  Uses per week
-                </label>
-                <input
-                  type="text"
-                  inputMode="decimal"
-                  value={metrics.usesPerWeek || ''}
-                  onChange={(e) => {
-                    const val = e.target.value.replace(/[^0-9.]/g, '');
-                    setMetrics((prev) => ({ ...prev, usesPerWeek: parseFloat(val) || 0 }));
-                  }}
-                  placeholder="0"
-                  className="h-10 px-3 rounded-md"
-                  style={{
-                    backgroundColor: 'var(--nx-void-elevated)',
-                    border: '1px solid rgba(0, 212, 255, 0.15)',
-                    color: 'var(--nx-text-primary)',
-                    outline: 'none',
-                    fontSize: '14px',
-                  }}
-                />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label style={{ color: 'var(--nx-text-secondary)', fontSize: '13px', fontWeight: 500 }}>
-                  Error reduction (%)
-                </label>
-                <input
-                  type="text"
-                  inputMode="decimal"
-                  value={metrics.errorReduction || ''}
-                  onChange={(e) => {
-                    const val = e.target.value.replace(/[^0-9.]/g, '');
-                    const num = parseFloat(val) || 0;
-                    setMetrics((prev) => ({ ...prev, errorReduction: Math.min(100, num) }));
-                  }}
-                  placeholder="0"
-                  className="h-10 px-3 rounded-md"
-                  style={{
-                    backgroundColor: 'var(--nx-void-elevated)',
-                    border: '1px solid rgba(0, 212, 255, 0.15)',
+                    border: '1px solid var(--color-border-default)',
                     color: 'var(--nx-text-primary)',
                     outline: 'none',
                     fontSize: '14px',
@@ -412,13 +366,91 @@ function NewAssessmentPage() {
                 onChange={(val) => setMetrics((prev) => ({ ...prev, revenuePerUse: val }))}
               />
             </div>
+
+            <div
+              className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4"
+              style={{ borderTop: '1px solid var(--nx-cyan-aura)', paddingTop: '1rem' }}
+            >
+              <div className="flex flex-col gap-1">
+                <label style={{ color: 'var(--nx-text-secondary)', fontSize: '13px', fontWeight: 500 }}>
+                  Number of users
+                </label>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  value={metrics.numberOfUsers || ''}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/[^0-9]/g, '');
+                    setMetrics((prev) => ({ ...prev, numberOfUsers: parseInt(val) || 0 }));
+                  }}
+                  placeholder="0"
+                  className="h-10 px-3 rounded-md"
+                  style={{
+                    backgroundColor: 'var(--nx-void-elevated)',
+                    border: '1px solid var(--color-border-default)',
+                    color: 'var(--nx-text-primary)',
+                    outline: 'none',
+                    fontSize: '14px',
+                  }}
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label style={{ color: 'var(--nx-text-secondary)', fontSize: '13px', fontWeight: 500 }}>
+                  Uses per user per period
+                </label>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  value={metrics.usesPerUserPerPeriod || ''}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/[^0-9.]/g, '');
+                    setMetrics((prev) => ({ ...prev, usesPerUserPerPeriod: parseFloat(val) || 0 }));
+                  }}
+                  placeholder="0"
+                  className="h-10 px-3 rounded-md"
+                  style={{
+                    backgroundColor: 'var(--nx-void-elevated)',
+                    border: '1px solid var(--color-border-default)',
+                    color: 'var(--nx-text-primary)',
+                    outline: 'none',
+                    fontSize: '14px',
+                  }}
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label style={{ color: 'var(--nx-text-secondary)', fontSize: '13px', fontWeight: 500 }}>
+                  Frequency period
+                </label>
+                <select
+                  value={metrics.frequencyPeriod}
+                  onChange={(e) =>
+                    setMetrics((prev) => ({
+                      ...prev,
+                      frequencyPeriod: e.target.value as 'daily' | 'weekly' | 'monthly',
+                    }))
+                  }
+                  className="h-10 px-3 rounded-md"
+                  style={{
+                    backgroundColor: 'var(--nx-void-elevated)',
+                    border: '1px solid var(--color-border-default)',
+                    color: 'var(--nx-text-primary)',
+                    outline: 'none',
+                    fontSize: '14px',
+                  }}
+                >
+                  <option value="daily">Daily</option>
+                  <option value="weekly">Weekly</option>
+                  <option value="monthly">Monthly</option>
+                </select>
+              </div>
+            </div>
           </div>
 
           {/* Estimated Costs (collapsible) */}
           <div
             style={{
               background: 'var(--nx-glass-medium)',
-              border: '1px solid rgba(0, 212, 255, 0.2)',
+              border: '1px solid var(--color-border-strong)',
               borderRadius: '12px',
               padding: '1.5rem',
               backdropFilter: 'blur(8px)',
@@ -438,7 +470,7 @@ function NewAssessmentPage() {
                 className="text-sm font-semibold"
                 style={{
                   color: 'var(--nx-text-primary)',
-                  fontFamily: "'Orbitron', sans-serif",
+                  fontFamily: 'var(--font-display)',
                   letterSpacing: '0.03em',
                 }}
               >
@@ -447,7 +479,7 @@ function NewAssessmentPage() {
               {(totalOneTime > 0 || totalMonthlyRecurring > 0) && (
                 <span
                   className="ml-auto text-xs"
-                  style={{ color: 'var(--nx-text-tertiary)', fontFamily: "'JetBrains Mono', monospace" }}
+                  style={{ color: 'var(--nx-text-tertiary)', fontFamily: 'var(--font-mono)' }}
                 >
                   ${totalOneTime.toLocaleString()} one-time + ${totalMonthlyRecurring.toLocaleString()}/mo
                 </span>
@@ -523,7 +555,7 @@ function NewAssessmentPage() {
                 {/* Totals */}
                 <div
                   className="flex gap-6 pt-3"
-                  style={{ borderTop: '1px solid rgba(0, 212, 255, 0.1)' }}
+                  style={{ borderTop: '1px solid var(--nx-cyan-aura)' }}
                 >
                   <div>
                     <span className="text-xs" style={{ color: 'var(--nx-text-tertiary)' }}>
@@ -531,7 +563,7 @@ function NewAssessmentPage() {
                     </span>
                     <p
                       className="text-sm font-semibold"
-                      style={{ color: 'var(--nx-text-primary)', fontFamily: "'JetBrains Mono', monospace" }}
+                      style={{ color: 'var(--nx-text-primary)', fontFamily: 'var(--font-mono)' }}
                     >
                       ${totalOneTime.toLocaleString()}
                     </p>
@@ -542,7 +574,7 @@ function NewAssessmentPage() {
                     </span>
                     <p
                       className="text-sm font-semibold"
-                      style={{ color: 'var(--nx-text-primary)', fontFamily: "'JetBrains Mono', monospace" }}
+                      style={{ color: 'var(--nx-text-primary)', fontFamily: 'var(--font-mono)' }}
                     >
                       ${totalMonthlyRecurring.toLocaleString()}/mo
                     </p>
@@ -553,7 +585,7 @@ function NewAssessmentPage() {
                     </span>
                     <p
                       className="text-sm font-semibold"
-                      style={{ color: 'var(--nx-text-primary)', fontFamily: "'JetBrains Mono', monospace" }}
+                      style={{ color: 'var(--nx-text-primary)', fontFamily: 'var(--font-mono)' }}
                     >
                       ${totalAnnualRecurring.toLocaleString()}/yr
                     </p>

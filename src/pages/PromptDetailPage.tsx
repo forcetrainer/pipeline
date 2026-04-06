@@ -99,7 +99,7 @@ function PromptDetailPage() {
           <h1
             className="text-3xl font-bold tracking-tight"
             style={{
-              fontFamily: "'Orbitron', sans-serif",
+              fontFamily: 'var(--font-display)',
               color: 'var(--nx-text-primary)',
               letterSpacing: '0.05em',
             }}
@@ -144,7 +144,7 @@ function PromptDetailPage() {
             className="flex items-center justify-between px-4 py-3"
             style={{
               backgroundColor: 'var(--nx-void-surface)',
-              borderBottom: '1px solid rgba(0, 212, 255, 0.1)',
+              borderBottom: '1px solid var(--nx-cyan-aura)',
             }}
           >
             <span
@@ -152,7 +152,7 @@ function PromptDetailPage() {
                 color: 'var(--nx-text-secondary)',
                 fontSize: '14px',
                 fontWeight: 500,
-                fontFamily: "'Exo 2', sans-serif",
+                fontFamily: 'var(--font-sans)',
               }}
             >
               Prompt
@@ -174,7 +174,7 @@ function PromptDetailPage() {
           <pre
             className="p-4 text-sm leading-relaxed whitespace-pre-wrap overflow-x-auto"
             style={{
-              fontFamily: "'JetBrains Mono', monospace",
+              fontFamily: 'var(--font-mono)',
               backgroundColor: 'var(--nx-void-deep)',
               color: 'var(--nx-cyan-bright)',
             }}
@@ -188,7 +188,7 @@ function PromptDetailPage() {
           <section className="mb-6">
             <h2
               className="text-lg font-semibold mb-2"
-              style={{ color: 'var(--nx-text-primary)', fontFamily: "'Orbitron', sans-serif", fontSize: '16px', letterSpacing: '0.03em' }}
+              style={{ color: 'var(--nx-text-primary)', fontFamily: 'var(--font-display)', fontSize: '16px', letterSpacing: '0.03em' }}
             >
               Problem Being Solved
             </h2>
@@ -201,7 +201,7 @@ function PromptDetailPage() {
           <section className="mb-6">
             <h2
               className="text-lg font-semibold mb-2"
-              style={{ color: 'var(--nx-text-primary)', fontFamily: "'Orbitron', sans-serif", fontSize: '16px', letterSpacing: '0.03em' }}
+              style={{ color: 'var(--nx-text-primary)', fontFamily: 'var(--font-display)', fontSize: '16px', letterSpacing: '0.03em' }}
             >
               Tips for Usage
             </h2>
@@ -213,7 +213,7 @@ function PromptDetailPage() {
         {prompt.tags.length > 0 && (
           <div
             className="flex gap-2 flex-wrap pt-4"
-            style={{ borderTop: '1px solid rgba(0, 212, 255, 0.1)' }}
+            style={{ borderTop: '1px solid var(--nx-cyan-aura)' }}
           >
             {prompt.tags.map((tag) => (
               <span

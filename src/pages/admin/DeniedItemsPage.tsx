@@ -157,7 +157,7 @@ function DeniedItemsPage() {
           <h1
             className="text-3xl font-bold tracking-tight"
             style={{
-              fontFamily: "'Orbitron', sans-serif",
+              fontFamily: 'var(--font-display)',
               color: 'var(--nx-text-primary)',
               letterSpacing: '0.05em',
             }}
@@ -209,8 +209,8 @@ function DeniedItemsPage() {
                     <div
                       className="rounded-md px-3 py-2 mt-1"
                       style={{
-                        backgroundColor: 'rgba(255, 51, 102, 0.05)',
-                        border: '1px solid rgba(255, 51, 102, 0.15)',
+                        backgroundColor: 'var(--nx-red-aura)',
+                        border: '1px solid var(--nx-red-glow)',
                       }}
                     >
                       <span className="text-xs uppercase tracking-wide" style={{ color: 'var(--nx-text-tertiary)' }}>

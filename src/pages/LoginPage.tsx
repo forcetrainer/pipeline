@@ -1,5 +1,5 @@
 import { useState, type FormEvent, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 import { Input, Button } from '../components/ui';
 import { Card } from '../components/ui';
@@ -81,15 +81,15 @@ function LoginPage() {
             0deg,
             transparent,
             transparent 59px,
-            rgba(0, 212, 255, 0.025) 59px,
-            rgba(0, 212, 255, 0.025) 60px
+            var(--nx-grid-line) 59px,
+            var(--nx-grid-line) 60px
           ),
           repeating-linear-gradient(
             90deg,
             transparent,
             transparent 59px,
-            rgba(0, 212, 255, 0.025) 59px,
-            rgba(0, 212, 255, 0.025) 60px
+            var(--nx-grid-line) 59px,
+            var(--nx-grid-line) 60px
           )
         `,
       }}
@@ -112,8 +112,8 @@ function LoginPage() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              backgroundColor: 'rgba(0, 212, 255, 0.1)',
-              border: '1px solid rgba(0, 212, 255, 0.3)',
+              backgroundColor: 'var(--nx-cyan-aura)',
+              border: '1px solid var(--color-border-strong)',
               marginBottom: '1rem',
               boxShadow: 'var(--nx-glow-cyan)',
             }}
@@ -134,7 +134,7 @@ function LoginPage() {
               fontSize: 'var(--text-2xl)',
               fontWeight: 700,
               color: 'var(--nx-cyan-base)',
-              textShadow: '0 0 20px rgba(0, 212, 255, 0.5)',
+              textShadow: '0 0 20px var(--nx-cyan-glow)',
               letterSpacing: '0.05em',
               textTransform: 'uppercase',
               marginBottom: '0.25rem',
@@ -236,6 +236,33 @@ function LoginPage() {
             }}
           >
             Use your @{AUTH_CONFIG.allowedDomain} email to sign in
+          </p>
+
+          <p
+            style={{
+              fontFamily: 'var(--font-sans)',
+              fontSize: 'var(--text-sm)',
+              color: 'var(--nx-text-tertiary)',
+              textAlign: 'center',
+              marginTop: '1rem',
+            }}
+          >
+            Don't have an account?{' '}
+            <Link
+              to="/register"
+              style={{
+                color: 'var(--nx-cyan-base)',
+                textDecoration: 'none',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.textDecoration = 'underline';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.textDecoration = 'none';
+              }}
+            >
+              Create one
+            </Link>
           </p>
         </Card>
       </div>

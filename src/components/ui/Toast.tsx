@@ -39,7 +39,7 @@ const variantConfig: Record<ToastVariant, {
     icon: Info,
     borderColor: 'var(--nx-cyan-base)',
     iconClass: 'text-info-400',
-    auraColor: 'rgba(0, 212, 255, 0.08)',
+    auraColor: 'var(--color-border-subtle)',
   },
 };
 
@@ -75,7 +75,7 @@ function Toast({ id, message, variant = 'info', duration = 5000, onDismiss }: To
       style={{
         backgroundColor: 'var(--nx-void-panel)',
         borderLeft: `3px solid ${config.borderColor}`,
-        border: `1px solid rgba(0, 212, 255, 0.15)`,
+        border: `1px solid var(--color-border-default)`,
         borderLeftWidth: '3px',
         borderLeftColor: config.borderColor,
         boxShadow: '0 4px 16px rgba(0, 0, 0, 0.5)',

@@ -52,7 +52,7 @@ function AuthProvider({ children }: AuthProviderProps) {
           style={{
             width: 40,
             height: 40,
-            border: '3px solid rgba(0, 212, 255, 0.2)',
+            border: '3px solid var(--color-border-strong)',
             borderTopColor: 'var(--nx-cyan-base)',
             borderRadius: '50%',
             animation: 'spin 0.8s linear infinite',

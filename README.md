@@ -1,6 +1,6 @@
 # Pipeline — From Idea to Impact
 
-An internal platform for managing AI initiatives across the organization. Track use cases with real business metrics, share effective prompts, and measure AI adoption — backed by a real database with proper auth and role-based access control.
+An internal platform for managing AI initiatives across the organization. Track use cases with real business metrics, evaluate automation readiness, share effective prompts, and measure AI adoption — backed by a real database with proper auth and role-based access control.
 
 ## Getting Started
 
@@ -18,7 +18,9 @@ npm run dev
 
 This starts both the frontend (http://localhost:5173) and the API server (port 3001) concurrently.
 
-### Default Accounts
+On first launch, the setup wizard will guide you through creating the first admin account.
+
+### Demo Accounts (Seeded Data)
 
 The database is seeded on first run with demo users:
 
@@ -30,10 +32,11 @@ The database is seeded on first run with demo users:
 ## What's Inside
 
 - **Dashboard** — Aggregate stats, charts for time/money saved over time, breakdowns by category and department, scoring system (S–D grades)
-- **Use Case Tracker** — Submit, browse, search, and filter AI use cases with business metrics (time saved, money saved), impact/effort levels, and approval workflows
-- **Prompt Library** — Share and discover AI prompts with ratings, effectiveness scores, categories, and copy-to-clipboard
+- **Use Case Tracker** — Submit, browse, search, and filter AI use cases with business metrics (time saved, money saved, revenue per use), cost tracking, impact/effort levels, and approval workflows
+- **Prompt Library** — Share and discover AI prompts with GitHub-style stars, comments with threading, effectiveness scores, categories, and copy-to-clipboard
+- **Automation Readiness Assessment** — Guided 5-checkpoint wizard for evaluating automation ideas, with scoring and promote-to-use-case workflow
 - **My Submissions** — View your own submitted use cases and prompts with their approval status
-- **Admin Panel** — User management, pending review queue, denied items (admin role only)
+- **Admin Panel** — User management, pending review queue, denied items, account lifecycle management (admin role only)
 
 ## Tech Stack
 
@@ -54,14 +57,21 @@ The database is seeded on first run with demo users:
 
 | Path | Page | Access |
 |------|------|--------|
+| `/setup` | First-Time Setup | Public (only when no users exist) |
 | `/login` | Login | Public |
+| `/register` | Registration | Public |
 | `/` | Dashboard | Authenticated |
 | `/use-cases` | Use Case Browser | Authenticated |
 | `/use-cases/new` | Submit Use Case | Authenticated |
 | `/use-cases/:id` | Use Case Detail | Authenticated |
+| `/use-cases/:id/edit` | Edit Use Case | Authenticated (owner or admin) |
 | `/prompts` | Prompt Library | Authenticated |
 | `/prompts/new` | Submit Prompt | Authenticated |
 | `/prompts/:id` | Prompt Detail | Authenticated |
+| `/assessments` | My Assessments | Authenticated |
+| `/assessments/new` | New Assessment | Authenticated |
+| `/assessments/:id` | Assessment Detail | Authenticated |
+| `/assessments/:id/evaluate` | Evaluate Assessment | Authenticated |
 | `/my-submissions` | My Submissions | Authenticated |
 | `/admin` | Admin Dashboard | Admin |
 | `/admin/users` | User Management | Admin |
@@ -94,12 +104,13 @@ npm run docker:build
 npm run docker:up
 ```
 
-The app runs on port 3001 in production mode, serving the built frontend via Fastify. Data persists via a Docker volume.
+Dev runs on port 3001, prod on port 3000. Data persists via separate Docker volumes (`pipeline-dev-data`, `pipeline-prod-data`). See [DEPLOYMENT.md](docs/DEPLOYMENT.md) for the full dev/prod pipeline guide.
 
 ## Documentation
 
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — System architecture, data flow, API routes, auth flow, RBAC model, database schema
-- [`docs/FEATURES.md`](docs/FEATURES.md) — Feature tracking with status
+- [`docs/FEATURES.md`](docs/FEATURES.md) — Feature tracking with status and version history
 - [`docs/CHANGELOG.md`](docs/CHANGELOG.md) — Version history
 - [`docs/DESIGN.md`](docs/DESIGN.md) — Design system (colors, typography, spacing, components)
-- [`docs/ADR/`](docs/ADR/) — Architecture Decision Records
+- [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) — Docker deployment guide (dev/prod pipeline, backups)
+- [`docs/ADR/`](docs/ADR/) — Architecture Decision Records (001–011)

@@ -2,7 +2,6 @@ import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, ClipboardCheck } from 'lucide-react';
 import { SearchBar, Button, Badge, EmptyState, Card, Select } from '../../components/ui';
-import { useAuth } from '../../contexts/AuthContext';
 import * as assessmentService from '../../services/assessmentService';
 import { USE_CASE_CATEGORIES, DEPARTMENTS } from '../../types';
 import type { Assessment, AssessmentStatus, AssessmentCheckpoint } from '../../types';
@@ -38,11 +37,11 @@ function getGrade(score: number): string {
 }
 
 const gradeColors: Record<string, string> = {
-  S: '#00d4ff',
-  A: '#00ff88',
+  S: 'var(--nx-cyan-glow)',
+  A: 'var(--nx-green-glow)',
   B: '#3b82f6',
-  C: '#ffaa00',
-  D: '#ff3366',
+  C: 'var(--nx-amber-glow)',
+  D: 'var(--nx-red-glow)',
 };
 
 function AssessmentCard({ assessment }: { assessment: Assessment }) {
@@ -85,7 +84,7 @@ function AssessmentCard({ assessment }: { assessment: Assessment }) {
             <span
               className="text-xs font-bold ml-auto"
               style={{
-                fontFamily: "'Orbitron', sans-serif",
+                fontFamily: 'var(--font-display)',
                 color: gradeColors[grade],
                 textShadow: `0 0 8px ${gradeColors[grade]}66`,
               }}
@@ -118,7 +117,6 @@ function AssessmentCard({ assessment }: { assessment: Assessment }) {
 }
 
 function MyAssessmentsPage() {
-  const { currentUser } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
@@ -205,7 +203,7 @@ function MyAssessmentsPage() {
           <h1
             className="text-3xl font-bold tracking-tight"
             style={{
-              fontFamily: "'Orbitron', sans-serif",
+              fontFamily: 'var(--font-display)',
               color: 'var(--nx-text-primary)',
               letterSpacing: '0.05em',
             }}

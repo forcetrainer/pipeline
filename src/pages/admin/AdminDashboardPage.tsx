@@ -136,8 +136,8 @@ function AdminDashboardPage() {
       value: stats.pendingCount,
       icon: Clock,
       color: 'var(--nx-yellow-base, #ffaa00)',
-      bgColor: 'rgba(255, 170, 0, 0.1)',
-      borderColor: 'rgba(255, 170, 0, 0.25)',
+      bgColor: 'var(--nx-amber-aura)',
+      borderColor: 'var(--nx-amber-glow)',
       link: '/admin/pending',
     },
     {
@@ -145,8 +145,8 @@ function AdminDashboardPage() {
       value: stats.totalUsers,
       icon: Users,
       color: 'var(--nx-cyan-base)',
-      bgColor: 'rgba(0, 212, 255, 0.1)',
-      borderColor: 'rgba(0, 212, 255, 0.25)',
+      bgColor: 'var(--nx-cyan-aura)',
+      borderColor: 'var(--nx-cyan-glow)',
       link: '/admin/users',
     },
     {
@@ -154,8 +154,8 @@ function AdminDashboardPage() {
       value: stats.deniedCount,
       icon: XCircle,
       color: 'var(--nx-red-base, #ff3366)',
-      bgColor: 'rgba(255, 51, 102, 0.1)',
-      borderColor: 'rgba(255, 51, 102, 0.25)',
+      bgColor: 'var(--nx-red-aura)',
+      borderColor: 'var(--nx-red-glow)',
       link: '/admin/denied',
     },
     {
@@ -163,8 +163,8 @@ function AdminDashboardPage() {
       value: stats.approvedCount,
       icon: CheckCircle,
       color: 'var(--nx-green-base, #00ff88)',
-      bgColor: 'rgba(0, 255, 136, 0.1)',
-      borderColor: 'rgba(0, 255, 136, 0.25)',
+      bgColor: 'var(--nx-green-aura)',
+      borderColor: 'var(--nx-green-glow)',
       link: '/admin/pending',
     },
   ];
@@ -178,7 +178,7 @@ function AdminDashboardPage() {
           <h1
             className="text-3xl font-bold tracking-tight"
             style={{
-              fontFamily: "'Orbitron', sans-serif",
+              fontFamily: 'var(--font-display)',
               color: 'var(--nx-text-primary)',
               letterSpacing: '0.05em',
             }}
@@ -210,7 +210,7 @@ function AdminDashboardPage() {
                   <p
                     className="text-2xl font-bold"
                     style={{
-                      fontFamily: "'JetBrains Mono', monospace",
+                      fontFamily: 'var(--font-mono)',
                       color: stat.color,
                     }}
                   >
@@ -234,7 +234,7 @@ function AdminDashboardPage() {
         <Link to="/admin/pending">
           <Card hoverable padding="md">
             <div className="flex items-center gap-3">
-              <Clock size={18} style={{ color: 'rgba(255, 170, 0, 0.8)' }} />
+              <Clock size={18} style={{ color: 'var(--nx-amber-glow)' }} />
               <div>
                 <p
                   className="text-sm font-semibold"
@@ -278,7 +278,7 @@ function AdminDashboardPage() {
             <div className="flex items-center gap-3">
               <AlertTriangle
                 size={18}
-                style={{ color: 'rgba(255, 51, 102, 0.8)' }}
+                style={{ color: 'var(--nx-red-glow)' }}
               />
               <div>
                 <p
@@ -302,7 +302,7 @@ function AdminDashboardPage() {
             <div className="flex items-center gap-3">
               <FileText
                 size={18}
-                style={{ color: 'rgba(0, 255, 136, 0.8)' }}
+                style={{ color: 'var(--nx-green-glow)' }}
               />
               <div>
                 <p
@@ -329,7 +329,7 @@ function AdminDashboardPage() {
           className="font-semibold mb-4"
           style={{
             color: 'var(--nx-text-primary)',
-            fontFamily: "'Orbitron', sans-serif",
+            fontFamily: 'var(--font-display)',
             fontSize: '14px',
             letterSpacing: '0.05em',
           }}
@@ -353,7 +353,7 @@ function AdminDashboardPage() {
                 style={{ backgroundColor: 'transparent' }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.backgroundColor =
-                    'rgba(0, 212, 255, 0.05)';
+                    'var(--color-border-subtle)';
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.backgroundColor = 'transparent';

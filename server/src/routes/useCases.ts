@@ -1,8 +1,9 @@
 import type { FastifyInstance } from 'fastify';
 import crypto from 'crypto';
-import { getUseCaseRepository } from '../db/repositories/index.js';
+import { getUseCaseRepository, getUserRepository } from '../db/repositories/index.js';
 import { authenticate } from '../middleware/authenticate.js';
 import { requirePermission } from '../middleware/authorize.js';
+import { getEmailService } from '../services/emailService.js';
 import type { UseCaseRow } from '../db/repositories/index.js';
 
 function parseUseCase(row: UseCaseRow) {
@@ -119,6 +120,20 @@ export async function useCaseRoutes(app: FastifyInstance) {
     }
 
     const updated = repo.update(id, updates);
+
+    // Send email notification if status changed
+    if (body.status !== undefined && body.status !== existing.status && existing.submittedById) {
+      const userRepo = getUserRepository();
+      const submitter = userRepo.findById(existing.submittedById);
+      if (submitter) {
+        getEmailService().send(submitter.email, 'usecase_status_change', {
+          firstName: submitter.firstName,
+          itemTitle: existing.title,
+          newStatus: body.status,
+        }).catch(err => request.log.error(err, 'Failed to send email'));
+      }
+    }
+
     return parseUseCase(updated!);
   });
 
@@ -153,6 +168,20 @@ export async function useCaseRoutes(app: FastifyInstance) {
       reviewedAt: now,
       updatedAt: now,
     });
+
+    // Send email notification to the submitter
+    if (existing.submittedById && (body.approvalStatus === 'approved' || body.approvalStatus === 'denied')) {
+      const userRepo = getUserRepository();
+      const submitter = userRepo.findById(existing.submittedById);
+      if (submitter) {
+        const template = body.approvalStatus === 'approved' ? 'usecase_approved' as const : 'usecase_denied' as const;
+        getEmailService().send(submitter.email, template, {
+          firstName: submitter.firstName,
+          itemTitle: existing.title,
+          reviewNotes: body.reviewNotes || null,
+        }).catch(err => request.log.error(err, 'Failed to send email'));
+      }
+    }
 
     return parseUseCase(updated!);
   });

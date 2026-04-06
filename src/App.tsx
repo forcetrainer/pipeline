@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppLayout } from './components/layout';
 import { ToastProvider } from './components/ui/ToastContainer';
@@ -13,6 +14,8 @@ import PromptsPage from './pages/PromptsPage';
 import PromptDetailPage from './pages/PromptDetailPage';
 import NewPromptPage from './pages/NewPromptPage';
 import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import SetupPage from './pages/SetupPage';
 import MySubmissionsPage from './pages/MySubmissionsPage';
 import AdminDashboardPage from './pages/admin/AdminDashboardPage';
 import UserManagementPage from './pages/admin/UserManagementPage';
@@ -22,15 +25,73 @@ import MyAssessmentsPage from './pages/assessments/MyAssessmentsPage';
 import NewAssessmentPage from './pages/assessments/NewAssessmentPage';
 import AssessmentDetailPage from './pages/assessments/AssessmentDetailPage';
 import AssessmentEvaluatePage from './pages/assessments/AssessmentEvaluatePage';
+import { getSetupStatus } from './services/setupService';
 
-function App() {
+function AppInner() {
+  const [needsSetup, setNeedsSetup] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    getSetupStatus()
+      .then((result) => {
+        if (!cancelled) setNeedsSetup(result.needsSetup);
+      })
+      .catch(() => {
+        // If setup check fails, assume setup is done and let normal auth handle it
+        if (!cancelled) setNeedsSetup(false);
+      });
+    return () => { cancelled = true; };
+  }, []);
+
+  // Show loading screen while checking setup status
+  if (needsSetup === null) {
+    return (
+      <div
+        style={{
+          minHeight: '100vh',
+          backgroundColor: 'var(--nx-void-base)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <div
+          style={{
+            color: 'var(--nx-text-tertiary)',
+            fontFamily: 'var(--font-sans)',
+            fontSize: 'var(--text-sm)',
+          }}
+        >
+          Loading...
+        </div>
+      </div>
+    );
+  }
+
+  // If setup is needed, only show the setup page
+  if (needsSetup) {
+    return (
+      <BrowserRouter>
+        <ToastProvider>
+          <Routes>
+            <Route path="*" element={<SetupPage />} />
+          </Routes>
+        </ToastProvider>
+      </BrowserRouter>
+    );
+  }
+
   return (
     <BrowserRouter>
       <AuthProvider>
         <ToastProvider>
           <Routes>
+            {/* Setup route — accessible but will redirect if already set up */}
+            <Route path="/setup" element={<SetupPage />} />
+
             {/* Login route - no sidebar/layout */}
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
 
             {/* Protected routes with AppLayout */}
             <Route element={<ProtectedRoute />}>
@@ -66,6 +127,10 @@ function App() {
       </AuthProvider>
     </BrowserRouter>
   );
+}
+
+function App() {
+  return <AppInner />;
 }
 
 export default App;

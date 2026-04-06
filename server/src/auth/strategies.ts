@@ -8,6 +8,7 @@ export interface UserWithoutPassword {
   firstName: string;
   lastName: string;
   role: string;
+  status: string;
   createdAt: string;
   updatedAt: string;
 }

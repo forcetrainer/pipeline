@@ -7,7 +7,7 @@ import type { Prompt } from '../../types';
 
 interface PromptFormProps {
   initialData?: Partial<Prompt>;
-  onSubmit: (data: Omit<Prompt, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  onSubmit: (data: Omit<Prompt, 'id' | 'createdAt' | 'updatedAt' | 'starCount' | 'commentCount'>) => void;
   isSubmitting?: boolean;
 }
 

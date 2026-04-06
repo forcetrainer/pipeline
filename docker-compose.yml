@@ -1,17 +1,94 @@
-version: '3.8'
 services:
-  app:
-    build: .
+  # ============================================================
+  # DEV — test new code here before promoting to prod
+  # ============================================================
+  dev:
+    image: pipeline:${IMAGE_TAG:-latest}
+    container_name: pipeline-dev
     ports:
       - "3001:3001"
     environment:
       - NODE_ENV=production
-      - JWT_SECRET=${JWT_SECRET:?JWT_SECRET must be set}
+      - PORT=3001
+      - JWT_SECRET=${DEV_JWT_SECRET:-dev-secret-change-me}
       - AUTH_MODE=${AUTH_MODE:-local}
-      - DB_DRIVER=${DB_DRIVER:-sqlite}
+      - DB_PATH=/app/server/data/pipeline.db
+      - CORS_ORIGIN=*
     volumes:
-      - app-data:/app/server/data
+      - dev-data:/app/server/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3001/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # ============================================================
+  # PROD — only updated via promote script after dev is verified
+  # ============================================================
+  prod:
+    image: pipeline:${IMAGE_TAG:-latest}
+    container_name: pipeline-prod
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - JWT_SECRET=${PROD_JWT_SECRET:-}
+      - AUTH_MODE=${AUTH_MODE:-local}
+      - DB_PATH=/app/server/data/pipeline.db
+      - CORS_ORIGIN=*
+    volumes:
+      - prod-data:/app/server/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # ============================================================
+  # BACKUP — runs daily backups of the prod database
+  # ============================================================
+  backup:
+    image: alpine:3.19
+    container_name: pipeline-backup
+    volumes:
+      - prod-data:/data/prod:ro
+      - ./backups:/backups
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        apk add --no-cache sqlite
+        echo "Backup service started. Running daily at 2:00 AM."
+        while true; do
+          # Calculate seconds until next 2:00 AM
+          now=$$(date +%s)
+          target=$$(date -d "tomorrow 02:00" +%s 2>/dev/null || date -v+1d -v2H -v0M -v0S +%s)
+          sleep_secs=$$((target - now))
+          if [ $$sleep_secs -lt 0 ]; then sleep_secs=$$((sleep_secs + 86400)); fi
+          echo "Next backup in $$sleep_secs seconds..."
+          sleep $$sleep_secs
+
+          # Run backup
+          timestamp=$$(date +%Y%m%d_%H%M%S)
+          mkdir -p /backups
+          if [ -f /data/prod/pipeline.db ]; then
+            sqlite3 /data/prod/pipeline.db ".backup '/backups/pipeline_$$timestamp.db'"
+            echo "[$$timestamp] Backup created: pipeline_$$timestamp.db"
+
+            # Keep only last 30 backups
+            ls -t /backups/pipeline_*.db 2>/dev/null | tail -n +31 | xargs rm -f 2>/dev/null
+            echo "[$$timestamp] Cleanup complete. $$(ls /backups/pipeline_*.db 2>/dev/null | wc -l) backups retained."
+          else
+            echo "[$$timestamp] WARNING: No prod database found at /data/prod/pipeline.db"
+          fi
+        done
     restart: unless-stopped
 
 volumes:
-  app-data:
+  dev-data:
+    name: pipeline-dev-data
+  prod-data:
+    name: pipeline-prod-data

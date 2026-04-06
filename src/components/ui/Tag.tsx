@@ -14,8 +14,8 @@ function Tag({ className = '', children, onRemove, ...props }: TagProps) {
         ${className}
       `}
       style={{
-        backgroundColor: 'rgba(0, 212, 255, 0.08)',
-        border: '1px solid rgba(0, 212, 255, 0.25)',
+        backgroundColor: 'var(--color-border-subtle)',
+        border: '1px solid var(--color-border-strong)',
       }}
       {...props}
     >

@@ -12,6 +12,7 @@ export const seedUsers: User[] = [
     firstName: 'Admin',
     lastName: 'User',
     role: 'admin',
+    status: 'active',
     password: 'password123',
     createdAt: '2025-01-01T00:00:00Z',
     updatedAt: '2025-01-01T00:00:00Z',
@@ -22,6 +23,7 @@ export const seedUsers: User[] = [
     firstName: 'Sarah',
     lastName: 'Chen',
     role: 'user',
+    status: 'active',
     password: 'password123',
     createdAt: '2025-01-10T00:00:00Z',
     updatedAt: '2025-01-10T00:00:00Z',
@@ -32,6 +34,7 @@ export const seedUsers: User[] = [
     firstName: 'Mike',
     lastName: 'Rodriguez',
     role: 'user',
+    status: 'active',
     password: 'password123',
     createdAt: '2025-01-10T00:00:00Z',
     updatedAt: '2025-01-10T00:00:00Z',
@@ -42,6 +45,7 @@ export const seedUsers: User[] = [
     firstName: 'Lisa',
     lastName: 'Park',
     role: 'user',
+    status: 'active',
     password: 'password123',
     createdAt: '2025-01-10T00:00:00Z',
     updatedAt: '2025-01-10T00:00:00Z',
@@ -52,6 +56,7 @@ export const seedUsers: User[] = [
     firstName: 'James',
     lastName: 'Wilson',
     role: 'user',
+    status: 'active',
     password: 'password123',
     createdAt: '2025-01-10T00:00:00Z',
     updatedAt: '2025-01-10T00:00:00Z',
@@ -62,6 +67,7 @@ export const seedUsers: User[] = [
     firstName: 'Emma',
     lastName: 'Thompson',
     role: 'user',
+    status: 'active',
     password: 'password123',
     createdAt: '2025-01-10T00:00:00Z',
     updatedAt: '2025-01-10T00:00:00Z',
@@ -72,6 +78,7 @@ export const seedUsers: User[] = [
     firstName: 'David',
     lastName: 'Kim',
     role: 'user',
+    status: 'active',
     password: 'password123',
     createdAt: '2025-01-10T00:00:00Z',
     updatedAt: '2025-01-10T00:00:00Z',
@@ -82,6 +89,7 @@ export const seedUsers: User[] = [
     firstName: 'Alex',
     lastName: 'Rivera',
     role: 'user',
+    status: 'active',
     password: 'password123',
     createdAt: '2025-01-10T00:00:00Z',
     updatedAt: '2025-01-10T00:00:00Z',
@@ -92,6 +100,7 @@ export const seedUsers: User[] = [
     firstName: 'Rachel',
     lastName: 'Foster',
     role: 'user',
+    status: 'active',
     password: 'password123',
     createdAt: '2025-01-10T00:00:00Z',
     updatedAt: '2025-01-10T00:00:00Z',
@@ -345,7 +354,7 @@ export const seedUseCases: UseCase[] = [
 
 // ── Seed Prompts ───────────────────────────────────────────────────
 
-export const seedPrompts: Prompt[] = [
+export const seedPrompts: (Omit<Prompt, 'starCount' | 'commentCount'> & { starCount?: number; commentCount?: number })[] = [
   {
     id: 'pr-001',
     title: 'Code Review Checklist Prompt',

@@ -14,7 +14,7 @@ export async function getPromptById(id: string): Promise<Prompt | undefined> {
 }
 
 export async function createPrompt(
-  data: Omit<Prompt, 'id' | 'createdAt' | 'updatedAt'>
+  data: Omit<Prompt, 'id' | 'createdAt' | 'updatedAt' | 'starCount' | 'commentCount'>
 ): Promise<Prompt> {
   return api.post<Prompt>('/prompts', data);
 }

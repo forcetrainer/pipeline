@@ -10,9 +10,15 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "docker:build": "docker compose build",
-    "docker:up": "docker compose up -d",
-    "docker:down": "docker compose down"
+    "docker:build": "./scripts/build.sh",
+    "docker:dev": "./scripts/deploy-dev.sh",
+    "docker:promote": "./scripts/promote-to-prod.sh",
+    "docker:backup": "./scripts/backup.sh",
+    "docker:restore": "./scripts/restore.sh",
+    "docker:status": "./scripts/status.sh",
+    "docker:down": "docker compose down",
+    "docker:logs:dev": "docker compose logs -f dev",
+    "docker:logs:prod": "docker compose logs -f prod"
   },
   "dependencies": {
     "date-fns": "^4.1.0",

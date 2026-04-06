@@ -29,6 +29,12 @@ server/data/*.db-wal
 server/data/*.db-shm
 server/dist/
 
+# Database backups
+backups/
+
+# Build artifacts
+.last-build-tag
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

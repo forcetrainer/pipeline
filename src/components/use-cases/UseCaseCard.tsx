@@ -31,11 +31,11 @@ const statusAccentColor: Record<string, string> = {
 };
 
 const gradeColors: Record<ScoreGrade, string> = {
-  S: '#00d4ff',
-  A: '#00ff88',
-  B: '#3b82f6',
-  C: '#ffaa00',
-  D: '#ff3366',
+  S: 'var(--nx-cyan-bright)',
+  A: 'var(--nx-green-bright)',
+  B: 'var(--nx-blue-bright)',
+  C: 'var(--nx-amber-bright)',
+  D: 'var(--nx-red-bright)',
 };
 
 function UseCaseCard({ useCase }: UseCaseCardProps) {
@@ -121,7 +121,7 @@ function UseCaseCard({ useCase }: UseCaseCardProps) {
             className="mb-3"
             style={{
               fontSize: '12px',
-              fontFamily: "'JetBrains Mono', var(--font-mono), monospace",
+              fontFamily: "var(--font-mono)",
               color: 'var(--nx-text-tertiary)',
             }}
           >
@@ -169,7 +169,7 @@ function UseCaseCard({ useCase }: UseCaseCardProps) {
         <div
           className="mt-3 pt-3 flex items-center justify-between text-xs"
           style={{
-            borderTop: '1px solid rgba(0, 212, 255, 0.1)',
+            borderTop: '1px solid var(--nx-cyan-aura)',
             color: 'var(--nx-text-tertiary)',
           }}
         >

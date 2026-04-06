@@ -17,7 +17,7 @@ const sectionHeaderStyle: React.CSSProperties = {
   letterSpacing: '0.1em',
   textTransform: 'uppercase',
   paddingBottom: '0.5rem',
-  borderBottom: '1px solid rgba(0, 212, 255, 0.1)',
+  borderBottom: '1px solid var(--nx-cyan-aura)',
   marginBottom: '0.75rem',
 };
 
@@ -31,7 +31,7 @@ const inputBaseStyle: React.CSSProperties = {
   height: '2.5rem',
   width: '100%',
   padding: '0 0.75rem',
-  border: '1px solid rgba(0, 212, 255, 0.15)',
+  border: '1px solid var(--color-border-default)',
   borderRadius: 'var(--radius-md)',
   backgroundColor: 'var(--nx-void-elevated)',
   color: 'var(--nx-text-primary)',
@@ -59,7 +59,7 @@ function handleFocus(e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>
 
 function handleBlur(e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) {
   e.currentTarget.style.boxShadow = '';
-  e.currentTarget.style.borderColor = 'rgba(0, 212, 255, 0.15)';
+  e.currentTarget.style.borderColor = 'var(--color-border-default)';
 }
 
 // --- Component ---
@@ -252,7 +252,7 @@ function CostTracker({ value, onChange }: CostTrackerProps) {
               <div
                 style={{
                   background: 'var(--nx-glass-medium)',
-                  border: '1px solid rgba(0, 212, 255, 0.2)',
+                  border: '1px solid var(--color-border-strong)',
                   borderRadius: 'var(--radius-lg)',
                   padding: '1.25rem',
                   backdropFilter: 'blur(8px)',
@@ -279,8 +279,8 @@ function CostTracker({ value, onChange }: CostTrackerProps) {
                         fontWeight: i === 2 ? 600 : 500,
                         paddingBottom: '0.5rem',
                         borderBottom: i === 2
-                          ? '1px solid rgba(0, 212, 255, 0.3)'
-                          : '1px solid rgba(255, 255, 255, 0.05)',
+                          ? '1px solid var(--color-border-strong)'
+                          : '1px solid var(--color-border-subtle)',
                       }}
                     >
                       {label}
@@ -317,7 +317,7 @@ function CostTracker({ value, onChange }: CostTrackerProps) {
                       fontWeight: 600,
                       color: 'var(--nx-amber-base)',
                       padding: '0.375rem 0',
-                      textShadow: '0 0 12px rgba(255, 170, 0, 0.53)',
+                      textShadow: '0 0 12px var(--nx-amber-glow)',
                     }}
                   >
                     {formatMoney(annualTotal)}

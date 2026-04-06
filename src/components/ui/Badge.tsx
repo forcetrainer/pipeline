@@ -19,8 +19,8 @@ const variantStyles: Record<BadgeVariant, { className: string; style: React.CSSP
   primary: {
     className: 'text-primary-400',
     style: {
-      backgroundColor: 'rgba(0, 212, 255, 0.1)',
-      border: '1px solid rgba(0, 212, 255, 0.25)',
+      backgroundColor: 'var(--nx-cyan-aura)',
+      border: '1px solid var(--color-border-strong)',
     },
   },
   success: {
@@ -47,8 +47,8 @@ const variantStyles: Record<BadgeVariant, { className: string; style: React.CSSP
   info: {
     className: 'text-info-400',
     style: {
-      backgroundColor: 'rgba(0, 212, 255, 0.1)',
-      border: '1px solid rgba(0, 212, 255, 0.25)',
+      backgroundColor: 'var(--nx-cyan-aura)',
+      border: '1px solid var(--color-border-strong)',
     },
   },
 };

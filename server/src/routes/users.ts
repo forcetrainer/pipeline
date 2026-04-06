@@ -5,6 +5,7 @@ import type { UserRow } from '../db/repositories/index.js';
 import { hashPassword } from '../services/authService.js';
 import { authenticate } from '../middleware/authenticate.js';
 import { requirePermission } from '../middleware/authorize.js';
+import { getEmailService } from '../services/emailService.js';
 
 function stripPassword(user: UserRow) {
   const { password: _, ...rest } = user;
@@ -39,6 +40,12 @@ export async function userRoutes(app: FastifyInstance) {
     };
 
     const created = repo.create(newUser);
+
+    // Send welcome email to the new user
+    getEmailService().send(created.email, 'welcome', {
+      firstName: created.firstName,
+    }).catch(err => request.log.error(err, 'Failed to send email'));
+
     return reply.code(201).send(stripPassword(created));
   });
 
@@ -60,11 +67,28 @@ export async function userRoutes(app: FastifyInstance) {
     if (body.firstName !== undefined) updates.firstName = body.firstName;
     if (body.lastName !== undefined) updates.lastName = body.lastName;
     if (body.role !== undefined) updates.role = body.role;
+    if (body.status !== undefined) updates.status = body.status;
     if (body.password !== undefined) {
       updates.password = await hashPassword(body.password as string);
     }
 
     const updated = repo.update(id, updates);
+
+    // Send email notification if status changed (will work once ADR-010 migration adds status field to users)
+    if (body.status !== undefined && body.status !== (existing as Record<string, unknown>).status) {
+      const targetEmail = (updated!).email;
+      const targetFirstName = (updated!).firstName;
+      if (body.status === 'active') {
+        getEmailService().send(targetEmail, 'account_approved', {
+          firstName: targetFirstName,
+        }).catch(err => request.log.error(err, 'Failed to send email'));
+      } else if (body.status === 'disabled') {
+        getEmailService().send(targetEmail, 'account_disabled', {
+          firstName: targetFirstName,
+        }).catch(err => request.log.error(err, 'Failed to send email'));
+      }
+    }
+
     return stripPassword(updated!);
   });
 

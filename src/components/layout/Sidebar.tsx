@@ -53,7 +53,7 @@ function Sidebar() {
         style={{
           backgroundColor: 'var(--nx-void-panel)',
           color: 'var(--nx-text-secondary)',
-          border: '1px solid rgba(0, 212, 255, 0.15)',
+          border: '1px solid var(--color-border-default)',
         }}
       >
         {isOpen ? <X size={20} /> : <Menu size={20} />}
@@ -79,19 +79,19 @@ function Sidebar() {
         `}
         style={{
           backgroundColor: 'var(--nx-void-deep)',
-          borderRight: '1px solid rgba(0, 212, 255, 0.15)',
+          borderRight: '1px solid var(--color-border-default)',
         }}
       >
         {/* Logo / Brand */}
         <div
           className="flex items-center gap-3 px-5 h-16"
-          style={{ borderBottom: '1px solid rgba(0, 212, 255, 0.15)' }}
+          style={{ borderBottom: '1px solid var(--color-border-default)' }}
         >
           <div
             className="w-8 h-8 rounded-lg flex items-center justify-center"
             style={{
-              backgroundColor: 'rgba(0, 212, 255, 0.1)',
-              border: '1px solid rgba(0, 212, 255, 0.3)',
+              backgroundColor: 'var(--nx-cyan-aura)',
+              border: '1px solid var(--color-border-strong)',
             }}
           >
             <svg width="18" height="18" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -112,7 +112,7 @@ function Sidebar() {
                 fontWeight: 600,
                 lineHeight: 1.25,
                 color: 'var(--nx-cyan-base)',
-                textShadow: '0 0 10px rgba(0, 212, 255, 0.5)',
+                textShadow: '0 0 10px var(--nx-cyan-glow)',
                 letterSpacing: '0.05em',
               }}
             >
@@ -143,7 +143,7 @@ function Sidebar() {
                   style={({ isActive }) => ({
                     transition: 'all 200ms ease-in-out',
                     color: isActive ? 'var(--nx-text-primary)' : 'var(--nx-text-secondary)',
-                    backgroundColor: isActive ? 'rgba(0, 212, 255, 0.1)' : 'transparent',
+                    backgroundColor: isActive ? 'var(--nx-cyan-aura)' : 'transparent',
                     borderLeft: isActive ? '3px solid var(--nx-cyan-base)' : '3px solid transparent',
                     marginLeft: '-1px',
                   })}
@@ -154,7 +154,7 @@ function Sidebar() {
                         size={20}
                         style={{
                           color: isActive ? 'var(--nx-cyan-base)' : undefined,
-                          filter: isActive ? 'drop-shadow(0 0 4px rgba(0, 212, 255, 0.6))' : undefined,
+                          filter: isActive ? 'drop-shadow(0 0 4px var(--nx-cyan-glow))' : undefined,
                         }}
                       />
                       {item.label}
@@ -167,7 +167,7 @@ function Sidebar() {
 
           {/* Quick actions */}
           <div className="mt-8">
-            <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)', marginBottom: '12px' }} />
+            <div style={{ borderTop: '1px solid var(--color-border-subtle)', marginBottom: '12px' }} />
             <p
               className="px-3 mb-2"
               style={{
@@ -204,7 +204,7 @@ function Sidebar() {
           {/* Admin section - only visible to admins */}
           {isAdmin && (
             <div className="mt-8">
-              <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)', marginBottom: '12px' }} />
+              <div style={{ borderTop: '1px solid var(--color-border-subtle)', marginBottom: '12px' }} />
               <p
                 className="px-3 mb-2 flex items-center gap-1.5"
                 style={{
@@ -230,7 +230,7 @@ function Sidebar() {
                       style={({ isActive }) => ({
                         transition: 'all 200ms ease-in-out',
                         color: isActive ? 'var(--nx-text-primary)' : 'var(--nx-text-secondary)',
-                        backgroundColor: isActive ? 'rgba(0, 212, 255, 0.1)' : 'transparent',
+                        backgroundColor: isActive ? 'var(--nx-cyan-aura)' : 'transparent',
                         borderLeft: isActive ? '3px solid var(--nx-cyan-base)' : '3px solid transparent',
                         marginLeft: '-1px',
                       })}
@@ -241,7 +241,7 @@ function Sidebar() {
                             size={18}
                             style={{
                               color: isActive ? 'var(--nx-cyan-base)' : undefined,
-                              filter: isActive ? 'drop-shadow(0 0 4px rgba(0, 212, 255, 0.6))' : undefined,
+                              filter: isActive ? 'drop-shadow(0 0 4px var(--nx-cyan-glow))' : undefined,
                             }}
                           />
                           {item.label}
@@ -259,15 +259,15 @@ function Sidebar() {
         {currentUser && (
           <div
             className="px-4 py-3"
-            style={{ borderTop: '1px solid rgba(0, 212, 255, 0.15)' }}
+            style={{ borderTop: '1px solid var(--color-border-default)' }}
           >
             <div className="flex items-center gap-3 mb-3">
               <div
                 className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
                 style={{
-                  backgroundColor: 'rgba(0, 212, 255, 0.1)',
+                  backgroundColor: 'var(--nx-cyan-aura)',
                   color: 'var(--nx-cyan-base)',
-                  border: '1px solid rgba(0, 212, 255, 0.2)',
+                  border: '1px solid var(--color-border-strong)',
                 }}
               >
                 {currentUser.firstName[0]}
@@ -312,7 +312,7 @@ function Sidebar() {
         {!currentUser && (
           <div
             className="px-5 py-4"
-            style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}
+            style={{ borderTop: '1px solid var(--color-border-subtle)' }}
           >
             <p
               style={{
@@ -328,7 +328,7 @@ function Sidebar() {
 
       <style>{`
         .sidebar-nav-item:hover {
-          background-color: rgba(0, 212, 255, 0.05) !important;
+          background-color: var(--nx-cyan-aura) !important;
           color: var(--nx-text-primary) !important;
         }
       `}</style>

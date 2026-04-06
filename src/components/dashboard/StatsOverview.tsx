@@ -11,11 +11,11 @@ interface StatsOverviewProps {
 }
 
 const GRADE_COLORS: Record<string, string> = {
-  S: '#00d4ff',
-  A: '#00ff88',
-  B: '#3b82f6',
-  C: '#ffaa00',
-  D: '#ff3366',
+  S: 'var(--nx-cyan-base)',
+  A: 'var(--nx-green-base)',
+  B: 'var(--nx-blue-base)',
+  C: 'var(--nx-amber-base)',
+  D: 'var(--nx-red-base)',
 };
 
 function formatHours(hours: number): string {
@@ -29,41 +29,41 @@ const stats_config = [
     key: 'totalUseCases' as const,
     label: 'Use Cases',
     icon: Lightbulb,
-    accent: '#00d4ff',
-    glowAura: 'rgba(0, 212, 255, 0.15)',
-    borderColor: 'rgba(0, 212, 255, 0.3)',
-    borderHover: 'rgba(0, 212, 255, 0.6)',
-    iconBg: 'rgba(0, 212, 255, 0.1)',
+    accent: 'var(--nx-cyan-base)',
+    glowAura: 'var(--nx-cyan-aura)',
+    borderColor: 'var(--nx-cyan-aura)',
+    borderHover: 'var(--nx-cyan-glow)',
+    iconBg: 'var(--nx-cyan-aura)',
   },
   {
     key: 'annualTimeSavedHours' as const,
     label: 'Annual Hours Saved',
     icon: Clock,
-    accent: '#00ff88',
-    glowAura: 'rgba(0, 255, 136, 0.15)',
-    borderColor: 'rgba(0, 255, 136, 0.3)',
-    borderHover: 'rgba(0, 255, 136, 0.6)',
-    iconBg: 'rgba(0, 255, 136, 0.1)',
+    accent: 'var(--nx-green-base)',
+    glowAura: 'var(--nx-green-aura)',
+    borderColor: 'var(--nx-green-aura)',
+    borderHover: 'var(--nx-green-glow)',
+    iconBg: 'var(--nx-green-aura)',
   },
   {
     key: 'annualMoneySaved' as const,
     label: 'Annual Savings',
     icon: DollarSign,
-    accent: '#ffaa00',
-    glowAura: 'rgba(255, 170, 0, 0.15)',
-    borderColor: 'rgba(255, 170, 0, 0.3)',
-    borderHover: 'rgba(255, 170, 0, 0.6)',
-    iconBg: 'rgba(255, 170, 0, 0.1)',
+    accent: 'var(--nx-amber-base)',
+    glowAura: 'var(--nx-amber-aura)',
+    borderColor: 'var(--nx-amber-aura)',
+    borderHover: 'var(--nx-amber-glow)',
+    iconBg: 'var(--nx-amber-aura)',
   },
   {
     key: 'averageScore' as const,
     label: 'Average Score',
     icon: Trophy,
-    accent: '#a855f7',
-    glowAura: 'rgba(168, 85, 247, 0.15)',
-    borderColor: 'rgba(168, 85, 247, 0.3)',
-    borderHover: 'rgba(168, 85, 247, 0.6)',
-    iconBg: 'rgba(168, 85, 247, 0.1)',
+    accent: 'var(--nx-violet-base)',
+    glowAura: 'var(--nx-violet-aura)',
+    borderColor: 'var(--nx-violet-aura)',
+    borderHover: 'var(--nx-violet-glow)',
+    iconBg: 'var(--nx-violet-aura)',
   },
 ];
 
@@ -99,7 +99,7 @@ function StatsOverview(props: StatsOverviewProps) {
             key={stat.key}
             className="group relative overflow-hidden rounded-lg transition-all duration-200 ease-in-out hover:-translate-y-0.5 cursor-default"
             style={{
-              background: 'rgba(13, 17, 23, 0.85)',
+              background: 'var(--nx-glass-heavy)',
               border: `1px solid ${stat.borderColor}`,
               backdropFilter: 'blur(8px)',
               padding: '1.25rem',
@@ -136,11 +136,11 @@ function StatsOverview(props: StatsOverviewProps) {
               <div>
                 <p
                   style={{
-                    fontFamily: "'Orbitron', sans-serif",
+                    fontFamily: 'var(--font-display)',
                     fontSize: '1.5rem',
                     fontWeight: 700,
                     lineHeight: 1.2,
-                    color: '#e6edf3',
+                    color: 'var(--nx-text-primary)',
                     textShadow: `0 0 8px ${stat.glowAura}`,
                   }}
                 >
@@ -148,12 +148,12 @@ function StatsOverview(props: StatsOverviewProps) {
                 </p>
                 <p
                   style={{
-                    fontFamily: "'Exo 2', sans-serif",
+                    fontFamily: 'var(--font-sans)',
                     fontSize: '11px',
                     fontWeight: 500,
                     textTransform: 'uppercase',
                     letterSpacing: '0.1em',
-                    color: '#8b949e',
+                    color: 'var(--nx-text-tertiary)',
                     marginTop: '2px',
                   }}
                 >

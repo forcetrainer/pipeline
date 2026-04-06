@@ -19,14 +19,14 @@ import * as useCaseService from '../services/useCaseService';
 import * as promptService from '../services/promptService';
 import { format, parseISO } from 'date-fns';
 
-const CHART_COLORS = ['#00d4ff', '#a855f7', '#00ff88', '#3b82f6', '#ffaa00', '#ff3366'];
+const CHART_COLORS = ['var(--nx-cyan-base)', 'var(--nx-violet-base)', 'var(--nx-green-base)', 'var(--nx-blue-base)', 'var(--nx-amber-base)', 'var(--nx-red-base)'];
 
 const GRADE_COLORS: Record<ScoreGrade, string> = {
-  S: '#00d4ff',
-  A: '#00ff88',
-  B: '#3b82f6',
-  C: '#ffaa00',
-  D: '#ff3366',
+  S: 'var(--nx-cyan-base)',
+  A: 'var(--nx-green-base)',
+  B: 'var(--nx-blue-base)',
+  C: 'var(--nx-amber-base)',
+  D: 'var(--nx-red-base)',
 };
 
 function DashboardPage() {
@@ -205,7 +205,7 @@ function DashboardPage() {
   const tooltipStyle = {
     contentStyle: {
       backgroundColor: 'var(--nx-void-panel)',
-      border: '1px solid rgba(0, 212, 255, 0.15)',
+      border: '1px solid var(--color-border-default)',
       borderRadius: '8px',
       color: 'var(--nx-text-primary)',
       fontSize: '12px',
@@ -232,7 +232,7 @@ function DashboardPage() {
         <h1
           className="text-3xl font-bold tracking-tight"
           style={{
-            fontFamily: "'Orbitron', sans-serif",
+            fontFamily: 'var(--font-display)',
             color: 'var(--nx-text-primary)',
             letterSpacing: '0.05em',
           }}
@@ -260,7 +260,7 @@ function DashboardPage() {
         {/* Category distribution */}
         <Card padding="lg">
           <h2
-            style={{ color: 'var(--nx-text-primary)', fontFamily: "'Orbitron', sans-serif", fontSize: '14px', letterSpacing: '0.05em' }}
+            style={{ color: 'var(--nx-text-primary)', fontFamily: 'var(--font-display)', fontSize: '14px', letterSpacing: '0.05em' }}
             className="font-semibold mb-4"
           >
             Use Cases by Category
@@ -268,7 +268,7 @@ function DashboardPage() {
           {categoryData.length > 0 ? (
             <ResponsiveContainer width="100%" height={240}>
               <BarChart data={categoryData} layout="vertical" margin={{ left: 0, right: 16 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(0, 212, 255, 0.08)" horizontal={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-subtle)" horizontal={false} />
                 <XAxis type="number" tick={{ fontSize: 12, fill: 'var(--nx-text-tertiary)' }} />
                 <YAxis type="category" dataKey="name" tick={{ fontSize: 12, fill: 'var(--nx-text-secondary)' }} width={120} />
                 <Tooltip {...tooltipStyle} />
@@ -283,7 +283,7 @@ function DashboardPage() {
         {/* Department pie chart */}
         <Card padding="lg">
           <h2
-            style={{ color: 'var(--nx-text-primary)', fontFamily: "'Orbitron', sans-serif", fontSize: '14px', letterSpacing: '0.05em' }}
+            style={{ color: 'var(--nx-text-primary)', fontFamily: 'var(--font-display)', fontSize: '14px', letterSpacing: '0.05em' }}
             className="font-semibold mb-4"
           >
             Use Cases by Team
@@ -342,14 +342,14 @@ function DashboardPage() {
       {timelineData.length > 0 && (
         <Card padding="lg" className="mb-8">
           <h2
-            style={{ color: 'var(--nx-text-primary)', fontFamily: "'Orbitron', sans-serif", fontSize: '14px', letterSpacing: '0.05em' }}
+            style={{ color: 'var(--nx-text-primary)', fontFamily: 'var(--font-display)', fontSize: '14px', letterSpacing: '0.05em' }}
             className="font-semibold mb-4"
           >
             Submissions Over Time
           </h2>
           <ResponsiveContainer width="100%" height={220}>
             <LineChart data={timelineData} margin={{ left: 0, right: 16, top: 8 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(0, 212, 255, 0.08)" />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-subtle)" />
               <XAxis dataKey="month" tick={{ fontSize: 12, fill: 'var(--nx-text-tertiary)' }} />
               <YAxis tick={{ fontSize: 12, fill: 'var(--nx-text-tertiary)' }} allowDecimals={false} />
               <Tooltip {...tooltipStyle} />
@@ -365,9 +365,9 @@ function DashboardPage() {
         <Card padding="lg" className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <Star size={18} style={{ color: '#fbbf24', fill: '#fbbf24' }} />
+              <Star size={18} style={{ color: 'var(--nx-amber-bright)', fill: 'var(--nx-amber-bright)' }} />
               <h2
-                style={{ color: 'var(--nx-text-primary)', fontFamily: "'Orbitron', sans-serif", fontSize: '14px', letterSpacing: '0.05em' }}
+                style={{ color: 'var(--nx-text-primary)', fontFamily: 'var(--font-display)', fontSize: '14px', letterSpacing: '0.05em' }}
                 className="font-semibold"
               >
                 My Starred Prompts
@@ -384,14 +384,14 @@ function DashboardPage() {
                   className="p-3 rounded-lg transition-all duration-200"
                   style={{
                     background: 'var(--nx-void-elevated)',
-                    border: '1px solid rgba(0, 212, 255, 0.08)',
+                    border: '1px solid var(--color-border-subtle)',
                   }}
                   onMouseEnter={e => {
-                    e.currentTarget.style.borderColor = 'rgba(0, 212, 255, 0.2)';
+                    e.currentTarget.style.borderColor = 'var(--color-border-strong)';
                     e.currentTarget.style.background = 'var(--nx-void-surface)';
                   }}
                   onMouseLeave={e => {
-                    e.currentTarget.style.borderColor = 'rgba(0, 212, 255, 0.08)';
+                    e.currentTarget.style.borderColor = 'var(--color-border-subtle)';
                     e.currentTarget.style.background = 'var(--nx-void-elevated)';
                   }}
                 >
@@ -411,7 +411,7 @@ function DashboardPage() {
           <div className="flex items-center gap-2 mb-4">
             <Users size={18} style={{ color: 'var(--nx-text-tertiary)' }} />
             <h2
-              style={{ color: 'var(--nx-text-primary)', fontFamily: "'Orbitron', sans-serif", fontSize: '14px', letterSpacing: '0.05em' }}
+              style={{ color: 'var(--nx-text-primary)', fontFamily: 'var(--font-display)', fontSize: '14px', letterSpacing: '0.05em' }}
               className="font-semibold"
             >
               Top Contributors
@@ -425,13 +425,13 @@ function DashboardPage() {
                   style={{
                     backgroundColor: 'var(--nx-cyan-aura)',
                     color: 'var(--nx-cyan-base)',
-                    border: '1px solid rgba(0, 212, 255, 0.2)',
+                    border: '1px solid var(--color-border-strong)',
                   }}
                 >
                   {idx + 1}
                 </span>
                 <span style={{ color: 'var(--nx-text-secondary)' }} className="text-sm truncate flex-1">{c.name}</span>
-                <span style={{ color: 'var(--nx-text-tertiary)', fontFamily: "'JetBrains Mono', monospace" }} className="text-sm font-medium">{c.submissions}</span>
+                <span style={{ color: 'var(--nx-text-tertiary)', fontFamily: 'var(--font-mono)' }} className="text-sm font-medium">{c.submissions}</span>
               </div>
             ))}
           </div>
@@ -441,7 +441,7 @@ function DashboardPage() {
         <Card padding="lg">
           <div className="flex items-center justify-between mb-4">
             <h2
-              style={{ color: 'var(--nx-text-primary)', fontFamily: "'Orbitron', sans-serif", fontSize: '14px', letterSpacing: '0.05em' }}
+              style={{ color: 'var(--nx-text-primary)', fontFamily: 'var(--font-display)', fontSize: '14px', letterSpacing: '0.05em' }}
               className="font-semibold"
             >
               Recent Use Cases
@@ -464,7 +464,7 @@ function DashboardPage() {
         <Card padding="lg">
           <div className="flex items-center justify-between mb-4">
             <h2
-              style={{ color: 'var(--nx-text-primary)', fontFamily: "'Orbitron', sans-serif", fontSize: '14px', letterSpacing: '0.05em' }}
+              style={{ color: 'var(--nx-text-primary)', fontFamily: 'var(--font-display)', fontSize: '14px', letterSpacing: '0.05em' }}
               className="font-semibold"
             >
               Recent Prompts

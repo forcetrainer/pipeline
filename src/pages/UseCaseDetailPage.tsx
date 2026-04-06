@@ -89,7 +89,7 @@ function UseCaseDetailPage() {
           <h1
             className="text-3xl font-bold tracking-tight"
             style={{
-              fontFamily: "'Orbitron', sans-serif",
+              fontFamily: 'var(--font-display)',
               color: 'var(--nx-text-primary)',
               letterSpacing: '0.05em',
             }}
@@ -133,7 +133,7 @@ function UseCaseDetailPage() {
             style={{
               backgroundColor: 'var(--nx-void-surface)',
               color: 'var(--nx-text-tertiary)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
+              border: '1px solid var(--color-border-subtle)',
             }}
             title="AI Readiness Check coming soon"
           >
@@ -167,7 +167,7 @@ function UseCaseDetailPage() {
         <section className="mb-6">
           <h2
             className="text-lg font-semibold mb-2"
-            style={{ color: 'var(--nx-text-primary)', fontFamily: "'Orbitron', sans-serif", fontSize: '16px', letterSpacing: '0.03em' }}
+            style={{ color: 'var(--nx-text-primary)', fontFamily: 'var(--font-display)', fontSize: '16px', letterSpacing: '0.03em' }}
           >
             Description
           </h2>
@@ -179,7 +179,7 @@ function UseCaseDetailPage() {
           <section className="mb-6">
             <h2
               className="text-lg font-semibold mb-2"
-              style={{ color: 'var(--nx-text-primary)', fontFamily: "'Orbitron', sans-serif", fontSize: '16px', letterSpacing: '0.03em' }}
+              style={{ color: 'var(--nx-text-primary)', fontFamily: 'var(--font-display)', fontSize: '16px', letterSpacing: '0.03em' }}
             >
               What Was Built
             </h2>
@@ -192,7 +192,7 @@ function UseCaseDetailPage() {
           <section className="mb-6">
             <h2
               className="text-lg font-semibold mb-2"
-              style={{ color: 'var(--nx-text-primary)', fontFamily: "'Orbitron', sans-serif", fontSize: '16px', letterSpacing: '0.03em' }}
+              style={{ color: 'var(--nx-text-primary)', fontFamily: 'var(--font-display)', fontSize: '16px', letterSpacing: '0.03em' }}
             >
               Key Learnings
             </h2>
@@ -204,7 +204,7 @@ function UseCaseDetailPage() {
         {useCase.tags.length > 0 && (
           <div
             className="flex gap-2 flex-wrap pt-4"
-            style={{ borderTop: '1px solid rgba(0, 212, 255, 0.1)' }}
+            style={{ borderTop: '1px solid var(--nx-cyan-aura)' }}
           >
             {useCase.tags.map((tag) => (
               <span
@@ -279,7 +279,7 @@ function MetricsBreakdown({ metrics }: { metrics: import('../types').UseCaseMetr
       className="mb-8"
       style={{
         background: 'var(--nx-glass-medium)',
-        border: '1px solid rgba(0, 212, 255, 0.2)',
+        border: '1px solid var(--color-border-strong)',
         borderRadius: 'var(--radius-lg, 12px)',
         padding: '1.5rem',
         backdropFilter: 'blur(8px)',
@@ -289,7 +289,7 @@ function MetricsBreakdown({ metrics }: { metrics: import('../types').UseCaseMetr
         className="text-lg font-semibold mb-4"
         style={{
           color: 'var(--nx-text-primary)',
-          fontFamily: "'Orbitron', sans-serif",
+          fontFamily: 'var(--font-display)',
           fontSize: '16px',
           letterSpacing: '0.03em',
         }}
@@ -303,7 +303,7 @@ function MetricsBreakdown({ metrics }: { metrics: import('../types').UseCaseMetr
           <p style={{ fontSize: '13px', color: 'var(--nx-text-tertiary)', marginBottom: '0.25rem' }}>
             Per-use savings
           </p>
-          <p style={{ fontSize: '16px', fontFamily: "'JetBrains Mono', monospace", color: 'var(--nx-text-primary)' }}>
+          <p style={{ fontSize: '16px', fontFamily: 'var(--font-mono)', color: 'var(--nx-text-primary)' }}>
             {(metrics.timeSavedPerUseMinutes > 0 || metrics.moneySavedPerUse > 0) && 'Saves '}
             {metrics.timeSavedPerUseMinutes > 0 && (
               <span style={{ color: 'var(--nx-green-base)' }}>
@@ -320,7 +320,7 @@ function MetricsBreakdown({ metrics }: { metrics: import('../types').UseCaseMetr
             {hasRevenue && (
               <>
                 generates{' '}
-                <span style={{ color: '#a78bfa' }}>
+                <span style={{ color: 'var(--nx-violet-bright)' }}>
                   {formatMoney(metrics.revenuePerUse)}
                 </span>
               </>
@@ -368,8 +368,8 @@ function MetricsBreakdown({ metrics }: { metrics: import('../types').UseCaseMetr
               fontWeight: p.isAnnual ? 600 : 500,
               paddingBottom: '0.5rem',
               borderBottom: p.isAnnual
-                ? '1px solid rgba(0, 212, 255, 0.3)'
-                : '1px solid rgba(255, 255, 255, 0.05)',
+                ? '1px solid var(--color-border-strong)'
+                : '1px solid var(--color-border-subtle)',
             }}
           >
             {p.label}
@@ -394,12 +394,12 @@ function MetricsBreakdown({ metrics }: { metrics: import('../types').UseCaseMetr
           <div
             key={`time-${p.label}`}
             style={{
-              fontFamily: p.isAnnual ? "'Orbitron', sans-serif" : "'JetBrains Mono', monospace",
+              fontFamily: p.isAnnual ? 'var(--font-display)' : 'var(--font-mono)',
               fontSize: p.isAnnual ? '18px' : '14px',
               fontWeight: p.isAnnual ? 600 : 500,
               color: 'var(--nx-green-base)',
               padding: '0.375rem 0',
-              textShadow: p.isAnnual ? '0 0 12px rgba(0, 255, 136, 0.5)' : undefined,
+              textShadow: p.isAnnual ? '0 0 12px var(--nx-green-glow)' : undefined,
             }}
           >
             {p.time}
@@ -424,12 +424,12 @@ function MetricsBreakdown({ metrics }: { metrics: import('../types').UseCaseMetr
           <div
             key={`money-${p.label}`}
             style={{
-              fontFamily: p.isAnnual ? "'Orbitron', sans-serif" : "'JetBrains Mono', monospace",
+              fontFamily: p.isAnnual ? 'var(--font-display)' : 'var(--font-mono)',
               fontSize: p.isAnnual ? '18px' : '14px',
               fontWeight: p.isAnnual ? 600 : 500,
               color: 'var(--nx-amber-base)',
               padding: '0.375rem 0',
-              textShadow: p.isAnnual ? '0 0 12px rgba(255, 170, 0, 0.5)' : undefined,
+              textShadow: p.isAnnual ? '0 0 12px var(--nx-amber-glow)' : undefined,
             }}
           >
             {p.money}
@@ -442,7 +442,7 @@ function MetricsBreakdown({ metrics }: { metrics: import('../types').UseCaseMetr
             <div
               style={{
                 fontSize: '11px',
-                color: '#a78bfa',
+                color: 'var(--nx-violet-bright)',
                 fontFamily: 'var(--font-sans)',
                 textTransform: 'uppercase',
                 letterSpacing: '0.08em',
@@ -456,12 +456,12 @@ function MetricsBreakdown({ metrics }: { metrics: import('../types').UseCaseMetr
               <div
                 key={`revenue-${p.label}`}
                 style={{
-                  fontFamily: p.isAnnual ? "'Orbitron', sans-serif" : "'JetBrains Mono', monospace",
+                  fontFamily: p.isAnnual ? 'var(--font-display)' : 'var(--font-mono)',
                   fontSize: p.isAnnual ? '18px' : '14px',
                   fontWeight: p.isAnnual ? 600 : 500,
-                  color: '#a78bfa',
+                  color: 'var(--nx-violet-bright)',
                   padding: '0.375rem 0',
-                  textShadow: p.isAnnual ? '0 0 12px rgba(167, 139, 250, 0.5)' : undefined,
+                  textShadow: p.isAnnual ? '0 0 12px var(--nx-violet-glow)' : undefined,
                 }}
               >
                 {p.revenue}
@@ -475,7 +475,7 @@ function MetricsBreakdown({ metrics }: { metrics: import('../types').UseCaseMetr
       {score.overallScore > 0 && (
         <div
           style={{
-            borderTop: '1px solid rgba(0, 212, 255, 0.15)',
+            borderTop: '1px solid var(--color-border-default)',
             paddingTop: '1.25rem',
             display: 'flex',
             alignItems: 'center',
@@ -486,7 +486,7 @@ function MetricsBreakdown({ metrics }: { metrics: import('../types').UseCaseMetr
           <div style={{ textAlign: 'center', flexShrink: 0 }}>
             <div
               style={{
-                fontFamily: "'Orbitron', sans-serif",
+                fontFamily: 'var(--font-display)',
                 fontSize: '2.5rem',
                 fontWeight: 700,
                 lineHeight: 1,
@@ -519,7 +519,7 @@ function MetricsBreakdown({ metrics }: { metrics: import('../types').UseCaseMetr
                 <span style={{ fontSize: '11px', color: 'var(--nx-text-tertiary)', fontFamily: 'var(--font-sans)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                   Value
                 </span>
-                <span style={{ fontSize: '11px', color: 'var(--nx-green-base)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 500 }}>
+                <span style={{ fontSize: '11px', color: 'var(--nx-green-base)', fontFamily: 'var(--font-mono)', fontWeight: 500 }}>
                   {Math.round(score.valuePerUse)}
                 </span>
               </div>
@@ -530,7 +530,7 @@ function MetricsBreakdown({ metrics }: { metrics: import('../types').UseCaseMetr
                     width: `${Math.min(100, Math.max(0, Math.round(score.valuePerUse)))}%`,
                     backgroundColor: 'var(--nx-green-base)',
                     borderRadius: '9999px',
-                    boxShadow: '0 0 8px rgba(0, 255, 136, 0.3)',
+                    boxShadow: '0 0 8px var(--nx-green-aura)',
                     transition: 'width 300ms ease',
                   }}
                 />
@@ -542,7 +542,7 @@ function MetricsBreakdown({ metrics }: { metrics: import('../types').UseCaseMetr
                 <span style={{ fontSize: '11px', color: 'var(--nx-text-tertiary)', fontFamily: 'var(--font-sans)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                   Scale
                 </span>
-                <span style={{ fontSize: '11px', color: 'var(--nx-cyan-base)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 500 }}>
+                <span style={{ fontSize: '11px', color: 'var(--nx-cyan-base)', fontFamily: 'var(--font-mono)', fontWeight: 500 }}>
                   {Math.round(score.scaleFactor)}
                 </span>
               </div>
@@ -553,7 +553,7 @@ function MetricsBreakdown({ metrics }: { metrics: import('../types').UseCaseMetr
                     width: `${Math.min(100, Math.max(0, Math.round(score.scaleFactor)))}%`,
                     backgroundColor: 'var(--nx-cyan-base)',
                     borderRadius: '9999px',
-                    boxShadow: '0 0 8px rgba(0, 212, 255, 0.3)',
+                    boxShadow: '0 0 8px var(--nx-cyan-glow)',
                     transition: 'width 300ms ease',
                   }}
                 />
@@ -596,7 +596,7 @@ function CostAndROIPanel({ metrics, costs }: { metrics: import('../types').UseCa
   };
 
   const valueStyle: React.CSSProperties = {
-    fontFamily: "'JetBrains Mono', monospace",
+    fontFamily: 'var(--font-mono)',
     fontSize: '18px',
     fontWeight: 600,
   };
@@ -615,7 +615,7 @@ function CostAndROIPanel({ metrics, costs }: { metrics: import('../types').UseCa
       className="mb-8"
       style={{
         background: 'var(--nx-glass-medium)',
-        border: '1px solid rgba(0, 212, 255, 0.2)',
+        border: '1px solid var(--color-border-strong)',
         borderRadius: 'var(--radius-lg, 12px)',
         padding: '1.5rem',
         backdropFilter: 'blur(8px)',
@@ -625,7 +625,7 @@ function CostAndROIPanel({ metrics, costs }: { metrics: import('../types').UseCa
         className="text-lg font-semibold mb-4"
         style={{
           color: 'var(--nx-text-primary)',
-          fontFamily: "'Orbitron', sans-serif",
+          fontFamily: 'var(--font-display)',
           fontSize: '16px',
           letterSpacing: '0.03em',
         }}
@@ -665,7 +665,7 @@ function CostAndROIPanel({ metrics, costs }: { metrics: import('../types').UseCa
       {/* Row 2: ROI metrics */}
       <div
         style={{
-          borderTop: '1px solid rgba(0, 212, 255, 0.15)',
+          borderTop: '1px solid var(--color-border-default)',
           paddingTop: '1.25rem',
           display: 'grid',
           gridTemplateColumns: 'repeat(4, 1fr)',
@@ -718,7 +718,7 @@ function CostAndROIPanel({ metrics, costs }: { metrics: import('../types').UseCa
             fontFamily: 'var(--font-sans)',
             padding: '0.25rem 0',
             textDecoration: 'underline',
-            textDecorationColor: 'rgba(255, 255, 255, 0.15)',
+            textDecorationColor: 'var(--color-border-default)',
           }}
         >
           {showBreakdown ? 'Hide cost breakdown' : 'Show cost breakdown'}
@@ -739,13 +739,13 @@ function CostAndROIPanel({ metrics, costs }: { metrics: import('../types').UseCa
             {costItems.map((item) => (
               <div key={item.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontSize: '13px', color: 'var(--nx-text-tertiary)' }}>{item.label}</span>
-                <span style={{ fontSize: '13px', fontFamily: "'JetBrains Mono', monospace", color: 'var(--nx-text-secondary)' }}>
+                <span style={{ fontSize: '13px', fontFamily: 'var(--font-mono)', color: 'var(--nx-text-secondary)' }}>
                   {formatMoney(item.value)}
                 </span>
               </div>
             ))}
             {costs.notes && (
-              <div style={{ gridColumn: '1 / -1', marginTop: '0.5rem', borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '0.5rem' }}>
+              <div style={{ gridColumn: '1 / -1', marginTop: '0.5rem', borderTop: '1px solid var(--color-border-subtle)', paddingTop: '0.5rem' }}>
                 <span style={{ fontSize: '11px', color: 'var(--nx-text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Notes</span>
                 <p style={{ fontSize: '13px', color: 'var(--nx-text-secondary)', marginTop: '0.25rem' }}>{costs.notes}</p>
               </div>

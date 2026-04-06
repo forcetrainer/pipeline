@@ -121,18 +121,18 @@ function getGrade(score: number): string {
 }
 
 const gradeColors: Record<string, string> = {
-  S: '#00d4ff',
-  A: '#00ff88',
+  S: 'var(--nx-cyan-glow)',
+  A: 'var(--nx-green-glow)',
   B: '#3b82f6',
-  C: '#ffaa00',
-  D: '#ff3366',
+  C: 'var(--nx-amber-glow)',
+  D: 'var(--nx-red-glow)',
 };
 
 const statusColors: Record<CheckpointStatus, string> = {
-  not_started: 'rgba(255, 255, 255, 0.2)',
-  pass: '#00ff88',
-  concern: '#ffaa00',
-  fail: '#ff3366',
+  not_started: 'var(--color-border-strong)',
+  pass: 'var(--nx-green-glow)',
+  concern: 'var(--nx-amber-glow)',
+  fail: 'var(--nx-red-glow)',
 };
 
 interface StepData {
@@ -222,8 +222,8 @@ function AssessmentEvaluatePage() {
       const current = prev[name];
       const updated = { ...current, ...updates };
       // Auto-derive status from score unless overridden
-      if ('score' in updates && updates.score !== null && !updated.statusOverride) {
-        updated.status = scoreToStatus(updates.score);
+      if ('score' in updates && updates.score != null && !updated.statusOverride) {
+        updated.status = scoreToStatus(updates.score as number);
       }
       return { ...prev, [name]: updated };
     });
@@ -340,7 +340,7 @@ function AssessmentEvaluatePage() {
         <h1
           className="text-2xl font-bold tracking-tight mb-1"
           style={{
-            fontFamily: "'Orbitron', sans-serif",
+            fontFamily: 'var(--font-display)',
             color: 'var(--nx-text-primary)',
             letterSpacing: '0.05em',
           }}
@@ -355,7 +355,7 @@ function AssessmentEvaluatePage() {
         <div className="flex gap-1.5 mb-8">
           {CHECKPOINT_ORDER.map((name, i) => {
             const data = stepData[name];
-            let color = 'rgba(255, 255, 255, 0.1)';
+            let color = 'var(--nx-cyan-aura)';
             if (i === currentStep && !isSummary) {
               color = 'var(--nx-cyan-base)';
             } else if (data.score !== null) {
@@ -395,8 +395,8 @@ function AssessmentEvaluatePage() {
                 onClick={() => handleStepClick(i)}
                 className="px-2.5 py-1 rounded-md text-xs font-medium transition-all"
                 style={{
-                  background: isActive ? 'rgba(0, 212, 255, 0.15)' : 'transparent',
-                  border: isActive ? '1px solid rgba(0, 212, 255, 0.4)' : '1px solid rgba(255, 255, 255, 0.08)',
+                  background: isActive ? 'var(--color-border-default)' : 'transparent',
+                  border: isActive ? '1px solid var(--nx-cyan-glow)' : '1px solid var(--color-border-subtle)',
                   color: isActive
                     ? 'var(--nx-cyan-base)'
                     : isCompleted
@@ -413,8 +413,8 @@ function AssessmentEvaluatePage() {
             onClick={() => handleStepClick(5)}
             className="px-2.5 py-1 rounded-md text-xs font-medium transition-all"
             style={{
-              background: isSummary ? 'rgba(0, 212, 255, 0.15)' : 'transparent',
-              border: isSummary ? '1px solid rgba(0, 212, 255, 0.4)' : '1px solid rgba(255, 255, 255, 0.08)',
+              background: isSummary ? 'var(--color-border-default)' : 'transparent',
+              border: isSummary ? '1px solid var(--nx-cyan-glow)' : '1px solid var(--color-border-subtle)',
               color: isSummary ? 'var(--nx-cyan-base)' : 'var(--nx-text-ghost)',
               cursor: 'pointer',
             }}
@@ -449,7 +449,7 @@ function AssessmentEvaluatePage() {
         )}
 
         {/* Navigation */}
-        <div className="flex justify-between mt-8 pt-4" style={{ borderTop: '1px solid rgba(0, 212, 255, 0.1)' }}>
+        <div className="flex justify-between mt-8 pt-4" style={{ borderTop: '1px solid var(--nx-cyan-aura)' }}>
           <Button
             variant="secondary"
             onClick={handlePrevious}
@@ -491,7 +491,7 @@ function CheckpointStep({
       <div
         style={{
           background: 'var(--nx-glass-medium)',
-          border: '1px solid rgba(0, 212, 255, 0.2)',
+          border: '1px solid var(--color-border-strong)',
           borderRadius: '12px',
           padding: '1.5rem',
           backdropFilter: 'blur(8px)',
@@ -500,7 +500,7 @@ function CheckpointStep({
         <h2
           style={{
             color: 'var(--nx-text-primary)',
-            fontFamily: "'Orbitron', sans-serif",
+            fontFamily: 'var(--font-display)',
             fontSize: '18px',
             letterSpacing: '0.03em',
             marginBottom: '0.75rem',
@@ -517,7 +517,7 @@ function CheckpointStep({
       <div
         style={{
           background: 'var(--nx-glass-medium)',
-          border: '1px solid rgba(0, 212, 255, 0.2)',
+          border: '1px solid var(--color-border-strong)',
           borderRadius: '12px',
           padding: '1.5rem',
           backdropFilter: 'blur(8px)',
@@ -526,7 +526,7 @@ function CheckpointStep({
         <h3
           style={{
             color: 'var(--nx-text-primary)',
-            fontFamily: "'Orbitron', sans-serif",
+            fontFamily: 'var(--font-display)',
             fontSize: '14px',
             letterSpacing: '0.03em',
             marginBottom: '1rem',
@@ -560,7 +560,7 @@ function CheckpointStep({
                     className="ml-6 mb-2 px-3 py-2 rounded-md"
                     style={{
                       background: 'var(--nx-void-surface)',
-                      border: '1px solid rgba(255, 255, 255, 0.05)',
+                      border: '1px solid var(--color-border-subtle)',
                     }}
                   >
                     <p style={{ color: 'var(--nx-text-tertiary)', fontSize: '13px', lineHeight: 1.6 }}>
@@ -578,7 +578,7 @@ function CheckpointStep({
       <div
         style={{
           background: 'var(--nx-glass-medium)',
-          border: '1px solid rgba(0, 212, 255, 0.2)',
+          border: '1px solid var(--color-border-strong)',
           borderRadius: '12px',
           padding: '1.5rem',
           backdropFilter: 'blur(8px)',
@@ -587,7 +587,7 @@ function CheckpointStep({
         <h3
           style={{
             color: 'var(--nx-text-primary)',
-            fontFamily: "'Orbitron', sans-serif",
+            fontFamily: 'var(--font-display)',
             fontSize: '14px',
             letterSpacing: '0.03em',
             marginBottom: '1rem',
@@ -599,7 +599,7 @@ function CheckpointStep({
           {checkpoint.rubric.map((r) => {
             const isSelected = data.score === r.score;
             const derivedStatus = scoreToStatus(r.score);
-            const borderColor = isSelected ? statusColors[derivedStatus] : 'rgba(255, 255, 255, 0.08)';
+            const borderColor = isSelected ? statusColors[derivedStatus] : 'var(--color-border-subtle)';
 
             return (
               <button
@@ -619,12 +619,12 @@ function CheckpointStep({
                     width: '32px',
                     height: '32px',
                     borderRadius: '8px',
-                    fontFamily: "'Orbitron', sans-serif",
+                    fontFamily: 'var(--font-display)',
                     fontSize: '16px',
                     fontWeight: 700,
                     color: isSelected ? statusColors[derivedStatus] : 'var(--nx-text-tertiary)',
-                    background: isSelected ? `${statusColors[derivedStatus]}22` : 'rgba(255, 255, 255, 0.05)',
-                    border: isSelected ? `1px solid ${statusColors[derivedStatus]}44` : '1px solid rgba(255, 255, 255, 0.08)',
+                    background: isSelected ? `${statusColors[derivedStatus]}22` : 'var(--color-border-subtle)',
+                    border: isSelected ? `1px solid ${statusColors[derivedStatus]}44` : '1px solid var(--color-border-subtle)',
                   }}
                 >
                   {r.score}
@@ -642,7 +642,7 @@ function CheckpointStep({
       <div
         style={{
           background: 'var(--nx-glass-medium)',
-          border: '1px solid rgba(0, 212, 255, 0.2)',
+          border: '1px solid var(--color-border-strong)',
           borderRadius: '12px',
           padding: '1.5rem',
           backdropFilter: 'blur(8px)',
@@ -689,7 +689,7 @@ function CheckpointStep({
                     className="px-3 py-1.5 rounded-md text-xs font-medium transition-all"
                     style={{
                       background: data.status === s ? `${statusColors[s]}22` : 'var(--nx-void-surface)',
-                      border: `1px solid ${data.status === s ? statusColors[s] : 'rgba(255, 255, 255, 0.08)'}`,
+                      border: `1px solid ${data.status === s ? statusColors[s] : 'var(--color-border-subtle)'}`,
                       color: data.status === s ? statusColors[s] : 'var(--nx-text-tertiary)',
                       cursor: 'pointer',
                     }}
@@ -717,7 +717,7 @@ function CheckpointStep({
             className="w-full px-3 py-2.5 rounded-md transition-colors duration-200"
             style={{
               backgroundColor: 'var(--nx-void-elevated)',
-              border: '1px solid rgba(0, 212, 255, 0.15)',
+              border: '1px solid var(--color-border-default)',
               color: 'var(--nx-text-primary)',
               outline: 'none',
               fontSize: '14px',
@@ -725,7 +725,7 @@ function CheckpointStep({
               lineHeight: 1.6,
             }}
             onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--nx-cyan-base)')}
-            onBlur={(e) => (e.currentTarget.style.borderColor = 'rgba(0, 212, 255, 0.15)')}
+            onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--color-border-default)')}
           />
         </div>
       </div>
@@ -770,7 +770,7 @@ function SummaryStep({
       <div
         style={{
           background: 'var(--nx-glass-medium)',
-          border: '1px solid rgba(0, 212, 255, 0.2)',
+          border: '1px solid var(--color-border-strong)',
           borderRadius: '12px',
           padding: '2rem',
           backdropFilter: 'blur(8px)',
@@ -780,7 +780,7 @@ function SummaryStep({
         <h2
           style={{
             color: 'var(--nx-text-primary)',
-            fontFamily: "'Orbitron', sans-serif",
+            fontFamily: 'var(--font-display)',
             fontSize: '18px',
             letterSpacing: '0.03em',
             marginBottom: '1.5rem',
@@ -793,7 +793,7 @@ function SummaryStep({
           <div style={{ marginBottom: '1rem' }}>
             <div
               style={{
-                fontFamily: "'Orbitron', sans-serif",
+                fontFamily: 'var(--font-display)',
                 fontSize: '4rem',
                 fontWeight: 700,
                 lineHeight: 1,
@@ -806,7 +806,7 @@ function SummaryStep({
             <div
               style={{
                 fontSize: '18px',
-                fontFamily: "'JetBrains Mono', monospace",
+                fontFamily: 'var(--font-mono)',
                 color: gradeColors[grade],
                 marginTop: '0.5rem',
                 fontWeight: 500,
@@ -824,10 +824,10 @@ function SummaryStep({
         {hasBlocker && (
           <div
             className="flex items-center justify-center gap-2 mt-4 px-4 py-2 rounded-md"
-            style={{ background: 'rgba(255, 51, 102, 0.1)', border: '1px solid rgba(255, 51, 102, 0.3)', display: 'inline-flex' }}
+            style={{ background: 'var(--nx-red-aura)', border: '1px solid var(--nx-red-glow)', display: 'inline-flex' }}
           >
-            <AlertTriangle size={14} style={{ color: '#ff3366' }} />
-            <span style={{ color: '#ff3366', fontSize: '13px', fontWeight: 500 }}>
+            <AlertTriangle size={14} style={{ color: 'var(--nx-red-glow)' }} />
+            <span style={{ color: 'var(--nx-red-glow)', fontSize: '13px', fontWeight: 500 }}>
               Blockers detected. Address failing checkpoints before proceeding.
             </span>
           </div>
@@ -838,7 +838,7 @@ function SummaryStep({
       <div
         style={{
           background: 'var(--nx-glass-medium)',
-          border: '1px solid rgba(0, 212, 255, 0.2)',
+          border: '1px solid var(--color-border-strong)',
           borderRadius: '12px',
           padding: '1.5rem',
           backdropFilter: 'blur(8px)',
@@ -847,7 +847,7 @@ function SummaryStep({
         <h3
           style={{
             color: 'var(--nx-text-primary)',
-            fontFamily: "'Orbitron', sans-serif",
+            fontFamily: 'var(--font-display)',
             fontSize: '14px',
             letterSpacing: '0.03em',
             marginBottom: '1rem',
@@ -879,7 +879,7 @@ function SummaryStep({
                       {data.status.replace('_', ' ')}
                     </span>
                     {score !== null && (
-                      <span style={{ fontSize: '13px', fontFamily: "'JetBrains Mono', monospace", color: barColor, fontWeight: 500 }}>
+                      <span style={{ fontSize: '13px', fontFamily: 'var(--font-mono)', color: barColor, fontWeight: 500 }}>
                         {score}/5
                       </span>
                     )}

@@ -1,8 +1,10 @@
 import type { FastifyInstance } from 'fastify';
+import crypto from 'crypto';
 import { getUserRepository } from '../db/repositories/index.js';
-import { generateToken, generateRefreshToken, verifyRefreshToken, revokeRefreshToken } from '../services/authService.js';
+import { generateToken, generateRefreshToken, verifyRefreshToken, revokeRefreshToken, hashPassword } from '../services/authService.js';
 import { getStrategy } from '../auth/strategies.js';
 import { authenticate } from '../middleware/authenticate.js';
+import { getEmailService } from '../services/emailService.js';
 
 export async function authRoutes(app: FastifyInstance) {
   // POST /api/auth/login
@@ -18,6 +20,13 @@ export async function authRoutes(app: FastifyInstance) {
 
     if (!result.success || !result.user) {
       return reply.code(401).send({ error: result.error || 'Authentication failed' });
+    }
+
+    if (result.user.status === 'pending') {
+      return reply.code(403).send({ error: 'Your account is pending approval. Please contact an administrator.' });
+    }
+    if (result.user.status === 'disabled') {
+      return reply.code(403).send({ error: 'Your account has been disabled. Please contact an administrator.' });
     }
 
     const token = generateToken({
@@ -37,6 +46,65 @@ export async function authRoutes(app: FastifyInstance) {
     });
 
     return { token, user: result.user };
+  });
+
+  // POST /api/auth/register
+  app.post('/api/auth/register', async (request, reply) => {
+    const { email, firstName, lastName, password } = request.body as {
+      email?: string;
+      firstName?: string;
+      lastName?: string;
+      password?: string;
+    };
+
+    // Validate all fields present
+    if (!email || !firstName || !lastName || !password) {
+      return reply.code(400).send({ error: 'All fields are required: email, firstName, lastName, password' });
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return reply.code(400).send({ error: 'Invalid email format' });
+    }
+
+    // Validate password length
+    if (password.length < 8) {
+      return reply.code(400).send({ error: 'Password must be at least 8 characters' });
+    }
+
+    const userRepo = getUserRepository();
+
+    // Check if email already exists
+    const existing = userRepo.findByEmail(email);
+    if (existing) {
+      return reply.code(409).send({ error: 'An account with this email already exists' });
+    }
+
+    const hashedPw = await hashPassword(password);
+    const now = new Date().toISOString();
+
+    // TODO: When email verification is enabled, set status to 'pending' and send verification email
+    const newUser = {
+      id: crypto.randomUUID(),
+      email,
+      firstName,
+      lastName,
+      role: 'user' as const,
+      status: 'active',
+      password: hashedPw,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    userRepo.create(newUser);
+
+    // Fire-and-forget welcome email
+    getEmailService().send(email, 'welcome', { firstName }).catch((err: unknown) => {
+      request.log.error(err, 'Failed to send welcome email');
+    });
+
+    return reply.code(201).send({ success: true, message: 'Account created. You can now log in.' });
   });
 
   // GET /api/auth/me

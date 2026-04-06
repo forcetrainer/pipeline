@@ -50,8 +50,8 @@ function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalProps) {
       `}
       style={{
         backgroundColor: 'var(--nx-void-panel)',
-        border: '1px solid rgba(0, 212, 255, 0.2)',
-        boxShadow: '0 0 30px rgba(0, 212, 255, 0.1), 0 8px 32px rgba(0, 0, 0, 0.6)',
+        border: '1px solid var(--color-border-strong)',
+        boxShadow: '0 0 30px var(--nx-cyan-aura), 0 8px 32px rgba(0, 0, 0, 0.6)',
         margin: 'auto',
         position: 'fixed',
         inset: 0,

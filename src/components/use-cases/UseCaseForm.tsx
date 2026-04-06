@@ -69,13 +69,14 @@ const sectionHeaderStyle: React.CSSProperties = {
   letterSpacing: '0.1em',
   textTransform: 'uppercase',
   paddingBottom: '0.5rem',
-  borderBottom: '1px solid rgba(0, 212, 255, 0.1)',
+  borderBottom: '1px solid var(--nx-cyan-aura)',
   marginBottom: '1rem',
 };
 
 const defaultMetrics: UseCaseMetrics = {
   timeSavedPerUseMinutes: 0,
   moneySavedPerUse: 0,
+  revenuePerUse: 0,
   numberOfUsers: 0,
   usesPerUserPerPeriod: 0,
   frequencyPeriod: 'weekly',
@@ -89,6 +90,10 @@ const defaultMetrics: UseCaseMetrics = {
   monthlyMoneySaved: 0,
   annualTimeSavedHours: 0,
   annualMoneySaved: 0,
+  dailyRevenue: 0,
+  weeklyRevenue: 0,
+  monthlyRevenue: 0,
+  annualRevenue: 0,
 };
 
 function UseCaseForm({ initialData, onSubmit, isSubmitting }: UseCaseFormProps) {
@@ -136,7 +141,7 @@ function UseCaseForm({ initialData, onSubmit, isSubmitting }: UseCaseFormProps) 
       className="max-w-2xl rounded-lg p-6 space-y-8"
       style={{
         backgroundColor: 'var(--nx-glass-heavy)',
-        border: '1px solid rgba(0, 212, 255, 0.12)',
+        border: '1px solid var(--color-border-default)',
         backdropFilter: 'blur(12px)',
       }}
     >
@@ -277,7 +282,7 @@ function UseCaseForm({ initialData, onSubmit, isSubmitting }: UseCaseFormProps) 
       {/* Actions */}
       <div
         className="flex gap-3 pt-4"
-        style={{ borderTop: '1px solid rgba(0, 212, 255, 0.1)' }}
+        style={{ borderTop: '1px solid var(--nx-cyan-aura)' }}
       >
         <Button type="submit" isLoading={isSubmitting}>
           {initialData?.title ? 'Update Use Case' : 'Submit Use Case'}

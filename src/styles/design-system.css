@@ -15,6 +15,9 @@
    ============================================ */
 
 :root {
+  /* --- Grid / Background pattern --- */
+  --nx-grid-line: rgba(0, 212, 255, 0.025);
+
   /* --- Void / Dark Backgrounds --- */
   --nx-void-pure:     #000000;
   --nx-void-deep:     #030508;

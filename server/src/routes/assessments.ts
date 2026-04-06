@@ -3,7 +3,74 @@ import crypto from 'crypto';
 import { getAssessmentRepository, getAssessmentCheckpointRepository, getUseCaseRepository, getUserRepository } from '../db/repositories/index.js';
 import { authenticate } from '../middleware/authenticate.js';
 import { requirePermission } from '../middleware/authorize.js';
+import { getEmailService } from '../services/emailService.js';
 import type { AssessmentRow } from '../db/repositories/index.js';
+
+/**
+ * Calculate full UseCaseMetrics projections from assessment input fields.
+ * Mirrors the logic in src/utils/metricsCalculator.ts so promote-to-use-case
+ * produces a valid metrics object.
+ */
+function calculateMetricsFromEstimates(est: {
+  timeSavedPerUseMinutes: number;
+  moneySavedPerUse: number;
+  revenuePerUse: number;
+  numberOfUsers: number;
+  usesPerUserPerPeriod: number;
+  frequencyPeriod: string;
+}) {
+  const {
+    timeSavedPerUseMinutes, moneySavedPerUse, revenuePerUse,
+    numberOfUsers, usesPerUserPerPeriod, frequencyPeriod,
+  } = est;
+
+  let totalUsesPerDay: number;
+  if (frequencyPeriod === 'daily') {
+    totalUsesPerDay = numberOfUsers * usesPerUserPerPeriod;
+  } else if (frequencyPeriod === 'weekly') {
+    totalUsesPerDay = (numberOfUsers * usesPerUserPerPeriod) / 7;
+  } else {
+    totalUsesPerDay = (numberOfUsers * usesPerUserPerPeriod) / 30;
+  }
+
+  const dailyTimeSavedMinutes = totalUsesPerDay * timeSavedPerUseMinutes;
+  const weeklyTimeSavedMinutes = dailyTimeSavedMinutes * 7;
+  const monthlyTimeSavedHours = (dailyTimeSavedMinutes * 30) / 60;
+  const annualTimeSavedHours = (dailyTimeSavedMinutes * 365) / 60;
+
+  const dailyMoneySaved = totalUsesPerDay * moneySavedPerUse;
+  const weeklyMoneySaved = dailyMoneySaved * 7;
+  const monthlyMoneySaved = dailyMoneySaved * 30;
+  const annualMoneySaved = dailyMoneySaved * 365;
+
+  const dailyRevenue = totalUsesPerDay * revenuePerUse;
+  const weeklyRevenue = dailyRevenue * 7;
+  const monthlyRevenue = dailyRevenue * 30;
+  const annualRevenue = dailyRevenue * 365;
+
+  return {
+    timeSavedPerUseMinutes,
+    moneySavedPerUse,
+    revenuePerUse,
+    numberOfUsers,
+    usesPerUserPerPeriod,
+    frequencyPeriod,
+    timeSavedHours: annualTimeSavedHours,
+    moneySavedDollars: annualMoneySaved,
+    dailyTimeSavedMinutes,
+    dailyMoneySaved,
+    weeklyTimeSavedMinutes,
+    weeklyMoneySaved,
+    monthlyTimeSavedHours,
+    monthlyMoneySaved,
+    annualTimeSavedHours,
+    annualMoneySaved,
+    dailyRevenue,
+    weeklyRevenue,
+    monthlyRevenue,
+    annualRevenue,
+  };
+}
 
 const CHECKPOINT_NAMES = [
   'documentation',
@@ -231,6 +298,15 @@ export async function assessmentRoutes(app: FastifyInstance) {
 
     if (allScored && (assessment.status === 'draft' || assessment.status === 'in_progress')) {
       assessmentRepo.update(id, { status: 'completed', updatedAt: now });
+
+      // Send assessment_complete notification to the owner
+      const owner = userRepo.findById(assessment.submittedById);
+      if (owner) {
+        getEmailService().send(owner.email, 'assessment_complete', {
+          firstName: owner.firstName,
+          itemTitle: assessment.title,
+        }).catch(err => request.log.error(err, 'Failed to send email'));
+      }
     } else if (assessment.status === 'draft' && body.score !== undefined) {
       // First checkpoint scored — move to in_progress
       assessmentRepo.update(id, { status: 'in_progress', updatedAt: now });
@@ -260,14 +336,17 @@ export async function assessmentRoutes(app: FastifyInstance) {
     const now = new Date().toISOString();
     const useCaseId = crypto.randomUUID();
 
-    // Create use case from assessment data
+    // Create use case from assessment data — calculate full projections from estimates
+    const estimatedMetrics = JSON.parse(assessment.estimatedMetrics);
+    const fullMetrics = calculateMetricsFromEstimates(estimatedMetrics);
+
     const newUseCase = {
       id: useCaseId,
       title: assessment.title,
       description: assessment.description,
       whatWasBuilt: '',
       keyLearnings: '',
-      metrics: assessment.estimatedMetrics, // already JSON string
+      metrics: JSON.stringify(fullMetrics),
       category: assessment.category,
       aiTool: assessment.aiTool,
       department: assessment.department,

@@ -5,9 +5,9 @@
  * Chart colors: cyan, green, violet, amber, blue, red
  *
  * Chart styling:
- * - Grid lines: very subtle (rgba(110, 118, 129, 0.15))
- * - Axis labels: secondary text (#8b949e), Exo 2 font, 12px
- * - Tooltips: dark bg (#0d1117), cyan-tinted border, light text
+ * - Grid lines: var(--color-border-subtle)
+ * - Axis labels: var(--nx-text-tertiary), var(--font-sans), 12px
+ * - Tooltips: var(--nx-void-panel) bg, var(--color-border-strong) border
  * - Bar corners: rounded (radius 4px)
  */
 
@@ -19,29 +19,37 @@ import {
 } from 'recharts';
 import type { ScoreGrade } from '../../types';
 
-const COLORS = ['#00d4ff', '#00ff88', '#a855f7', '#ffaa00', '#3b82f6', '#ff3366'];
+const COLORS = ['var(--nx-cyan-base)', 'var(--nx-green-base)', 'var(--nx-violet-base)', 'var(--nx-amber-base)', 'var(--nx-blue-base)', 'var(--nx-red-base)'];
 
 const AXIS_TICK = {
   fontSize: 12,
-  fill: '#8b949e',
-  fontFamily: "'Exo 2', sans-serif",
+  fill: 'var(--nx-text-tertiary)',
+  fontFamily: 'var(--font-sans)',
 };
 
 const TOOLTIP_STYLE = {
-  backgroundColor: '#0d1117',
-  border: '1px solid rgba(0, 212, 255, 0.3)',
+  backgroundColor: 'var(--nx-void-panel)',
+  border: '1px solid var(--color-border-strong)',
   borderRadius: '8px',
-  color: '#e6edf3',
+  color: 'var(--nx-text-primary)',
   fontSize: '13px',
-  fontFamily: "'Exo 2', sans-serif",
+  fontFamily: 'var(--font-sans)',
 };
 
 const GRADE_COLORS: Record<ScoreGrade, string> = {
-  S: '#00d4ff',
-  A: '#00ff88',
-  B: '#3b82f6',
-  C: '#ffaa00',
-  D: '#ff3366',
+  S: 'var(--nx-cyan-base)',
+  A: 'var(--nx-green-base)',
+  B: 'var(--nx-blue-base)',
+  C: 'var(--nx-amber-base)',
+  D: 'var(--nx-red-base)',
+};
+
+const GRADE_GLOWS: Record<ScoreGrade, string> = {
+  S: 'var(--nx-cyan-glow)',
+  A: 'var(--nx-green-glow)',
+  B: 'var(--nx-blue-glow)',
+  C: 'var(--nx-amber-glow)',
+  D: 'var(--nx-red-glow)',
 };
 
 interface CategoryData {
@@ -58,8 +66,8 @@ function UseCaseByCategoryChart({ data }: UseCasesByCategory) {
     <div
       className="relative overflow-hidden rounded-lg"
       style={{
-        background: 'rgba(13, 17, 23, 0.85)',
-        border: '1px solid rgba(0, 212, 255, 0.15)',
+        background: 'var(--nx-glass-heavy)',
+        border: '1px solid var(--color-border-default)',
         backdropFilter: 'blur(8px)',
         padding: '1.25rem',
       }}
@@ -73,10 +81,10 @@ function UseCaseByCategoryChart({ data }: UseCasesByCategory) {
       />
       <h3
         style={{
-          fontFamily: "'Exo 2', sans-serif",
+          fontFamily: 'var(--font-sans)',
           fontSize: '14px',
           fontWeight: 600,
-          color: '#e6edf3',
+          color: 'var(--nx-text-primary)',
           marginBottom: '16px',
           textTransform: 'uppercase',
           letterSpacing: '0.05em',
@@ -88,13 +96,13 @@ function UseCaseByCategoryChart({ data }: UseCasesByCategory) {
         <BarChart data={data} margin={{ top: 4, right: 4, left: -12, bottom: 0 }}>
           <CartesianGrid
             strokeDasharray="3 3"
-            stroke="rgba(110, 118, 129, 0.15)"
+            stroke="var(--color-border-subtle)"
             vertical={false}
           />
           <XAxis
             dataKey="name"
             tick={AXIS_TICK}
-            axisLine={{ stroke: 'rgba(110, 118, 129, 0.15)' }}
+            axisLine={{ stroke: 'var(--color-border-subtle)' }}
             tickLine={false}
           />
           <YAxis
@@ -104,13 +112,13 @@ function UseCaseByCategoryChart({ data }: UseCasesByCategory) {
           />
           <Tooltip
             contentStyle={TOOLTIP_STYLE}
-            cursor={{ fill: 'rgba(0, 212, 255, 0.05)' }}
+            cursor={{ fill: 'var(--nx-cyan-aura)' }}
           />
           <Bar
             dataKey="count"
-            fill="#00d4ff"
+            fill="var(--nx-cyan-base)"
             radius={[4, 4, 0, 0]}
-            style={{ filter: 'drop-shadow(0 0 4px rgba(0, 212, 255, 0.4))' }}
+            style={{ filter: 'drop-shadow(0 0 4px var(--nx-cyan-glow))' }}
           />
         </BarChart>
       </ResponsiveContainer>
@@ -132,8 +140,8 @@ function DepartmentDistributionChart({ data }: DepartmentDistribution) {
     <div
       className="relative overflow-hidden rounded-lg"
       style={{
-        background: 'rgba(13, 17, 23, 0.85)',
-        border: '1px solid rgba(0, 212, 255, 0.15)',
+        background: 'var(--nx-glass-heavy)',
+        border: '1px solid var(--color-border-default)',
         backdropFilter: 'blur(8px)',
         padding: '1.25rem',
       }}
@@ -147,10 +155,10 @@ function DepartmentDistributionChart({ data }: DepartmentDistribution) {
       />
       <h3
         style={{
-          fontFamily: "'Exo 2', sans-serif",
+          fontFamily: 'var(--font-sans)',
           fontSize: '14px',
           fontWeight: 600,
-          color: '#e6edf3',
+          color: 'var(--nx-text-primary)',
           marginBottom: '16px',
           textTransform: 'uppercase',
           letterSpacing: '0.05em',
@@ -176,7 +184,7 @@ function DepartmentDistributionChart({ data }: DepartmentDistribution) {
               <Cell
                 key={`cell-${index}`}
                 fill={COLORS[index % COLORS.length]}
-                style={{ filter: `drop-shadow(0 0 4px ${COLORS[index % COLORS.length]}66)` }}
+                style={{ filter: 'drop-shadow(0 0 4px var(--nx-cyan-glow))' }}
               />
             ))}
           </Pie>
@@ -212,8 +220,8 @@ function ScatterTooltipContent({ active, payload }: {
   return (
     <div
       style={{
-        backgroundColor: 'rgba(13, 17, 23, 0.95)',
-        border: '1px solid rgba(0, 212, 255, 0.3)',
+        backgroundColor: 'var(--nx-glass-heavy)',
+        border: '1px solid var(--color-border-strong)',
         borderRadius: '8px',
         padding: '10px 14px',
         backdropFilter: 'blur(12px)',
@@ -221,24 +229,24 @@ function ScatterTooltipContent({ active, payload }: {
       }}
     >
       <p style={{
-        color: '#e6edf3',
-        fontFamily: "'Exo 2', sans-serif",
+        color: 'var(--nx-text-primary)',
+        fontFamily: 'var(--font-sans)',
         fontSize: '13px',
         fontWeight: 600,
         marginBottom: '6px',
       }}>
         {d.name}
       </p>
-      <p style={{ color: '#8b949e', fontSize: '12px', fontFamily: "'Exo 2', sans-serif" }}>
+      <p style={{ color: 'var(--nx-text-tertiary)', fontSize: '12px', fontFamily: 'var(--font-sans)' }}>
         Value: <span style={{ color: GRADE_COLORS[d.grade] }}>{d.valueScore.toFixed(0)}</span>
       </p>
-      <p style={{ color: '#8b949e', fontSize: '12px', fontFamily: "'Exo 2', sans-serif" }}>
+      <p style={{ color: 'var(--nx-text-tertiary)', fontSize: '12px', fontFamily: 'var(--font-sans)' }}>
         Scale: <span style={{ color: GRADE_COLORS[d.grade] }}>{d.scaleScore.toFixed(0)}</span>
       </p>
-      <p style={{ color: '#8b949e', fontSize: '12px', fontFamily: "'Exo 2', sans-serif" }}>
-        Annual: <span style={{ color: '#ffaa00' }}>${d.annualSavings.toLocaleString()}</span>
+      <p style={{ color: 'var(--nx-text-tertiary)', fontSize: '12px', fontFamily: 'var(--font-sans)' }}>
+        Annual: <span style={{ color: 'var(--nx-amber-base)' }}>${d.annualSavings.toLocaleString()}</span>
       </p>
-      <p style={{ color: '#8b949e', fontSize: '12px', fontFamily: "'Exo 2', sans-serif" }}>
+      <p style={{ color: 'var(--nx-text-tertiary)', fontSize: '12px', fontFamily: 'var(--font-sans)' }}>
         Grade: <span style={{ color: GRADE_COLORS[d.grade], fontWeight: 700 }}>{d.grade}</span>
       </p>
     </div>
@@ -246,7 +254,7 @@ function ScatterTooltipContent({ active, payload }: {
 }
 
 const QUADRANT_LABEL_STYLE: React.CSSProperties = {
-  fontFamily: "'Exo 2', sans-serif",
+  fontFamily: 'var(--font-sans)',
   fontSize: '10px',
   fontWeight: 600,
   textTransform: 'uppercase',
@@ -268,7 +276,7 @@ function ValueScaleScatter({ data }: ValueScaleScatterProps) {
       <ScatterChart margin={{ top: 24, right: 24, bottom: 12, left: 0 }}>
         <CartesianGrid
           strokeDasharray="3 3"
-          stroke="rgba(110, 118, 129, 0.1)"
+          stroke="var(--color-border-subtle)"
         />
         <XAxis
           type="number"
@@ -276,7 +284,7 @@ function ValueScaleScatter({ data }: ValueScaleScatterProps) {
           name="Scale"
           domain={[0, 100]}
           tick={AXIS_TICK}
-          axisLine={{ stroke: 'rgba(110, 118, 129, 0.15)' }}
+          axisLine={{ stroke: 'var(--color-border-subtle)' }}
           tickLine={false}
           label={{
             value: 'Scale Score',
@@ -291,7 +299,7 @@ function ValueScaleScatter({ data }: ValueScaleScatterProps) {
           name="Value"
           domain={[0, 100]}
           tick={AXIS_TICK}
-          axisLine={{ stroke: 'rgba(110, 118, 129, 0.15)' }}
+          axisLine={{ stroke: 'var(--color-border-subtle)' }}
           tickLine={false}
           label={{
             value: 'Value Score',
@@ -310,12 +318,12 @@ function ValueScaleScatter({ data }: ValueScaleScatterProps) {
         {/* Quadrant reference lines */}
         <ReferenceLine
           x={50}
-          stroke="rgba(110, 118, 129, 0.3)"
+          stroke="var(--color-border-default)"
           strokeDasharray="6 4"
         />
         <ReferenceLine
           y={50}
-          stroke="rgba(110, 118, 129, 0.3)"
+          stroke="var(--color-border-default)"
           strokeDasharray="6 4"
         />
         <Tooltip
@@ -334,7 +342,7 @@ function ValueScaleScatter({ data }: ValueScaleScatterProps) {
               stroke={GRADE_COLORS[grade]}
               strokeOpacity={0.3}
               strokeWidth={2}
-              style={{ filter: `drop-shadow(0 0 4px ${GRADE_COLORS[grade]}66)` }}
+              style={{ filter: `drop-shadow(0 0 4px ${GRADE_GLOWS[grade]})` }}
             />
           ) : null
         )}
@@ -348,8 +356,8 @@ function ValueScaleScatterChart({ data }: ValueScaleScatterProps) {
     <div
       className="relative overflow-hidden rounded-lg"
       style={{
-        background: 'rgba(13, 17, 23, 0.85)',
-        border: '1px solid rgba(0, 212, 255, 0.15)',
+        background: 'var(--nx-glass-heavy)',
+        border: '1px solid var(--color-border-default)',
         backdropFilter: 'blur(8px)',
         padding: '1.25rem',
       }}
@@ -362,10 +370,10 @@ function ValueScaleScatterChart({ data }: ValueScaleScatterProps) {
       />
       <h3
         style={{
-          fontFamily: "'Exo 2', sans-serif",
+          fontFamily: 'var(--font-sans)',
           fontSize: '14px',
           fontWeight: 600,
-          color: '#e6edf3',
+          color: 'var(--nx-text-primary)',
           marginBottom: '4px',
           textTransform: 'uppercase',
           letterSpacing: '0.05em',
@@ -375,26 +383,26 @@ function ValueScaleScatterChart({ data }: ValueScaleScatterProps) {
       </h3>
       <div className="flex gap-4 mb-2" style={{ flexWrap: 'wrap' }}>
         <span style={QUADRANT_LABEL_STYLE}>
-          <span style={{ color: 'rgba(0, 255, 136, 0.6)' }}>&#9650;</span>{' '}
-          <span style={{ color: '#6e7681' }}>Top-right: Force Multiplier</span>
+          <span style={{ color: 'var(--nx-green-glow)' }}>&#9650;</span>{' '}
+          <span style={{ color: 'var(--nx-text-ghost)' }}>Top-right: Force Multiplier</span>
         </span>
         <span style={QUADRANT_LABEL_STYLE}>
-          <span style={{ color: 'rgba(168, 85, 247, 0.6)' }}>&#9650;</span>{' '}
-          <span style={{ color: '#6e7681' }}>Top-left: Power Tool</span>
+          <span style={{ color: 'var(--nx-violet-glow)' }}>&#9650;</span>{' '}
+          <span style={{ color: 'var(--nx-text-ghost)' }}>Top-left: Power Tool</span>
         </span>
         <span style={QUADRANT_LABEL_STYLE}>
-          <span style={{ color: 'rgba(59, 130, 246, 0.6)' }}>&#9660;</span>{' '}
-          <span style={{ color: '#6e7681' }}>Bottom-right: Hidden Gem</span>
+          <span style={{ color: 'var(--nx-blue-glow)' }}>&#9660;</span>{' '}
+          <span style={{ color: 'var(--nx-text-ghost)' }}>Bottom-right: Hidden Gem</span>
         </span>
         <span style={QUADRANT_LABEL_STYLE}>
-          <span style={{ color: 'rgba(110, 118, 129, 0.6)' }}>&#9660;</span>{' '}
-          <span style={{ color: '#6e7681' }}>Bottom-left: Emerging</span>
+          <span style={{ color: 'var(--nx-text-ghost)' }}>&#9660;</span>{' '}
+          <span style={{ color: 'var(--nx-text-ghost)' }}>Bottom-left: Emerging</span>
         </span>
       </div>
       {data.length > 0 ? (
         <ValueScaleScatter data={data} />
       ) : (
-        <p style={{ color: '#6e7681' }} className="text-sm text-center py-10">No data yet</p>
+        <p style={{ color: 'var(--nx-text-ghost)' }} className="text-sm text-center py-10">No data yet</p>
       )}
     </div>
   );
@@ -419,8 +427,8 @@ function ScoreDistributionChart({ data }: ScoreDistributionChartProps) {
     <div
       className="relative overflow-hidden rounded-lg"
       style={{
-        background: 'rgba(13, 17, 23, 0.85)',
-        border: '1px solid rgba(0, 212, 255, 0.15)',
+        background: 'var(--nx-glass-heavy)',
+        border: '1px solid var(--color-border-default)',
         backdropFilter: 'blur(8px)',
         padding: '1.25rem',
       }}
@@ -433,10 +441,10 @@ function ScoreDistributionChart({ data }: ScoreDistributionChartProps) {
       />
       <h3
         style={{
-          fontFamily: "'Exo 2', sans-serif",
+          fontFamily: 'var(--font-sans)',
           fontSize: '14px',
           fontWeight: 600,
-          color: '#e6edf3',
+          color: 'var(--nx-text-primary)',
           marginBottom: '16px',
           textTransform: 'uppercase',
           letterSpacing: '0.05em',
@@ -449,13 +457,13 @@ function ScoreDistributionChart({ data }: ScoreDistributionChartProps) {
           <BarChart data={data} margin={{ top: 4, right: 16, left: -12, bottom: 0 }}>
             <CartesianGrid
               strokeDasharray="3 3"
-              stroke="rgba(110, 118, 129, 0.15)"
+              stroke="var(--color-border-subtle)"
               vertical={false}
             />
             <XAxis
               dataKey="grade"
               tick={AXIS_TICK}
-              axisLine={{ stroke: 'rgba(110, 118, 129, 0.15)' }}
+              axisLine={{ stroke: 'var(--color-border-subtle)' }}
               tickLine={false}
             />
             <YAxis
@@ -464,20 +472,20 @@ function ScoreDistributionChart({ data }: ScoreDistributionChartProps) {
               tickLine={false}
               allowDecimals={false}
             />
-            <Tooltip contentStyle={TOOLTIP_STYLE} cursor={{ fill: 'rgba(0, 212, 255, 0.05)' }} />
+            <Tooltip contentStyle={TOOLTIP_STYLE} cursor={{ fill: 'var(--nx-cyan-aura)' }} />
             <Bar dataKey="count" radius={[4, 4, 0, 0]}>
               {data.map((entry, index) => (
                 <Cell
                   key={`grade-${index}`}
                   fill={entry.color}
-                  style={{ filter: `drop-shadow(0 0 6px ${entry.color}66)` }}
+                  style={{ filter: 'drop-shadow(0 0 6px var(--nx-cyan-glow))' }}
                 />
               ))}
             </Bar>
           </BarChart>
         </ResponsiveContainer>
       ) : (
-        <p style={{ color: '#6e7681' }} className="text-sm text-center py-10">No data yet</p>
+        <p style={{ color: 'var(--nx-text-ghost)' }} className="text-sm text-center py-10">No data yet</p>
       )}
     </div>
   );
@@ -502,8 +510,8 @@ function SavingsHorizonChart({ data }: SavingsHorizonChartProps) {
     <div
       className="relative overflow-hidden rounded-lg"
       style={{
-        background: 'rgba(13, 17, 23, 0.85)',
-        border: '1px solid rgba(0, 212, 255, 0.15)',
+        background: 'var(--nx-glass-heavy)',
+        border: '1px solid var(--color-border-default)',
         backdropFilter: 'blur(8px)',
         padding: '1.25rem',
       }}
@@ -516,10 +524,10 @@ function SavingsHorizonChart({ data }: SavingsHorizonChartProps) {
       />
       <h3
         style={{
-          fontFamily: "'Exo 2', sans-serif",
+          fontFamily: 'var(--font-sans)',
           fontSize: '14px',
           fontWeight: 600,
-          color: '#e6edf3',
+          color: 'var(--nx-text-primary)',
           marginBottom: '16px',
           textTransform: 'uppercase',
           letterSpacing: '0.05em',
@@ -532,13 +540,13 @@ function SavingsHorizonChart({ data }: SavingsHorizonChartProps) {
           <BarChart data={data} margin={{ top: 4, right: 16, left: -12, bottom: 0 }}>
             <CartesianGrid
               strokeDasharray="3 3"
-              stroke="rgba(110, 118, 129, 0.15)"
+              stroke="var(--color-border-subtle)"
               vertical={false}
             />
             <XAxis
               dataKey="period"
               tick={AXIS_TICK}
-              axisLine={{ stroke: 'rgba(110, 118, 129, 0.15)' }}
+              axisLine={{ stroke: 'var(--color-border-subtle)' }}
               tickLine={false}
             />
             <YAxis
@@ -548,7 +556,7 @@ function SavingsHorizonChart({ data }: SavingsHorizonChartProps) {
             />
             <Tooltip
               contentStyle={TOOLTIP_STYLE}
-              cursor={{ fill: 'rgba(0, 212, 255, 0.05)' }}
+              cursor={{ fill: 'var(--nx-cyan-aura)' }}
               formatter={((value: number | undefined, name: string | undefined) => {
                 const v = value ?? 0;
                 if (name === 'hours') return [`${v.toFixed(1)}h`, 'Time Saved'];
@@ -558,28 +566,28 @@ function SavingsHorizonChart({ data }: SavingsHorizonChartProps) {
             <Legend
               wrapperStyle={{
                 fontSize: '12px',
-                fontFamily: "'Exo 2', sans-serif",
-                color: '#8b949e',
+                fontFamily: 'var(--font-sans)',
+                color: 'var(--nx-text-tertiary)',
               }}
             />
             <Bar
               dataKey="hours"
               name="Time (hours)"
-              fill="#00ff88"
+              fill="var(--nx-green-base)"
               radius={[4, 4, 0, 0]}
-              style={{ filter: 'drop-shadow(0 0 4px rgba(0, 255, 136, 0.4))' }}
+              style={{ filter: 'drop-shadow(0 0 4px var(--nx-green-glow))' }}
             />
             <Bar
               dataKey="money"
               name="Money ($)"
-              fill="#ffaa00"
+              fill="var(--nx-amber-base)"
               radius={[4, 4, 0, 0]}
-              style={{ filter: 'drop-shadow(0 0 4px rgba(255, 170, 0, 0.4))' }}
+              style={{ filter: 'drop-shadow(0 0 4px var(--nx-amber-glow))' }}
             />
           </BarChart>
         </ResponsiveContainer>
       ) : (
-        <p style={{ color: '#6e7681' }} className="text-sm text-center py-10">No data yet</p>
+        <p style={{ color: 'var(--nx-text-ghost)' }} className="text-sm text-center py-10">No data yet</p>
       )}
     </div>
   );

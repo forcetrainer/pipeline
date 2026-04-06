@@ -21,6 +21,19 @@ export async function logout(): Promise<void> {
   clearToken();
 }
 
+export async function register(data: { email: string; firstName: string; lastName: string; password: string }) {
+  const res = await fetch('/api/auth/register', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || 'Registration failed');
+  }
+  return res.json();
+}
+
 export async function getCurrentUser(): Promise<User | null> {
   try {
     return await api.get<User>('/auth/me', { skipAuthRedirect: true });

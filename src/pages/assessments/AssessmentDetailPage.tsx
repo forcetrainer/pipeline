@@ -23,10 +23,10 @@ const statusLabel: Record<AssessmentStatus, string> = {
 };
 
 const checkpointStatusColor: Record<CheckpointStatus, string> = {
-  not_started: 'rgba(255, 255, 255, 0.2)',
-  pass: '#00ff88',
-  concern: '#ffaa00',
-  fail: '#ff3366',
+  not_started: 'var(--color-border-strong)',
+  pass: 'var(--nx-green-glow)',
+  concern: 'var(--nx-amber-glow)',
+  fail: 'var(--nx-red-glow)',
 };
 
 const checkpointStatusLabel: Record<CheckpointStatus, string> = {
@@ -67,11 +67,11 @@ function getGrade(score: number): string {
 }
 
 const gradeColors: Record<string, string> = {
-  S: '#00d4ff',
-  A: '#00ff88',
+  S: 'var(--nx-cyan-glow)',
+  A: 'var(--nx-green-glow)',
   B: '#3b82f6',
-  C: '#ffaa00',
-  D: '#ff3366',
+  C: 'var(--nx-amber-glow)',
+  D: 'var(--nx-red-glow)',
 };
 
 function formatMoney(value: number): string {
@@ -207,7 +207,7 @@ function AssessmentDetailPage() {
           <h1
             className="text-3xl font-bold tracking-tight"
             style={{
-              fontFamily: "'Orbitron', sans-serif",
+              fontFamily: 'var(--font-display)',
               color: 'var(--nx-text-primary)',
               letterSpacing: '0.05em',
             }}
@@ -256,12 +256,12 @@ function AssessmentDetailPage() {
           <div
             className="flex items-center gap-2 mb-6 px-4 py-3 rounded-lg"
             style={{
-              backgroundColor: 'rgba(167, 139, 250, 0.1)',
-              border: '1px solid rgba(167, 139, 250, 0.25)',
+              backgroundColor: 'var(--nx-violet-aura)',
+              border: '1px solid var(--nx-violet-glow)',
             }}
           >
-            <ExternalLink size={14} style={{ color: '#a78bfa' }} />
-            <span style={{ color: '#a78bfa', fontSize: '14px' }}>
+            <ExternalLink size={14} style={{ color: 'var(--nx-violet-glow)' }} />
+            <span style={{ color: 'var(--nx-violet-glow)', fontSize: '14px' }}>
               Promoted to use case:{' '}
               <Link
                 to={`/use-cases/${assessment.promotedToUseCaseId}`}
@@ -298,7 +298,7 @@ function AssessmentDetailPage() {
           className="mb-8"
           style={{
             background: 'var(--nx-glass-medium)',
-            border: '1px solid rgba(0, 212, 255, 0.2)',
+            border: '1px solid var(--color-border-strong)',
             borderRadius: '12px',
             padding: '1.5rem',
             backdropFilter: 'blur(8px)',
@@ -308,7 +308,7 @@ function AssessmentDetailPage() {
             className="text-lg font-semibold mb-4"
             style={{
               color: 'var(--nx-text-primary)',
-              fontFamily: "'Orbitron', sans-serif",
+              fontFamily: 'var(--font-display)',
               fontSize: '16px',
               letterSpacing: '0.03em',
             }}
@@ -322,7 +322,7 @@ function AssessmentDetailPage() {
               <div style={{ textAlign: 'center', flexShrink: 0 }}>
                 <div
                   style={{
-                    fontFamily: "'Orbitron', sans-serif",
+                    fontFamily: 'var(--font-display)',
                     fontSize: '2.5rem',
                     fontWeight: 700,
                     lineHeight: 1,
@@ -336,7 +336,7 @@ function AssessmentDetailPage() {
                   style={{
                     fontSize: '13px',
                     color: gradeColors[grade],
-                    fontFamily: "'JetBrains Mono', monospace",
+                    fontFamily: 'var(--font-mono)',
                     marginTop: '0.25rem',
                   }}
                 >
@@ -347,7 +347,7 @@ function AssessmentDetailPage() {
               <div style={{ textAlign: 'center', flexShrink: 0 }}>
                 <div
                   style={{
-                    fontFamily: "'Orbitron', sans-serif",
+                    fontFamily: 'var(--font-display)',
                     fontSize: '2rem',
                     fontWeight: 700,
                     lineHeight: 1,
@@ -372,9 +372,9 @@ function AssessmentDetailPage() {
                   <span
                     className="text-xs font-semibold px-2 py-0.5 rounded"
                     style={{
-                      backgroundColor: 'rgba(255, 51, 102, 0.15)',
-                      color: '#ff3366',
-                      border: '1px solid rgba(255, 51, 102, 0.3)',
+                      backgroundColor: 'var(--nx-red-aura)',
+                      color: 'var(--nx-red-glow)',
+                      border: '1px solid var(--nx-red-glow)',
                     }}
                   >
                     Blocker Found
@@ -393,7 +393,7 @@ function AssessmentDetailPage() {
                   style={{
                     height: '100%',
                     width: `${(completedCount / 5) * 100}%`,
-                    backgroundColor: hasBlocker ? '#ff3366' : 'var(--nx-cyan-base)',
+                    backgroundColor: hasBlocker ? 'var(--nx-red-glow)' : 'var(--nx-cyan-base)',
                     borderRadius: '9999px',
                     transition: 'width 300ms ease',
                   }}
@@ -420,7 +420,7 @@ function AssessmentDetailPage() {
                         className="text-xs"
                         style={{
                           color: checkpointStatusColor[status],
-                          fontFamily: "'JetBrains Mono', monospace",
+                          fontFamily: 'var(--font-mono)',
                         }}
                       >
                         {score > 0 ? `${score}/5` : '--'}
@@ -473,7 +473,7 @@ function AssessmentDetailPage() {
             className="text-lg font-semibold mb-2"
             style={{
               color: 'var(--nx-text-primary)',
-              fontFamily: "'Orbitron', sans-serif",
+              fontFamily: 'var(--font-display)',
               fontSize: '16px',
               letterSpacing: '0.03em',
             }}
@@ -491,7 +491,7 @@ function AssessmentDetailPage() {
             className="mb-8"
             style={{
               background: 'var(--nx-glass-medium)',
-              border: '1px solid rgba(0, 212, 255, 0.2)',
+              border: '1px solid var(--color-border-strong)',
               borderRadius: '12px',
               padding: '1.5rem',
               backdropFilter: 'blur(8px)',
@@ -501,7 +501,7 @@ function AssessmentDetailPage() {
               className="text-lg font-semibold mb-4"
               style={{
                 color: 'var(--nx-text-primary)',
-                fontFamily: "'Orbitron', sans-serif",
+                fontFamily: 'var(--font-display)',
                 fontSize: '16px',
                 letterSpacing: '0.03em',
               }}
@@ -515,11 +515,12 @@ function AssessmentDetailPage() {
                 gap: '1rem',
               }}
             >
-              <MetricItem label="Time Saved / Use" value={`${assessment.estimatedMetrics.timeSavedPerUse} min`} color="var(--nx-green-base)" />
-              <MetricItem label="Uses / Week" value={String(assessment.estimatedMetrics.usesPerWeek)} />
+              <MetricItem label="Time Saved / Use" value={`${assessment.estimatedMetrics.timeSavedPerUseMinutes} min`} color="var(--nx-green-base)" />
               <MetricItem label="Money Saved / Use" value={formatMoney(assessment.estimatedMetrics.moneySavedPerUse)} color="var(--nx-amber-base)" />
-              <MetricItem label="Revenue / Use" value={formatMoney(assessment.estimatedMetrics.revenuePerUse)} color="#a78bfa" />
-              <MetricItem label="Error Reduction" value={`${assessment.estimatedMetrics.errorReduction}%`} color="var(--nx-cyan-base)" />
+              <MetricItem label="Revenue / Use" value={formatMoney(assessment.estimatedMetrics.revenuePerUse)} color="var(--nx-violet-glow)" />
+              <MetricItem label="Users" value={String(assessment.estimatedMetrics.numberOfUsers)} />
+              <MetricItem label={`Uses / User / ${assessment.estimatedMetrics.frequencyPeriod === 'daily' ? 'Day' : assessment.estimatedMetrics.frequencyPeriod === 'weekly' ? 'Week' : 'Month'}`} value={String(assessment.estimatedMetrics.usesPerUserPerPeriod)} />
+              <MetricItem label="Frequency" value={assessment.estimatedMetrics.frequencyPeriod.charAt(0).toUpperCase() + assessment.estimatedMetrics.frequencyPeriod.slice(1)} color="var(--nx-cyan-base)" />
             </div>
           </div>
         )}
@@ -530,7 +531,7 @@ function AssessmentDetailPage() {
             className="mb-8"
             style={{
               background: 'var(--nx-glass-medium)',
-              border: '1px solid rgba(0, 212, 255, 0.2)',
+              border: '1px solid var(--color-border-strong)',
               borderRadius: '12px',
               padding: '1.5rem',
               backdropFilter: 'blur(8px)',
@@ -540,7 +541,7 @@ function AssessmentDetailPage() {
               className="text-lg font-semibold mb-4"
               style={{
                 color: 'var(--nx-text-primary)',
-                fontFamily: "'Orbitron', sans-serif",
+                fontFamily: 'var(--font-display)',
                 fontSize: '16px',
                 letterSpacing: '0.03em',
               }}
@@ -554,9 +555,9 @@ function AssessmentDetailPage() {
                 gap: '1rem',
               }}
             >
-              <MetricItem label="One-Time Investment" value={formatMoney(assessment.estimatedCosts.totalOneTime)} color="#ff6b6b" />
-              <MetricItem label="Monthly Recurring" value={formatMoney(assessment.estimatedCosts.totalMonthlyRecurring)} color="#ff6b6b" />
-              <MetricItem label="Annual Recurring" value={formatMoney(assessment.estimatedCosts.totalAnnualRecurring)} color="#ff6b6b" />
+              <MetricItem label="One-Time Investment" value={formatMoney(assessment.estimatedCosts.totalOneTime)} color="var(--nx-red-glow)" />
+              <MetricItem label="Monthly Recurring" value={formatMoney(assessment.estimatedCosts.totalMonthlyRecurring)} color="var(--nx-red-glow)" />
+              <MetricItem label="Annual Recurring" value={formatMoney(assessment.estimatedCosts.totalAnnualRecurring)} color="var(--nx-red-glow)" />
             </div>
             {assessment.estimatedCosts.notes && (
               <p style={{ fontSize: '13px', color: 'var(--nx-text-tertiary)', marginTop: '1rem' }}>
@@ -570,7 +571,7 @@ function AssessmentDetailPage() {
         {assessment.tags.length > 0 && (
           <div
             className="flex gap-2 flex-wrap pt-4"
-            style={{ borderTop: '1px solid rgba(0, 212, 255, 0.1)' }}
+            style={{ borderTop: '1px solid var(--nx-cyan-aura)' }}
           >
             {assessment.tags.map((tag) => (
               <span
@@ -614,7 +615,7 @@ function MetricItem({
       </div>
       <div
         style={{
-          fontFamily: "'JetBrains Mono', monospace",
+          fontFamily: 'var(--font-mono)',
           fontSize: '16px',
           fontWeight: 600,
           color: color || 'var(--nx-text-primary)',

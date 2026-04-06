@@ -1,6 +1,7 @@
 // ── Auth & User types ──────────────────────────────────────────────
 
 export type UserRole = 'user' | 'admin';
+export type UserStatus = 'active' | 'pending' | 'disabled';
 
 export interface User {
   id: string;
@@ -8,6 +9,7 @@ export interface User {
   firstName: string;
   lastName: string;
   role: UserRole;
+  status: UserStatus;
   password: string; // plaintext for now — will be replaced by EntraID/MSAL
   createdAt: string;
   updatedAt: string;
@@ -295,11 +297,12 @@ export interface Assessment {
   status: AssessmentStatus;
   tags: string[];
   estimatedMetrics: {
-    timeSavedPerUse: number;
-    usesPerWeek: number;
+    timeSavedPerUseMinutes: number;
     moneySavedPerUse: number;
     revenuePerUse: number;
-    errorReduction: number;
+    numberOfUsers: number;
+    usesPerUserPerPeriod: number;
+    frequencyPeriod: FrequencyPeriod;
   };
   estimatedCosts: {
     buildCostInternal: number;

@@ -10,6 +10,7 @@ import { promptRoutes } from './routes/prompts.js';
 import { userRoutes } from './routes/users.js';
 import { aiReadinessRoutes } from './routes/aiReadiness.js';
 import { assessmentRoutes } from './routes/assessments.js';
+import { setupRoutes } from './routes/setup.js';
 
 const server = Fastify({ logger: true });
 
@@ -27,6 +28,7 @@ await seedDatabase();
 server.get('/api/health', async () => ({ status: 'ok' }));
 
 // Register route plugins
+await server.register(setupRoutes);
 await server.register(authRoutes);
 await server.register(useCaseRoutes);
 await server.register(promptRoutes);
@@ -51,7 +53,8 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 try {
-  await server.listen({ port: 3001, host: '0.0.0.0' });
+  const port = parseInt(process.env.PORT || '3001', 10);
+  await server.listen({ port, host: '0.0.0.0' });
 } catch (err) {
   server.log.error(err);
   process.exit(1);

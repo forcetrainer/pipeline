@@ -5,3 +5,8 @@ dist
 server/dist
 *.db
 .git
+backups
+.last-build-tag
+.env
+.env.*
+scripts
