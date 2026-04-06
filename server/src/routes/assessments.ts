@@ -80,11 +80,23 @@ const CHECKPOINT_NAMES = [
   'risk_governance',
 ] as const;
 
+function normalizeEstimatedMetrics(raw: Record<string, unknown>) {
+  return {
+    timeSavedPerUseMinutes: raw.timeSavedPerUseMinutes ?? raw.timeSavedPerUse ?? 0,
+    moneySavedPerUse: raw.moneySavedPerUse ?? 0,
+    revenuePerUse: raw.revenuePerUse ?? 0,
+    numberOfUsers: raw.numberOfUsers ?? 1,
+    usesPerUserPerPeriod: raw.usesPerUserPerPeriod ?? raw.usesPerWeek ?? 0,
+    frequencyPeriod: raw.frequencyPeriod ?? 'weekly',
+  };
+}
+
 function parseAssessment(row: AssessmentRow) {
+  const rawMetrics = JSON.parse(row.estimatedMetrics);
   return {
     ...row,
     tags: JSON.parse(row.tags),
-    estimatedMetrics: JSON.parse(row.estimatedMetrics),
+    estimatedMetrics: normalizeEstimatedMetrics(rawMetrics),
     estimatedCosts: JSON.parse(row.estimatedCosts),
   };
 }
